@@ -1,24 +1,24 @@
 [versions]
-agp = "8.7.3"
-kotlin = "2.0.21"
-kotlinxSerializationJson = "1.7.3"
-kotlinxCoroutines = "1.9.0"
-composeBom = "2024.12.01"
-coreKtx = "1.15.0"
-coreSplashscreen = "1.0.1"
-activityCompose = "1.9.3"
-lifecycle = "2.8.7"
-navigationCompose = "2.8.5"
-datastore = "1.1.1"
-work = "2.10.0"
+agp = "9.5.2"
+kotlin = "2.4.21"
+kotlinxSerializationJson = "1.13.0"
+kotlinxCoroutines = "1.11.0"
+composeBom = "2026.11.01"
+coreKtx = "1.19.1"
+coreSplashscreen = "1.2.0"
+activityCompose = "1.13.0"
+lifecycle = "2.11.1"
+navigationCompose = "2.10.2"
+datastore = "1.3.0"
+work = "2.12.0"
 junit4 = "4.13.2"
-robolectric = "4.14.1"
-roborazzi = "1.39.0"
-androidxTestCore = "1.6.1"
-androidxTestRunner = "1.6.2"
-androidxTestRules = "1.6.1"
-androidxTestExtJunit = "1.2.1"
-espresso = "3.6.1"
+robolectric = "4.18.1"
+roborazzi = "1.79.0"
+androidxTestCore = "1.7.0"
+androidxTestRunner = "1.7.0"
+androidxTestRules = "1.7.0"
+androidxTestExtJunit = "1.3.0"
+espresso = "3.7.0"
 
 [libraries]
 # Kotlinx
@@ -26,7 +26,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
-kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 
 # AndroidX Core, Lifecycle, Navigation, DataStore, WorkManager
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,7 +41,7 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 androidx-work-testing = { group = "androidx.work", name = "work-testing", version.ref = "work" }
 
-# Jetpack Compose (governed by BOM 2024.12.01 -> Compose 1.7.6 / Material3 1.3.1)
+# Jetpack Compose (governed by BOM 2026.11.01 -> Compose 1.13.0 / Material3 1.5.0)
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -72,7 +72,6 @@ roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "robora
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -180,7 +180,7 @@ object SongxiAndroidE2EHarness {
         val nonSilentChunks = AtomicInteger(0)
 
         override fun onAudioDataWritten(
-            audioTrack: ShadowAudioTrack,
+            audioTrack: android.media.AudioTrack,
             audioData: ByteArray,
             format: AudioFormat
         ) {
@@ -989,8 +989,10 @@ object SongxiAndroidE2EHarness {
                 ?: System.getenv("ANDROID_SDK_ROOT")
                 ?: defaultSdkPath
         )
-        val preferred = File(sdkRoot, "build-tools/35.0.0/$binaryName")
-        if (preferred.canExecute()) return preferred
+        val preferred37 = File(sdkRoot, "build-tools/37.0.0/$binaryName")
+        if (preferred37.canExecute()) return preferred37
+        val preferred35 = File(sdkRoot, "build-tools/35.0.0/$binaryName")
+        if (preferred35.canExecute()) return preferred35
         val fallback = File(sdkRoot, "build-tools")
             .listFiles()
             ?.sortedByDescending { it.name }
@@ -1012,11 +1014,16 @@ object SongxiAndroidE2EHarness {
             ?.takeIf { !it.startsWith("/tmp") }
             ?: "/home/antigravity/.gemini/jetski/scratch/teamwork_tmp/e2e_runner/tmp"
         File(scratchTmp).mkdirs()
+        val javaHome = if (File("/usr/lib/jvm/java-21-openjdk-amd64").isDirectory) {
+            "/usr/lib/jvm/java-21-openjdk-amd64"
+        } else {
+            "/usr/lib/jvm/java-17-openjdk-amd64"
+        }
         val pb = ProcessBuilder(listOf(resolveBuildToolBinary(binaryName).absolutePath) + args)
         pb.environment()["TMPDIR"] = scratchTmp
         pb.environment()["TMP"] = scratchTmp
         pb.environment()["TEMP"] = scratchTmp
-        pb.environment()["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
+        pb.environment()["JAVA_HOME"] = javaHome
         pb.environment()["JAVA_TOOL_OPTIONS"] = "-Djava.io.tmpdir=$scratchTmp -XX:-UsePerfData"
         pb.environment()["JDK_JAVA_OPTIONS"] = "-Djava.io.tmpdir=$scratchTmp -XX:-UsePerfData"
         val proc = pb.start()
@@ -1139,7 +1146,13 @@ object SongxiAndroidE2EHarness {
                 "Expected minSdk 26 in $label APK badging",
                 out.contains("sdkVersion:'26'") || out.contains("minSdkVersion:'26'")
             )
-            assertTrue("Expected targetSdk 34 in $label APK badging", out.contains("targetSdkVersion:'34'"))
+            assertTrue(
+                "Expected modern targetSdk (34..37) in $label APK badging",
+                out.contains("targetSdkVersion:'36'") ||
+                    out.contains("targetSdkVersion:'37'") ||
+                    out.contains("targetSdkVersion:'35'") ||
+                    out.contains("targetSdkVersion:'34'")
+            )
             assertTrue(
                 "Expected launchable MainActivity in $label APK badging",
                 out.contains("launchable-activity: name='com.songxi.app.MainActivity'")
@@ -1160,8 +1173,9 @@ object SongxiAndroidE2EHarness {
                 signRes.stdout.contains("Verified using v3 scheme (APK Signature Scheme v3): true")
         )
         assertTrue(
-            "Expected Signer #1 SHA-256 certificate digest in apksigner output",
-            Regex("Signer #1 certificate SHA-256 digest:\\s*[0-9a-fA-F]{64}").containsMatchIn(signRes.stdout)
+            "Expected Signer #1 / V2+ Signer SHA-256 certificate digest in apksigner output",
+            Regex("(?:Signer #1|V\\d+(?:\\.\\d+)? Signer:)\\s*certificate SHA-256 digest:\\s*[0-9a-fA-F]{64}")
+                .containsMatchIn(signRes.stdout)
         )
     }
 

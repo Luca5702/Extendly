@@ -2,27 +2,27 @@
 set -euo pipefail
 
 # ==============================================================================
-# Songxi (松息) — Idempotent Non-/tmp JDK 17 + Android SDK + Gradle 8.10.2 Setup
-# Safe to BOTH execute (`bash /home/antigravity/env-setup.sh`) and `source`.
+# Songxi (松息) — Idempotent Non-/tmp JDK 21 + Android SDK 37 + Gradle 9.9.2 Setup
+# Safe to BOTH execute (`bash env-setup.sh`) and `source`.
 # ==============================================================================
 
-if [ ! -d "/usr/lib/jvm/java-17-openjdk-amd64" ] && command -v sudo >/dev/null 2>&1; then
-  sudo apt-get update -qq >/dev/null 2>&1 && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-17-jdk-headless >/dev/null 2>&1 || true
+if [ ! -d "/usr/lib/jvm/java-21-openjdk-amd64" ] && command -v sudo >/dev/null 2>&1; then
+  sudo apt-get update -qq >/dev/null 2>&1 && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-21-jdk-headless >/dev/null 2>&1 || true
 fi
-if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-elif [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
+if [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
   export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+elif [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 fi
 
-if [ -d "/opt/android-sdk/platforms/android-35" ] && [ -d "/opt/android-sdk/platforms/android-34" ] && [ -x "/opt/android-sdk/build-tools/35.0.0/aapt2" ]; then
+if [ -d "/opt/android-sdk/platforms" ] && [ -d "/opt/android-sdk/build-tools" ]; then
   export ANDROID_HOME="/opt/android-sdk"
 else
   export ANDROID_HOME="/home/antigravity/.android-sdk"
 fi
 export ANDROID_SDK_ROOT="${ANDROID_HOME}"
 export GRADLE_USER_HOME="/home/antigravity/.gradle"
-export GRADLE_DIST_HOME="${GRADLE_USER_HOME}/gradle-dist/gradle-8.10.2"
+export GRADLE_DIST_HOME="${GRADLE_USER_HOME}/gradle-dist/gradle-9.9.2"
 
 # Preserve caller-specific non-/tmp TMPDIR; only fall back to default_env/tmp when unset or /tmp*
 SONGXI_DEFAULT_TMP="/home/antigravity/.gemini/jetski/scratch/teamwork_tmp/default_env/tmp"
@@ -127,18 +127,18 @@ if grep -qE 'case \$- in|\[ -z "\$PS1" \] && return' "${BASHRC_FILE}" 2>/dev/nul
   sed -i '/case \$- in/,/esac/d; /\[ -z "\$PS1" \] && return/d' "${BASHRC_FILE}" 2>/dev/null || true
 fi
 
-if ! grep -qxF '# songxi-android-env-v4' "${BASHRC_FILE}" 2>/dev/null; then
+if ! grep -qxF '# songxi-android-env-v5' "${BASHRC_FILE}" 2>/dev/null; then
   sed -i '/# >>> songxi-android-env >>>/,/# <<< songxi-android-env <<</d' "${BASHRC_FILE}" 2>/dev/null || true
   cat >> "${BASHRC_FILE}" <<'EOF'
 
 # >>> songxi-android-env >>>
-# songxi-android-env-v4
-if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
-  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-elif [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
+# songxi-android-env-v5
+if [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
   export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+elif [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 fi
-if [ -d "/opt/android-sdk/platforms/android-35" ]; then
+if [ -d "/opt/android-sdk/platforms" ]; then
   export ANDROID_HOME="/opt/android-sdk"
 else
   export ANDROID_HOME="/home/antigravity/.android-sdk"
@@ -204,9 +204,10 @@ fi
 unset _sx_ts _sx_jto _sx_ext _sx_pr _sx_gp
 for _sx_p in \
   "${ANDROID_HOME}/cmdline-tools/latest/bin" \
+  "${ANDROID_HOME}/build-tools/37.0.0" \
   "${ANDROID_HOME}/build-tools/35.0.0" \
   "${ANDROID_HOME}/platform-tools" \
-  "${GRADLE_USER_HOME}/gradle-dist/gradle-8.10.2/bin" \
+  "${GRADLE_USER_HOME}/gradle-dist/gradle-9.9.2/bin" \
   "${JAVA_HOME}/bin"; do
   case ":${PATH:-}:" in
     *":${_sx_p}:"*) ;;
@@ -232,34 +233,21 @@ if [ ! -x "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" ]; then
 fi
 
 # 3. Accept licenses & install ONLY required SDK packages (NO emulator, NO system-images)
-#    Fast-path check skips sdkmanager JVM startup (<0.02s) when all packages + licenses exist!
 if [ ! -f "${ANDROID_HOME}/licenses/android-sdk-license" ] || \
    [ ! -x "${ANDROID_HOME}/platform-tools/adb" ] || \
-   [ ! -f "${ANDROID_HOME}/platforms/android-35/android.jar" ] || \
+   [ ! -f "${ANDROID_HOME}/platforms/android-37.2/android.jar" ] || \
+   [ ! -f "${ANDROID_HOME}/platforms/android-36/android.jar" ] || \
    [ ! -f "${ANDROID_HOME}/platforms/android-34/android.jar" ] || \
-   [ ! -x "${ANDROID_HOME}/build-tools/35.0.0/aapt2" ] || \
-   [ ! -x "${ANDROID_HOME}/build-tools/34.0.0/aapt2" ]; then
+   [ ! -x "${ANDROID_HOME}/build-tools/37.0.0/aapt2" ]; then
   (
     set +o pipefail
     yes | "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${ANDROID_HOME}" --licenses >/dev/null
   )
   "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --sdk_root="${ANDROID_HOME}" \
     "platform-tools" \
-    "platforms;android-35" \
+    "platforms;android-37.2" \
+    "platforms;android-36" \
     "platforms;android-34" \
-    "build-tools;35.0.0" \
-    "build-tools;34.0.0"
-fi
-
-# 4. Bootstrap standalone Gradle 8.10.2 binary (for `gradle wrapper` generation) — skipped once installed
-if [ ! -x "${GRADLE_DIST_HOME}/bin/gradle" ]; then
-  GRADLE_STAGE="${GRADLE_USER_HOME}/.gradle-stage-$$"
-  GRADLE_ZIP="${GRADLE_STAGE}/gradle-8.10.2-bin.zip"
-  rm -rf "${GRADLE_STAGE}"
-  mkdir -p "${GRADLE_STAGE}" "${GRADLE_USER_HOME}/gradle-dist"
-  curl -fsSL "https://services.gradle.org/distributions/gradle-8.10.2-bin.zip" -o "${GRADLE_ZIP}"
-  unzip -q -o "${GRADLE_ZIP}" -d "${GRADLE_STAGE}/extract"
-  rm -rf "${GRADLE_DIST_HOME}"
-  mv "${GRADLE_STAGE}/extract/gradle-8.10.2" "${GRADLE_DIST_HOME}"
-  rm -rf "${GRADLE_STAGE}"
+    "build-tools;37.0.0" \
+    "build-tools;35.0.0"
 fi

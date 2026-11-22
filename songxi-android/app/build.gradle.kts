@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.roborazzi)
@@ -10,12 +9,13 @@ plugins {
 
 android {
     namespace = "com.songxi.app"
-    compileSdk = 35
+    compileSdk = 37
+    compileSdkMinor = 2
 
     defaultConfig {
         applicationId = "com.songxi.app"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -36,8 +36,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     packaging {
@@ -68,24 +68,24 @@ android {
 
 if (project.findProperty("songxi.e2e") == "true") {
     val e2eDir = rootProject.file("../e2e-tests/android/src/test/kotlin")
-    android.sourceSets.getByName("test").java.srcDir(e2eDir)
-    android.sourceSets.getByName("test").kotlin.srcDir(e2eDir)
+    android.sourceSets.getByName("test").java.directories.add(e2eDir.path)
+    android.sourceSets.getByName("test").kotlin.directories.add(e2eDir.path)
 
     val e2eJavaDir = rootProject.file("../e2e-tests/android/src/test/java")
     if (e2eJavaDir.exists()) {
-        android.sourceSets.getByName("test").java.srcDir(e2eJavaDir)
-        android.sourceSets.getByName("test").kotlin.srcDir(e2eJavaDir)
+        android.sourceSets.getByName("test").java.directories.add(e2eJavaDir.path)
+        android.sourceSets.getByName("test").kotlin.directories.add(e2eJavaDir.path)
     }
 
     val e2eResDir = rootProject.file("../e2e-tests/android/src/test/resources")
     if (e2eResDir.exists()) {
-        android.sourceSets.getByName("test").resources.srcDir(e2eResDir)
+        android.sourceSets.getByName("test").resources.directories.add(e2eResDir.path)
     }
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
