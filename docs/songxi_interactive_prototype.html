@@ -1,0 +1,3371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>松息 Sōngxī · 独立 Android 原生应用高保真交互原型</title>
+  <meta name="description" content="松息（Sōngxī）独立原生 Android 应用交互原型：内置水墨远山、青绿山居、暮山听松、春涧花影四款免费画境，支持开屏雅鉴七重频控、六区身体寻音配帖、4s/6s 闭眼余光跟练器、翻转静默暂存、微风久坐提醒与水纹手札。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='4' fill='none' stroke='%23B5493A' stroke-width='2.5'/%3E%3C/svg%3E" />
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background-color: var(--background, #EDE8DE);
+      color: var(--foreground, #262B28);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, p, ul, figure, article, section, footer, header, nav, aside { margin: 0; }
+    button { font: inherit; color: inherit; background: transparent; border: 1px solid transparent; cursor: pointer; padding: 0; }
+    svg { display: block; max-width: 100%; }
+    .font-serif-cn { font-family: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif; }
+    .font-sans-cn { font-family: "Noto Sans CJK SC", "Source Han Sans SC", "PingFang SC", sans-serif; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    /* Offline-resilient utility sheet (mirrors Tailwind classes when CDN is unreachable) */
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0.01; pointer-events: none; }
+    .block { display: block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-1 { flex: 1 1 0%; }
+    .shrink-0 { flex-shrink: 0; }
+    .min-w-0 { min-width: 0; }
+    .min-h-0 { min-height: 0; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .inset-x-3 { left: 12px; right: 12px; }
+    .bottom-3 { bottom: 12px; }
+    .z-10 { z-index: 10; } .z-20 { z-index: 20; } .z-30 { z-index: 30; } .z-40 { z-index: 40; }
+    .pointer-events-none { pointer-events: none; }
+    .select-none { user-select: none; }
+    .cursor-pointer { cursor: pointer; }
+    .grid-cols-1 { grid-template-columns: minmax(0, 1fr); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .col-span-5 { grid-column: span 5 / span 5; }
+    .col-span-7 { grid-column: span 7 / span 7; }
+    .gap-0\.5 { gap: 2px; } .gap-1 { gap: 4px; } .gap-1\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; } .gap-2\.5 { gap: 10px; } .gap-3 { gap: 12px; } .gap-7 { gap: 28px; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .space-y-1\.5 > * + * { margin-top: 6px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-2\.5 > * + * { margin-top: 10px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-3\.5 > * + * { margin-top: 14px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .w-full { width: 100%; } .h-full { height: 100%; }
+    .w-\[380px\] { width: 380px; }
+    .w-2 { width: 8px; } .h-2 { height: 8px; }
+    .h-8 { height: 32px; } .h-10 { height: 40px; }
+    .w-12 { width: 48px; } .h-12 { height: 48px; } .h-16 { height: 64px; }
+    .h-32 { height: 128px; } .h-40 { height: 160px; } .h-44 { height: 176px; }
+    .w-48 { width: 192px; } .h-48 { height: 192px; }
+    .w-56 { width: 224px; } .h-56 { height: 224px; }
+    .w-60 { width: 240px; } .h-60 { height: 240px; }
+    .h-\[100dvh\] { height: 100dvh; }
+    .min-h-screen { min-height: 100vh; }
+    .max-w-6xl { max-width: 72rem; }
+    .min-h-\[28px\] { min-height: 28px; } .min-h-\[30px\] { min-height: 30px; }
+    .min-h-\[32px\] { min-height: 32px; } .min-h-\[34px\] { min-height: 34px; }
+    .min-h-\[36px\] { min-height: 36px; } .min-h-\[38px\] { min-height: 38px; }
+    .min-h-\[40px\] { min-height: 40px; } .min-h-\[42px\] { min-height: 42px; } .min-h-\[44px\] { min-height: 44px; }
+    .min-w-\[48px\] { min-width: 48px; } .min-w-\[52px\] { min-width: 52px; }
+    .m-0 { margin: 0; } .mx-auto { margin-left: auto; margin-right: auto; } .mx-3 { margin-left: 12px; margin-right: 12px; }
+    .my-1 { margin-top: 4px; margin-bottom: 4px; } .my-2 { margin-top: 8px; margin-bottom: 8px; }
+    .mt-0\.5 { margin-top: 2px; } .mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; }
+    .mb-1\.5 { margin-bottom: 6px; } .ml-1\.5 { margin-left: 6px; }
+    .p-0 { padding: 0; } .p-2\.5 { padding: 10px; } .p-3 { padding: 12px; } .p-3\.5 { padding: 14px; }
+    .p-4 { padding: 16px; } .p-5 { padding: 20px; }
+    .px-2 { padding-left: 8px; padding-right: 8px; } .px-2\.5 { padding-left: 10px; padding-right: 10px; }
+    .px-3 { padding-left: 12px; padding-right: 12px; } .px-3\.5 { padding-left: 14px; padding-right: 14px; }
+    .px-4 { padding-left: 16px; padding-right: 16px; } .px-5 { padding-left: 20px; padding-right: 20px; }
+    .py-0\.5 { padding-top: 2px; padding-bottom: 2px; } .py-1 { padding-top: 4px; padding-bottom: 4px; }
+    .py-1\.5 { padding-top: 6px; padding-bottom: 6px; } .py-2 { padding-top: 8px; padding-bottom: 8px; }
+    .py-2\.5 { padding-top: 10px; padding-bottom: 10px; } .py-3 { padding-top: 12px; padding-bottom: 12px; }
+    .py-6 { padding-top: 24px; padding-bottom: 24px; }
+    .pt-0\.5 { padding-top: 2px; } .pt-1 { padding-top: 4px; } .pt-2 { padding-top: 8px; }
+    .pb-3 { padding-bottom: 12px; } .pb-4 { padding-bottom: 16px; }
+    .overflow-hidden { overflow: hidden; } .overflow-y-auto { overflow-y: auto; } .overflow-x-hidden { overflow-x: hidden; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .whitespace-nowrap { white-space: nowrap; }
+    .border { border: 1px solid var(--sx-border, rgba(72,99,86,0.2)); }
+    .border-t { border-top: 1px solid var(--sx-border, rgba(72,99,86,0.16)); }
+    .border-b { border-bottom: 1px solid rgba(72,99,86,0.14); }
+    .rounded-lg { border-radius: 8px; } .rounded-xl { border-radius: 12px; }
+    .rounded-2xl { border-radius: 16px; } .rounded-3xl { border-radius: 24px; }
+    .rounded-\[22px\] { border-radius: 22px; } .rounded-\[24px\] { border-radius: 24px; } .rounded-full { border-radius: 9999px; }
+    .bg-\[var\(--card\,\#FAF7F1\)\] { background-color: var(--card, #FAF7F1); }
+    .bg-\[var\(--background\,\#F3EFE7\)\] { background-color: var(--background, #F3EFE7); }
+    .shadow-sm { box-shadow: 0 2px 10px rgba(38,43,40,0.05); }
+    .shadow-md { box-shadow: 0 8px 24px rgba(38,43,40,0.08); }
+    .shadow-lg { box-shadow: 0 12px 32px rgba(38,43,40,0.14); }
+    .text-\[10px\] { font-size: 10px; line-height: 1.4; }
+    .text-\[11px\] { font-size: 11px; line-height: 1.4; }
+    .text-xs { font-size: 12px; line-height: 1.48; }
+    .text-sm { font-size: 14px; line-height: 1.5; }
+    .text-base { font-size: 16px; line-height: 1.5; }
+    .text-lg { font-size: 18px; line-height: 1.4; }
+    .text-xl { font-size: 20px; line-height: 1.35; }
+    .text-2xl { font-size: 24px; line-height: 1.3; }
+    .font-medium { font-weight: 500; } .font-semibold { font-weight: 600; }
+    .text-left { text-align: left; } .text-center { text-align: center; } .text-right { text-align: right; }
+    .leading-relaxed { line-height: 1.6; } .leading-snug { line-height: 1.38; }
+    .tracking-wide { letter-spacing: 0.025em; } .tracking-wider { letter-spacing: 0.05em; }
+    .tracking-widest { letter-spacing: 0.1em; } .tracking-\[0\.06em\] { letter-spacing: 0.06em; }
+    .tracking-\[0\.16em\] { letter-spacing: 0.16em; } .uppercase { text-transform: uppercase; }
+    .opacity-80 { opacity: 0.8; }
+    @media (min-width: 640px) {
+      .sm\:w-\[392px\] { width: 392px; }
+      .sm\:h-\[832px\] { height: 832px; }
+      .sm\:rounded-\[40px\] { border-radius: 40px; }
+      .sm\:border-\[6px\] { border-width: 6px; border-style: solid; }
+      .sm\:shadow-xl { box-shadow: 0 22px 54px rgba(38,43,40,0.16); }
+      .sm\:py-5 { padding-top: 20px; padding-bottom: 20px; }
+      .sm\:px-4 { padding-left: 16px; padding-right: 16px; }
+    }
+    @media (min-width: 1024px) {
+      .lg\:flex { display: flex !important; }
+      .lg\:flex-row { flex-direction: row; }
+      .lg\:items-start { align-items: flex-start; }
+    }
+
+    /* Scoped 5D SongxiSkin Tokens on .songxi-app-shell — never touches host global scope */
+    .songxi-app-shell[data-skin="ink_mist"] {
+      --sx-bg: #F5F1E8;
+      --sx-sky-top: #EBE5D8;
+      --sx-card: #FAF7F1;
+      --sx-card-subtle: #ECE6DA;
+      --sx-overlay: rgba(245, 241, 232, 0.96);
+      --sx-border: #DCD5C7;
+      --sx-ink: #262B28;
+      --sx-ink-sec: #5C645F;
+      --sx-ink-soft: #5E6661;
+      --sx-accent: #486356;
+      --sx-accent-soft: #DCE5DF;
+      --sx-accent-glow: rgba(72, 99, 86, 0.24);
+      --sx-sec-accent: #91674B;
+      --sx-seal: #B5493A;
+      --sx-on-accent: #FAF7F1;
+      --sx-grain-alpha: 0.035;
+      --sx-radius: 24px;
+    }
+
+    .songxi-app-shell[data-skin="qinglv_celadon"] {
+      --sx-bg: #EEF3EE;
+      --sx-sky-top: #DFECE6;
+      --sx-card: #F7FAF7;
+      --sx-card-subtle: #E3EDE7;
+      --sx-overlay: rgba(238, 243, 238, 0.96);
+      --sx-border: #CBDAD2;
+      --sx-ink: #1E2E2B;
+      --sx-ink-sec: #4F635E;
+      --sx-ink-soft: #536762;
+      --sx-accent: #35685C;
+      --sx-accent-soft: #D6E7E1;
+      --sx-accent-glow: rgba(53, 104, 92, 0.25);
+      --sx-sec-accent: #2F5669;
+      --sx-seal: #B84435;
+      --sx-on-accent: #F7FAF7;
+      --sx-grain-alpha: 0.028;
+      --sx-radius: 20px;
+    }
+
+    .songxi-app-shell[data-skin="dusk_pine"] {
+      --sx-bg: #19201E;
+      --sx-sky-top: #212C29;
+      --sx-card: #232D2A;
+      --sx-card-subtle: #1D2623;
+      --sx-overlay: rgba(22, 28, 26, 0.97);
+      --sx-border: #33413D;
+      --sx-ink: #E6E1D6;
+      --sx-ink-sec: #A6B2AB;
+      --sx-ink-soft: #98A59E;
+      --sx-accent: #86AA96;
+      --sx-accent-soft: #2B3B35;
+      --sx-accent-glow: rgba(134, 170, 150, 0.28);
+      --sx-sec-accent: #C79A7A;
+      --sx-seal: #D47566;
+      --sx-on-accent: #161D1B;
+      --sx-grain-alpha: 0.040;
+      --sx-radius: 24px;
+    }
+
+    .songxi-app-shell[data-skin="spring_blossom"] {
+      --sx-bg: #F8F1EA;
+      --sx-sky-top: #F2E5DA;
+      --sx-card: #FDF9F5;
+      --sx-card-subtle: #EFE4DA;
+      --sx-overlay: rgba(248, 241, 234, 0.96);
+      --sx-border: #E2D3C6;
+      --sx-ink: #322926;
+      --sx-ink-sec: #685A54;
+      --sx-ink-soft: #6E5F58;
+      --sx-accent: #9B5A49;
+      --sx-accent-soft: #FAF0EC;
+      --sx-accent-glow: rgba(155, 90, 73, 0.24);
+      --sx-sec-accent: #4E7266;
+      --sx-seal: #B54639;
+      --sx-on-accent: #FDF9F5;
+      --sx-grain-alpha: 0.032;
+      --sx-radius: 26px;
+    }
+
+    body,
+    body *,
+    body *::before,
+    body *::after {
+      transition-property: opacity, transform !important;
+    }
+
+    .songxi-app-shell {
+      background-color: var(--sx-bg);
+      color: var(--sx-ink);
+      border-color: var(--sx-border);
+    }
+
+    .sx-card {
+      background-color: var(--sx-card);
+      border: 1px solid var(--sx-border);
+      border-radius: var(--sx-radius);
+      color: var(--sx-ink);
+    }
+
+    .sx-card-subtle {
+      background-color: var(--sx-card-subtle);
+      border: 1px solid var(--sx-border);
+      border-radius: calc(var(--sx-radius) - 4px);
+      color: var(--sx-ink);
+    }
+
+    .sx-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sx-scroll::-webkit-scrollbar-thumb {
+      background: rgba(120, 130, 124, 0.25);
+      border-radius: 999px;
+    }
+
+    /* Eyes-free peripheral glow mode */
+    .songxi-app-shell[data-eyes-free="true"] .sx-eyes-dim {
+      opacity: 0.22;
+      transition: opacity 0.4s ease;
+    }
+    .songxi-app-shell[data-eyes-free="false"] .sx-eyes-dim {
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    @keyframes sxCloudDrift {
+      0%, 100% { transform: translateX(-7px); }
+      50% { transform: translateX(8px); }
+    }
+    .sx-cloud-drift { animation: sxCloudDrift 18s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-[var(--background,#EDE8DE)] text-[var(--foreground,#262B28)] font-sans-cn antialiased min-h-screen m-0 p-0 sm:py-5 sm:px-4 flex items-center justify-center overflow-x-hidden">
+  <!-- Procedural Paper, Silk & Ink Bleed SVG Defs -->
+  <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
+    <defs>
+      <filter id="sx-grain-xuan" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="3" stitchTiles="stitch" result="noise" />
+        <feColorMatrix type="saturate" values="0" in="noise" result="mono" />
+        <feComponentTransfer in="mono">
+          <feFuncA type="linear" slope="0.055" />
+        </feComponentTransfer>
+      </filter>
+      <filter id="sx-grain-silk" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="1.35 0.32" numOctaves="2" stitchTiles="stitch" result="silk" />
+        <feColorMatrix type="saturate" values="0" in="silk" result="monoSilk" />
+        <feComponentTransfer in="monoSilk">
+          <feFuncA type="linear" slope="0.048" />
+        </feComponentTransfer>
+      </filter>
+      <filter id="sx-ink-bleed" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="9" result="turb" />
+        <feDisplacementMap in="SourceGraphic" in2="turb" scale="2.0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-center gap-7">
+    <!-- Standalone Android Phone Viewport (.songxi-app-shell) -->
+    <main
+      id="songxi-phone-shell"
+      data-skin="ink_mist"
+      data-eyes-free="false"
+      class="songxi-app-shell relative w-full sm:w-[392px] h-[100dvh] sm:h-[832px] sm:rounded-[40px] sm:border-[6px] sm:shadow-xl overflow-hidden flex flex-col shrink-0 select-none"
+    >
+      <!-- Android System Status Bar Chrome -->
+      <div class="h-8 px-5 flex items-center justify-between text-[11px] shrink-0" style="color:var(--sx-ink-sec);">
+        <span id="status-clock-text" class="font-mono font-medium">09:30</span>
+        <span id="status-sanctuary-pill" class="tracking-wider font-serif-cn">松息 · 离线静心栖居</span>
+        <span id="status-keep-awake" class="font-mono text-[10px]">本地私密</span>
+      </div>
+
+      <!-- Gentle In-App Sedentary Reminder Nudge Banner (F13) -->
+      <div
+        id="el-reminder-banner"
+        data-testid="reminder_inapp_banner"
+        class="hidden mx-3 mb-1.5 px-3.5 py-2.5 rounded-2xl shadow-md flex items-center justify-between gap-2 z-30 border"
+        style="background-color:var(--sx-card);border-color:var(--sx-accent);"
+      >
+        <div class="min-w-0">
+          <p class="text-xs font-serif-cn font-semibold truncate" style="color:var(--sx-ink);">微风轻语 · 伏案已满一息</p>
+          <p class="text-[11px] truncate" style="color:var(--sx-ink-sec);">不妨摘下耳机，随 90 秒长叹轻轻沉肩。</p>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button
+            id="btn-reminder-banner-start"
+            type="button"
+            class="min-h-[34px] px-3 rounded-xl text-xs font-medium"
+            style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+          >
+            90秒舒展
+          </button>
+          <button
+            id="btn-reminder-banner-close"
+            type="button"
+            class="min-h-[34px] px-2 rounded-xl text-xs"
+            style="color:var(--sx-ink-sec);"
+            aria-label="收起提醒横幅"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Screen Stack -->
+      <div class="relative flex-1 min-h-0 flex flex-col overflow-hidden">
+        <!-- TAB 1: HOME SCREEN ("今日一息") -->
+        <section
+          id="view-home"
+          data-testid="home_screen"
+          class="flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3"
+        >
+          <!-- Gentle Inline First-Launch Sanctuary Card (F1) -->
+          <div
+            id="el-onboarding-card"
+            data-testid="onboarding_card"
+            class="sx-card p-3.5 space-y-2 shadow-sm"
+          >
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-[11px] tracking-widest font-medium" style="color:var(--sx-accent);">初见松息 · 免登录纯享栖居</p>
+                <h2 class="font-serif-cn text-sm font-semibold mt-0.5" style="color:var(--sx-ink);">一松一息，身自舒展</h2>
+              </div>
+              <span id="onboarding-seal-slot" class="shrink-0"></span>
+            </div>
+            <p class="text-xs leading-relaxed" style="color:var(--sx-ink-sec);">
+              全套微拉伸、四款山水插画画境与四册雅集 100% 永久免费开放，记录仅存于本机；唯一商业支持为每日克制呈现的 3 秒「开屏雅鉴」（首启免打扰）。
+            </p>
+            <div class="flex justify-end">
+              <button
+                id="btn-onboarding-enter"
+                data-testid="onboarding_enter_button"
+                type="button"
+                class="min-h-[36px] px-4 rounded-full text-xs font-medium transition hover:opacity-95"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                入席松息 · 知悉
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Greeting & Quick Active Skin Badge -->
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <div>
+              <p id="home-greeting-prefix" class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">远山淡影 · 宜沉肩缓息</p>
+              <h1 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">今日一息</h1>
+            </div>
+            <button
+              id="btn-home-skin-badge"
+              data-testid="home_active_skin_badge"
+              type="button"
+              class="min-h-[36px] px-3 rounded-full text-xs font-serif-cn flex items-center gap-1.5 border transition hover:opacity-90"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              <span id="home-skin-dot" class="w-2 h-2 rounded-full" style="background-color:var(--sx-accent);"></span>
+              <span id="home-skin-badge-text">水墨远山</span>
+            </button>
+          </div>
+
+          <!-- Layered Shan-Shui + Editorial Stretch Stage (F5, F7) -->
+          <div
+            id="el-home-backdrop"
+            data-testid="home_shanshui_backdrop"
+            class="h-40 rounded-[22px] overflow-hidden border relative"
+            style="border-color:var(--sx-border);"
+          ></div>
+
+          <!-- 3 Posture Scene Selector Pills (F7) -->
+          <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="所处场景切换">
+            <button id="btn-scene-desk" data-testid="home_scene_desk" data-scene="desk" type="button" aria-pressed="true" class="scene-pill min-h-[36px] rounded-xl text-xs font-medium border transition">工位坐姿</button>
+            <button id="btn-scene-tea" data-testid="home_scene_tea" data-scene="tea" type="button" aria-pressed="false" class="scene-pill min-h-[36px] rounded-xl text-xs font-medium border transition">桌边茶歇</button>
+            <button id="btn-scene-bed" data-testid="home_scene_bed" data-scene="bed" type="button" aria-pressed="false" class="scene-pill min-h-[36px] rounded-xl text-xs font-medium border transition">晚间床沿</button>
+          </div>
+
+          <!-- Hero Prescription Card (F7) -->
+          <article
+            id="el-home-hero-card"
+            data-testid="home_hero_card"
+            class="sx-card p-4 space-y-3 shadow-sm"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span id="hero-scene-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-medium" style="background-color:var(--sx-accent-soft);color:var(--sx-accent);">邻座无感 · 坐姿微幅</span>
+              <span id="hero-duration-badge" class="text-xs font-mono" style="color:var(--sx-ink-sec);">3 分钟 · 可闭眼</span>
+            </div>
+            <div>
+              <h2 id="hero-routine-title" class="font-serif-cn text-lg font-semibold tracking-wide" style="color:var(--sx-ink);">午后伏案 · 沉肩松颈帖</h2>
+              <p id="hero-routine-subtitle" class="text-xs mt-1 leading-relaxed" style="color:var(--sx-ink-sec);">不必起身换装，伴随温润泛音与微震，把耸起的双肩轻轻放下。</p>
+            </div>
+            <button
+              id="btn-home-start-hero"
+              data-testid="home_start_hero_button"
+              type="button"
+              class="w-full min-h-[44px] rounded-2xl text-sm font-serif-cn font-semibold tracking-wider transition hover:opacity-95 shadow-sm"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              开始一息 · 闭眼轻舒
+            </button>
+          </article>
+
+          <!-- 4 Quick Micro-Relief Shortcuts -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-medium tracking-wider" style="color:var(--sx-ink-sec);">片刻救急轻帖（全部免费直达）</h3>
+              <span class="text-[11px]" style="color:var(--sx-ink-soft);">90秒 – 3分钟</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btn-quick-0" data-testid="home_quick_routine_0" data-quick-idx="0" type="button" class="sx-card p-2.5 text-left hover:opacity-95 transition">
+                <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">连会余韵叹息</p>
+                <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">90秒 · 摘下耳机松开眉心与双肩</p>
+              </button>
+              <button id="btn-quick-1" data-testid="home_quick_routine_1" data-quick-idx="1" type="button" class="sx-card p-2.5 text-left hover:opacity-95 transition">
+                <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">久盯屏幕温目</p>
+                <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">2分钟 · 风池穴与眼周干涩舒缓</p>
+              </button>
+              <button id="btn-quick-2" data-testid="home_quick_routine_2" data-quick-idx="2" type="button" class="sx-card p-2.5 text-left hover:opacity-95 transition">
+                <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">鼠标手解缚</p>
+                <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">2分钟 · 前臂筋膜与十指温润回流</p>
+              </button>
+              <button id="btn-quick-3" data-testid="home_quick_routine_3" data-quick-idx="3" type="button" class="sx-card p-2.5 text-left hover:opacity-95 transition">
+                <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">久坐松腰唤醒</p>
+                <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">3分钟 · 椅沿骨盆与侧腰温和舒展</p>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: BODY MAP & CURATED BOOKLETS ("寻音雅集") -->
+        <section
+          id="view-bodymap"
+          data-testid="bodymap_screen"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5"
+        >
+          <div>
+            <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">点选 1–3 处紧绷部位 · 无限次免费组方</p>
+            <h2 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">身体寻音 · 四时雅集</h2>
+          </div>
+
+          <div class="sx-card p-3.5 space-y-3">
+            <div class="grid grid-cols-12 gap-2.5 items-center">
+              <!-- Interactive Eastern Body Meridian Silhouette -->
+              <div
+                id="el-bodymap-canvas"
+                data-testid="bodymap_canvas"
+                class="col-span-5 h-48 rounded-2xl border flex items-center justify-center overflow-hidden"
+                style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);"
+              ></div>
+
+              <!-- 6 Selectable Body Tension Region Buttons -->
+              <div class="col-span-7 grid grid-cols-1 gap-1.5">
+                <button id="zone-btn-neck" data-testid="bodymap_zone_neck" data-zone="neck" type="button" aria-pressed="true" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>后颈风池</span><span class="text-[10px]">低头紧绷</span></button>
+                <button id="zone-btn-shoulder" data-testid="bodymap_zone_shoulder" data-zone="shoulder" type="button" aria-pressed="true" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>双肩斜方</span><span class="text-[10px]">耸肩酸硬</span></button>
+                <button id="zone-btn-thoracic" data-testid="bodymap_zone_thoracic" data-zone="thoracic" type="button" aria-pressed="false" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>胸椎圆肩</span><span class="text-[10px]">含胸气短</span></button>
+                <button id="zone-btn-lumbar" data-testid="bodymap_zone_lumbar" data-zone="lumbar" type="button" aria-pressed="false" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>下腰久坐</span><span class="text-[10px]">腰骶沉滞</span></button>
+                <button id="zone-btn-wrist" data-testid="bodymap_zone_wrist" data-zone="wrist" type="button" aria-pressed="false" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>手腕鼠标侧</span><span class="text-[10px]">敲字酸胀</span></button>
+                <button id="zone-btn-eye" data-testid="bodymap_zone_eye" data-zone="eye" type="button" aria-pressed="false" class="zone-pill min-h-[30px] px-2.5 py-1 rounded-xl text-xs text-left border flex items-center justify-between transition"><span>眼周眉心</span><span class="text-[10px]">盯屏干涩</span></button>
+              </div>
+            </div>
+
+            <!-- Duration Selector (2 / 4 / 6 min) -->
+            <div class="flex items-center justify-between gap-2">
+              <span id="bodymap-selection-hint" class="text-[11px]" style="color:var(--sx-ink-sec);">已选 2 处 · 精准配平呼吸周期</span>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button id="dur-btn-2" data-testid="bodymap_duration_2" data-mins="2" type="button" aria-pressed="false" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">2分钟</button>
+                <button id="dur-btn-4" data-testid="bodymap_duration_4" data-mins="4" type="button" aria-pressed="true" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">4分钟</button>
+                <button id="dur-btn-6" data-testid="bodymap_duration_6" data-mins="6" type="button" aria-pressed="false" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">6分钟</button>
+              </div>
+            </div>
+
+            <button
+              id="btn-bodymap-compose"
+              data-testid="bodymap_compose_start_button"
+              type="button"
+              class="w-full min-h-[42px] rounded-2xl text-xs font-serif-cn font-semibold tracking-wider transition hover:opacity-95"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              一秒成方 · 开始专属舒展
+            </button>
+          </div>
+
+          <!-- 4 Permanently Free Curated Booklets ("四时雅集") -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">四时雅集（四册全开放 · 随时暂歇续练亦无妨）</h3>
+            </div>
+            <div id="booklets-list" class="grid grid-cols-1 gap-2">
+              <button id="el-booklet-0" data-testid="booklet_card_0" data-booklet-idx="0" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+              <button id="el-booklet-1" data-testid="booklet_card_1" data-booklet-idx="1" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+              <button id="el-booklet-2" data-testid="booklet_card_2" data-booklet-idx="2" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+              <button id="el-booklet-3" data-testid="booklet_card_3" data-booklet-idx="3" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: SKIN GALLERY ("山居画境") -->
+        <section
+          id="view-skins"
+          data-testid="skins_screen"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">插画 × 中国山水画 · 全部永久免费</p>
+              <h2 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">山居画境</h2>
+            </div>
+            <button
+              id="btn-skin-chime-preview"
+              data-testid="skin_chime_preview_button"
+              type="button"
+              class="min-h-[36px] px-3 rounded-full text-xs font-medium border transition hover:opacity-90"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              ♪ 试听当前泛音
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5">
+            <button id="el-skin-ink" data-testid="skin_card_ink_mist" data-pick-skin="ink_mist" type="button" class="sx-card p-3 text-left transition"></button>
+            <button id="el-skin-qinglv" data-testid="skin_card_qinglv_celadon" data-pick-skin="qinglv_celadon" type="button" class="sx-card p-3 text-left transition"></button>
+            <button id="el-skin-dusk" data-testid="skin_card_dusk_pine" data-pick-skin="dusk_pine" type="button" class="sx-card p-3 text-left transition"></button>
+            <button id="el-skin-spring" data-testid="skin_card_spring_blossom" data-pick-skin="spring_blossom" type="button" class="sx-card p-3 text-left transition"></button>
+          </div>
+
+          <!-- Auto-Night Pairing Switch -->
+          <div class="sx-card p-3.5 flex items-center justify-between gap-3">
+            <div>
+              <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">昼夜随顺换境（20:00–08:00 暮山听松）</p>
+              <p id="auto-night-status-desc" class="text-[11px] mt-0.5" style="color:var(--sx-ink-sec);">夜间自动切换低眩光苍墨夜山，日间恢复所选画境。</p>
+            </div>
+            <button
+              id="btn-auto-night-switch"
+              data-testid="skin_auto_night_switch"
+              type="button"
+              role="switch"
+              aria-checked="false"
+              class="min-w-[52px] min-h-[32px] px-2.5 rounded-full text-xs font-medium transition border"
+            >
+              关闭
+            </button>
+          </div>
+        </section>
+
+        <!-- TAB 4: PRACTICE JOURNAL ("松息手札") -->
+        <section
+          id="view-journal"
+          data-testid="journal_screen"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">留白亦是休息 · 无压力水纹月历</p>
+              <h2 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">松息手札</h2>
+            </div>
+            <button
+              id="btn-journal-share"
+              data-testid="journal_share_card_button"
+              type="button"
+              class="min-h-[36px] px-3.5 rounded-full text-xs font-medium transition"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              生成松息日笺
+            </button>
+          </div>
+
+          <div
+            id="el-journal-summary"
+            data-testid="journal_monthly_summary"
+            class="sx-card p-3.5 space-y-1"
+          ></div>
+
+          <div class="sx-card p-3.5 space-y-2.5">
+            <div class="grid grid-cols-7 text-center text-[11px]" style="color:var(--sx-ink-soft);">
+              <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div
+              id="el-journal-grid"
+              data-testid="journal_calendar_grid"
+              class="grid grid-cols-7 gap-1.5"
+            ></div>
+          </div>
+
+          <div id="journal-recent-notes" class="space-y-1.5"></div>
+        </section>
+
+        <!-- TAB 5: REMINDERS & SPLASH SETTINGS ("微风设置") -->
+        <section
+          id="view-settings"
+          data-testid="settings_screen"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3"
+        >
+          <div>
+            <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">久坐微风轻语 · 开屏雅鉴透明守护</p>
+            <h2 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">微风设置</h2>
+          </div>
+
+          <div class="sx-card p-3.5 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">久坐微风提醒</p>
+                <p id="reminder-gate-readout" class="text-[11px]" style="color:var(--sx-ink-sec);">轻声提示，点击通知免开屏直达 90 秒叹息舒展</p>
+              </div>
+              <button id="sw-reminder-enable" data-testid="reminder_enable_switch" type="button" role="switch" aria-checked="true" class="min-w-[52px] min-h-[30px] px-2.5 rounded-full text-xs border transition">开启</button>
+            </div>
+
+            <div class="space-y-1.5">
+              <p class="text-[11px]" style="color:var(--sx-ink-sec);">久坐间隔（分钟）</p>
+              <div class="grid grid-cols-4 gap-1.5">
+                <button id="iv-btn-45" data-testid="reminder_interval_45" data-iv="45" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">45分</button>
+                <button id="iv-btn-60" data-testid="reminder_interval_60" data-iv="60" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">60分</button>
+                <button id="iv-btn-90" data-testid="reminder_interval_90" data-iv="90" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">90分</button>
+                <button id="iv-btn-120" data-testid="reminder_interval_120" data-iv="120" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">120分</button>
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-1 border-t" style="border-color:var(--sx-border);">
+              <div class="flex items-center justify-between text-xs">
+                <span>午休静默守护（12:00–13:30）</span>
+                <button id="sw-lunch-quiet" data-testid="reminder_lunch_quiet_switch" type="button" role="switch" aria-checked="true" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition">开启</button>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span>夜间静默守护（20:00–09:00）</span>
+                <button id="sw-night-quiet" data-testid="reminder_night_quiet_switch" type="button" role="switch" aria-checked="true" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition">开启</button>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span>周末全天免打扰</span>
+                <button id="sw-weekend-quiet" data-testid="reminder_weekend_quiet_switch" type="button" role="switch" aria-checked="true" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition">开启</button>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span>今日暂歇免打扰</span>
+                <button id="sw-mute-today" data-testid="reminder_mute_today_switch" type="button" role="switch" aria-checked="false" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition">关闭</button>
+              </div>
+            </div>
+
+            <button
+              id="btn-reminder-preview"
+              data-testid="reminder_preview_trigger_button"
+              type="button"
+              class="w-full min-h-[38px] rounded-xl text-xs font-medium border transition hover:opacity-90"
+              style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              试发一条「微风久坐轻语」提醒
+            </button>
+          </div>
+
+          <!-- Splash Ad Transparency & Manual Preview Controls (F3) -->
+          <div class="sx-card p-3.5 space-y-2.5">
+            <div>
+              <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">「开屏雅鉴」纯净守护与隐私控制</p>
+              <p id="splash-ledger-readout" class="text-[11px] mt-0.5" style="color:var(--sx-ink-sec);">单日上限 ≤3 次 · 间隔 ≥4 小时 · 硬件级禁用摇一摇</p>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span>个性化器物画心推荐（默认关闭）</span>
+              <button id="sw-splash-personalized" data-testid="splash_personalized_switch" type="button" role="switch" aria-checked="false" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition">关闭</button>
+            </div>
+            <button
+              id="btn-splash-preview"
+              data-testid="splash_preview_trigger_button"
+              type="button"
+              class="w-full min-h-[38px] rounded-xl text-xs font-medium transition hover:opacity-95"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              预览 3 秒「开屏雅鉴」扉页
+            </button>
+          </div>
+        </section>
+
+        <!-- IMMERSIVE LAYER A: GUIDED STRETCH PLAYER ("闭眼余光跟练器") -->
+        <section
+          id="view-player"
+          data-testid="player_screen"
+          class="hidden absolute inset-0 z-20 flex flex-col justify-between px-4 py-3 overflow-y-auto sx-scroll"
+          style="background-color:var(--sx-bg);"
+        >
+          <div class="flex items-center justify-between gap-2">
+            <button
+              id="btn-player-close"
+              data-testid="player_close_button"
+              type="button"
+              class="min-h-[36px] px-2.5 rounded-full text-xs border whitespace-nowrap shrink-0"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              ← 收起暂歇
+            </button>
+            <div class="text-center sx-eyes-dim min-w-0 flex-1">
+              <p id="player-routine-title" class="text-[11px] truncate" style="color:var(--sx-ink-sec);">午后伏案 · 沉肩松颈帖</p>
+              <p id="player-pose-counter" class="text-xs font-mono truncate" style="color:var(--sx-ink);">第 1 / 3 式 · 剩余 01:00</p>
+            </div>
+            <button
+              id="btn-player-eyes-free"
+              data-testid="player_eyes_free_toggle"
+              type="button"
+              aria-pressed="false"
+              class="min-h-[36px] px-2.5 rounded-full text-xs border transition whitespace-nowrap shrink-0"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              闭眼余光态
+            </button>
+          </div>
+
+          <!-- Flip-to-Pause Banner -->
+          <div
+            id="el-flip-banner"
+            data-testid="player_paused_by_flip_banner"
+            class="hidden px-3.5 py-2 rounded-2xl text-xs text-center border"
+            style="background-color:var(--sx-accent-soft);border-color:var(--sx-accent);color:var(--sx-ink);"
+          >
+            手机已扣放桌面 · 泛音与计时静默暂存，拾起即可续接呼吸
+          </div>
+
+          <!-- Central Breathing Halo + Editorial Human Figure Stage -->
+          <div class="relative flex flex-col items-center justify-center my-1">
+            <div
+              id="el-player-halo"
+              data-testid="player_breathing_halo"
+              class="w-60 h-60 rounded-full flex items-center justify-center relative"
+            >
+              <div
+                id="el-player-figure"
+                data-testid="player_figure_canvas"
+                class="w-56 h-56 rounded-full overflow-hidden"
+              ></div>
+            </div>
+
+            <!-- Breath Phase Label (Always Visible even in Eyes-Free Mode!) -->
+            <div
+              id="el-breath-phase-label"
+              data-testid="player_breath_phase_label"
+              class="mt-2 px-4 py-1 rounded-full font-serif-cn text-sm font-semibold tracking-widest border"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-accent);"
+            >
+              吸气 · 轻展
+            </div>
+          </div>
+
+          <!-- Concise Friend-Like Gentle Cue (Strictly <= 36 chars) -->
+          <div class="text-center space-y-1 px-2 sx-eyes-dim">
+            <h1 id="player-pose-title" class="font-serif-cn text-base font-semibold" style="color:var(--sx-ink);">坐姿侧耳寻肩</h1>
+            <p id="player-pose-cue" class="text-xs leading-relaxed" style="color:var(--sx-ink-sec);">左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。</p>
+          </div>
+
+          <!-- Soundscape Selector + Flip Simulator + Transport Controls -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between gap-1.5">
+              <div id="el-sound-selector" data-testid="player_sound_selector" class="flex items-center gap-1 flex-wrap">
+                <button type="button" data-sound="bowl" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">颂钵</button>
+                <button type="button" data-sound="bamboo" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">竹磬</button>
+                <button type="button" data-sound="guqin" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">古琴</button>
+                <button type="button" data-sound="rain" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">细雨</button>
+              </div>
+              <button
+                id="btn-sound-silent"
+                data-testid="player_sound_silent"
+                type="button"
+                aria-pressed="false"
+                class="min-h-[30px] px-2.5 rounded-full text-[11px] border"
+              >
+                静默仅微震
+              </button>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1.5">
+              <button id="btn-player-prev" data-testid="player_prev_pose_button" type="button" class="min-h-[40px] rounded-xl text-xs border sx-card">上一式</button>
+              <button id="btn-player-pause" data-testid="player_pause_resume_button" type="button" aria-pressed="false" class="min-h-[40px] rounded-xl text-xs font-medium" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">暂歇</button>
+              <button id="btn-player-next" data-testid="player_next_pose_button" type="button" class="min-h-[40px] rounded-xl text-xs border sx-card">下一式</button>
+              <button id="btn-player-flip" data-testid="player_simulate_flip_button" type="button" aria-pressed="false" class="min-h-[40px] rounded-xl text-[11px] border sx-card">扣放暂存</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- IMMERSIVE LAYER B: COMPLETION WATER-RIPPLE RITUAL ("一息成") -->
+        <section
+          id="view-completion"
+          data-testid="completion_screen"
+          class="hidden absolute inset-0 z-20 flex flex-col justify-between px-5 py-6"
+          style="background-color:var(--sx-bg);"
+        >
+          <div class="text-center space-y-1 pt-2">
+            <p class="text-xs tracking-widest" style="color:var(--sx-accent);">一息圆满 · 水纹入册</p>
+            <h2 class="font-serif-cn text-2xl font-semibold tracking-wider" style="color:var(--sx-ink);">身自舒展</h2>
+          </div>
+
+          <div class="flex flex-col items-center space-y-3">
+            <div
+              id="el-completion-ripple"
+              data-testid="completion_ripple_canvas"
+              class="w-48 h-48 flex items-center justify-center"
+            ></div>
+            <p id="completion-verse-text" class="font-serif-cn text-sm tracking-wider text-center" style="color:var(--sx-ink);">
+              一息墨韵散，肩头万事轻。
+            </p>
+            <p id="completion-routine-meta" class="text-xs" style="color:var(--sx-ink-sec);">已完成 3 分钟舒展</p>
+          </div>
+
+          <div class="space-y-3">
+            <p class="text-xs text-center" style="color:var(--sx-ink-sec);">此刻身体感觉如何？（可选，亦可直接完成）</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button id="btn-feel-light" data-testid="completion_feeling_light" data-feeling="light" type="button" aria-pressed="false" class="feeling-pill min-h-[38px] rounded-xl text-xs border transition">肩颈轻快</button>
+              <button id="btn-feel-warm" data-testid="completion_feeling_warm" data-feeling="warm" type="button" aria-pressed="false" class="feeling-pill min-h-[38px] rounded-xl text-xs border transition">温热舒展</button>
+              <button id="btn-feel-calm" data-testid="completion_feeling_calm" data-feeling="calm" type="button" aria-pressed="false" class="feeling-pill min-h-[38px] rounded-xl text-xs border transition">心神安宁</button>
+            </div>
+            <button
+              id="btn-completion-finish"
+              data-testid="completion_finish_button"
+              type="button"
+              class="w-full min-h-[44px] rounded-2xl text-sm font-serif-cn font-semibold tracking-wider transition hover:opacity-95"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              收入松息手札
+            </button>
+          </div>
+        </section>
+
+        <!-- MODAL OVERLAY C: SHAREABLE SONGXI DAILY NOTE ("松息日笺") -->
+        <div
+          id="el-share-dialog"
+          data-testid="journal_share_preview_dialog"
+          class="hidden absolute inset-0 z-30 p-5 flex items-center justify-center"
+          style="background-color:var(--sx-overlay);"
+        >
+          <div class="sx-card w-full p-5 space-y-4 shadow-lg">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-[11px] tracking-widest" style="color:var(--sx-accent);">松息日笺 · 原生系统分享卡片</p>
+                <h3 id="share-card-title" class="font-serif-cn text-lg font-semibold mt-0.5" style="color:var(--sx-ink);">今日留白一息</h3>
+              </div>
+              <div id="share-card-seal"></div>
+            </div>
+            <div id="share-card-art" class="h-32 rounded-2xl overflow-hidden border" style="border-color:var(--sx-border);"></div>
+            <p id="share-card-verse" class="font-serif-cn text-xs tracking-wider text-center" style="color:var(--sx-ink);"></p>
+            <p id="share-card-stats" class="text-[11px] text-center" style="color:var(--sx-ink-sec);"></p>
+            <div class="flex items-center gap-2">
+              <button id="btn-share-system" type="button" class="flex-1 min-h-[38px] rounded-xl text-xs font-medium" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">调用系统分享</button>
+              <button id="btn-share-close" type="button" class="min-h-[38px] px-4 rounded-xl text-xs border sx-card-subtle">收起</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persistent 5-Tab Bottom Navigation Bar -->
+      <nav
+        id="el-bottom-nav"
+        data-testid="bottom_nav_bar"
+        aria-label="松息主导航"
+        class="h-16 px-2 border-t grid grid-cols-5 items-center shrink-0 z-10"
+        style="background-color:var(--sx-card);border-color:var(--sx-border);"
+      >
+        <button id="tab-btn-home" data-testid="nav_tab_home" data-tab="home" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <span class="font-serif-cn font-semibold">今日一息</span>
+        </button>
+        <button id="tab-btn-bodymap" data-testid="nav_tab_bodymap" data-tab="bodymap" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <span class="font-serif-cn font-semibold">寻音雅集</span>
+        </button>
+        <button id="tab-btn-skins" data-testid="nav_tab_skins" data-tab="skins" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <span class="font-serif-cn font-semibold">山居画境</span>
+        </button>
+        <button id="tab-btn-journal" data-testid="nav_tab_journal" data-tab="journal" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <span class="font-serif-cn font-semibold">松息手札</span>
+        </button>
+        <button id="tab-btn-settings" data-testid="nav_tab_settings" data-tab="settings" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <span class="font-serif-cn font-semibold">微风设置</span>
+        </button>
+      </nav>
+
+      <!-- EXCLUSIVE SPLASH AD FRONTISPIECE OVERLAY ("开屏雅鉴", 78% Stage / 22% Footer) -->
+      <section
+        id="el-splash-screen"
+        data-testid="splash_ad_screen"
+        class="hidden absolute inset-0 z-40 flex flex-col p-3.5"
+        style="background-color:var(--sx-bg);"
+      >
+        <!-- 78% Xuan/Silk Framed Artwork Stage (Strictly Inert on Click!) -->
+        <div
+          id="el-splash-backdrop"
+          data-testid="splash_ad_backdrop"
+          style="flex: 78 1 0%;"
+          class="rounded-[24px] p-4 flex flex-col justify-between border relative overflow-hidden"
+        >
+          <div class="flex items-center justify-between gap-2 z-10">
+            <span
+              id="el-splash-badge"
+              data-testid="splash_ad_badge"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border"
+              style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-ink);"
+            >
+              广告 · 开屏雅鉴
+            </span>
+
+            <!-- >= 48dp x 48dp Zero-Latency Skip Pill -->
+            <button
+              id="btn-splash-skip"
+              data-testid="splash_ad_skip_button"
+              type="button"
+              style="min-width:88px;min-height:48px;background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-ink);"
+              class="px-3.5 rounded-full text-xs font-semibold border shadow-sm flex items-center justify-center transition hover:opacity-90"
+            >
+              跳过 3s
+            </button>
+          </div>
+
+          <div id="splash-artwork-container" class="my-2 pointer-events-none"></div>
+
+          <div class="text-center space-y-2 z-10">
+            <p id="splash-sponsor-name" class="text-[11px] tracking-widest" style="color:var(--sx-ink-sec);">山茗器物 · 东方茶席</p>
+            <h2 id="splash-creative-title" class="font-serif-cn text-base font-semibold leading-snug" style="color:var(--sx-ink);">
+              案头一盏汝瓷温茶，陪你度过伏案午后
+            </h2>
+            <p id="splash-creative-subtitle" class="text-xs" style="color:var(--sx-ink-sec);">
+              手作原矿天青釉主人杯 · 温润握感不烫手
+            </p>
+            <div class="pt-1 flex justify-center">
+              <button
+                id="btn-splash-cta"
+                data-testid="splash_ad_cta_button"
+                type="button"
+                class="min-h-[40px] px-5 rounded-full text-xs font-medium transition hover:opacity-95"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                了解器物详情
+              </button>
+            </div>
+          </div>
+
+          <!-- Secondary External Jump Confirmation Sheet (Anti-Accidental-Tap) -->
+          <div
+            id="el-splash-confirm-sheet"
+            data-testid="splash_ad_confirm_sheet"
+            class="hidden absolute inset-x-3 bottom-3 p-4 rounded-2xl border shadow-lg space-y-3 z-20"
+            style="background-color:var(--sx-card);border-color:var(--sx-accent);"
+          >
+            <div>
+              <p class="text-xs font-serif-cn font-semibold" style="color:var(--sx-ink);">即将离开「松息」前往外部浏览器</p>
+              <p id="splash-confirm-summary" class="text-[11px] mt-1 leading-relaxed" style="color:var(--sx-ink-sec);">
+                山茗器物春季茶席展：原矿天青釉案头杯与茶则细节一览（外部浏览器打开）。
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                id="btn-splash-confirm-dismiss"
+                data-testid="splash_ad_confirm_dismiss"
+                type="button"
+                class="flex-1 min-h-[38px] rounded-xl text-xs font-medium"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                返回松息 · 不跳转
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 22% Brand Seal Sanctuary Footer -->
+        <footer
+          id="el-splash-footer"
+          data-testid="splash_ad_brand_footer"
+          style="flex: 22 1 0%;"
+          class="px-3 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <div id="splash-footer-seal"></div>
+            <div>
+              <p class="font-serif-cn text-base font-semibold tracking-wider" style="color:var(--sx-ink);">松息 Sōngxī</p>
+              <p class="text-xs" style="color:var(--sx-ink-sec);">一松一息，身自舒展 · 全功能永久免费开放</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono" style="color:var(--sx-ink-soft);">零摇一摇</span>
+        </footer>
+      </section>
+    </main>
+
+    <!-- Desktop Director & Policy Simulator Panel (Hidden on Mobile Viewports) -->
+    <aside class="hidden lg:flex flex-col w-[380px] bg-[var(--card,#FAF7F1)] border border-[var(--border,rgba(72,99,86,0.18))] rounded-3xl p-5 space-y-4 shadow-sm shrink-0">
+      <div class="border-b border-[var(--border,rgba(72,99,86,0.14))] pb-3">
+        <p class="text-[11px] tracking-[0.16em] uppercase text-[var(--muted-foreground,#5C645F)]">Standalone Android Studio Console</p>
+        <h2 class="font-serif-cn text-lg font-semibold mt-0.5">松息 · 导演台与门禁验证器</h2>
+        <p class="text-xs text-[var(--muted-foreground,#5C645F)] mt-1">实时检视五维皮肤热切换、昼夜随顺时辰、开屏雅鉴七重频控门禁与久坐提醒静默时段。</p>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-xs font-medium">1. 模拟时辰与昼夜随顺换境（验证 20:00 边界）</p>
+        <div class="grid grid-cols-3 gap-1.5 text-xs">
+          <button id="director-clock-0930" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">09:30 晨间</button>
+          <button id="director-clock-1230" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">12:30 午休</button>
+          <button id="director-clock-1959" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">19:59 日暮前</button>
+          <button id="director-clock-2005" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">20:05 入夜</button>
+          <button id="director-clock-0630" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">06:30 破晓前</button>
+          <button id="director-clock-sat" type="button" class="min-h-[32px] rounded-lg border border-[var(--border,rgba(72,99,86,0.22))] hover:opacity-90">周六 15:00</button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <p class="text-xs font-medium">2. 模拟「开屏雅鉴」七重门禁决策</p>
+        <div class="grid grid-cols-2 gap-1.5 text-xs">
+          <button id="director-cold-launch-next" type="button" class="min-h-[34px] px-2 rounded-lg border border-[var(--border,rgba(72,99,86,0.24))] hover:opacity-90">冷启动 (+4h05m)</button>
+          <button id="director-cold-launch-cooldown" type="button" class="min-h-[34px] px-2 rounded-lg border border-[var(--border,rgba(72,99,86,0.24))] hover:opacity-90">冷却期内 (+3h59m)</button>
+          <button id="director-warm-29m" type="button" class="min-h-[34px] px-2 rounded-lg border border-[var(--border,rgba(72,99,86,0.24))] hover:opacity-90">热切回 (29m 免开屏)</button>
+          <button id="director-reminder-deep" type="button" class="min-h-[34px] px-2 rounded-lg border border-[var(--border,rgba(72,99,86,0.24))] hover:opacity-90">通知直达 90s 帖</button>
+        </div>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-[var(--background,#F3EFE7)] border border-[var(--border,rgba(72,99,86,0.16))] space-y-1.5 text-xs">
+        <p class="font-semibold">实时状态账本诊断</p>
+        <p id="director-diag-skin" class="text-[11px] text-[var(--muted-foreground,#5C645F)]">生效画境：水墨远山 (ink_mist)</p>
+        <p id="director-diag-splash" class="text-[11px] text-[var(--muted-foreground,#5C645F)]">最近门禁决策：FIRST_LAUNCH_GRACE</p>
+        <p id="director-diag-sensor" class="text-[11px] text-[var(--muted-foreground,#5C645F)]">重力传感器监听数：0（仅跟练页激活）</p>
+      </div>
+
+      <button id="director-reset-all" type="button" class="w-full min-h-[36px] rounded-xl text-xs border border-[var(--border,rgba(72,99,86,0.26))] hover:opacity-90">
+        重置本机存储为首次安装净态
+      </button>
+    </aside>
+  </div>
+
+  <script>
+    const SONGXI_SKINS = {
+      ink_mist: {
+        id: 'ink_mist',
+        titleCn: '水墨远山',
+        subtitleCn: '素宣写意',
+        fusionBadge: '六分半宋人水墨 · 三分半现代插画',
+        greetingPrefix: '远山淡影 · 宜沉肩缓息',
+        completionVerse: '一息墨韵散，肩头万事轻。',
+        isDark: false,
+        canvasPrimary: '#F5F1E8',
+        canvasSkyWashTop: '#EBE5D8',
+        surfaceCard: '#FAF7F1',
+        surfaceCardSubtle: '#ECE6DA',
+        borderHairline: '#DCD5C7',
+        inkPrimary: '#262B28',
+        inkSecondary: '#5C645F',
+        inkTertiary: '#5E6661',
+        accentPrimary: '#486356',
+        accentPrimarySoft: '#DCE5DF',
+        accentSecondary: '#91674B',
+        sealVermilion: '#B5493A',
+        onAccent: '#FAF7F1',
+        cardCornerRadiusDp: 24,
+        farRidge: '#CFD6D0',
+        midRidge: '#9FB0A6',
+        crestStroke: null,
+        mistColor: '#F7F4EC',
+        mistOpacity: 0.72,
+        celestialColor: '#E3C89E',
+        garmentFill: '#E6DFD1',
+        garmentShadow: '#D2C8B6',
+        skinTone: '#EEDBCE',
+        hairFill: '#2D322F',
+        contourStroke: '#262B28',
+        contourWidth: 2.2,
+        sealText: '松息',
+        sealShape: 'SQUARE_ZHUWEN',
+        haloName: '水墨涟漪',
+        soundProfile: 'bowl',
+        soundLabel: '432Hz 温润颂钵',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 50,
+        grainFilter: 'sx-grain-xuan'
+      },
+      qinglv_celadon: {
+        id: 'qinglv_celadon',
+        titleCn: '青绿山居',
+        subtitleCn: '汝瓷重彩',
+        fusionBadge: '五分青绿山水 · 五分现代插画',
+        greetingPrefix: '青绿山居 · 宜开胸纳气',
+        completionVerse: '身如青山立，清风入袖来。',
+        isDark: false,
+        canvasPrimary: '#EEF3EE',
+        canvasSkyWashTop: '#DFECE6',
+        surfaceCard: '#F7FAF7',
+        surfaceCardSubtle: '#E3EDE7',
+        borderHairline: '#CBDAD2',
+        inkPrimary: '#1E2E2B',
+        inkSecondary: '#4F635E',
+        inkTertiary: '#536762',
+        accentPrimary: '#35685C',
+        accentPrimarySoft: '#D6E7E1',
+        accentSecondary: '#2F5669',
+        sealVermilion: '#B84435',
+        onAccent: '#F7FAF7',
+        cardCornerRadiusDp: 20,
+        farRidge: '#9EC0B5',
+        midRidge: '#5F9486',
+        crestStroke: '#B88655',
+        mistColor: '#F2F7F4',
+        mistOpacity: 0.66,
+        celestialColor: '#D8B074',
+        garmentFill: '#CFE2DC',
+        garmentShadow: '#B3CEC5',
+        skinTone: '#F0DDD0',
+        hairFill: '#22302D',
+        contourStroke: '#1E2E2B',
+        contourWidth: 1.5,
+        sealText: '山居清息',
+        sealShape: 'OBLONG_BAIWEN',
+        haloName: '青绿云气',
+        soundProfile: 'bamboo',
+        soundLabel: '528Hz 空谷竹磬',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 54,
+        grainFilter: 'sx-grain-silk'
+      },
+      dusk_pine: {
+        id: 'dusk_pine',
+        titleCn: '暮山听松',
+        subtitleCn: '沉香夜境',
+        fusionBadge: '五分半暮山烟岚 · 四分半微光插画',
+        greetingPrefix: '暮山听松 · 宜敛神松腰',
+        completionVerse: '松风吹解带，夜静息自宁。',
+        isDark: true,
+        canvasPrimary: '#19201E',
+        canvasSkyWashTop: '#212C29',
+        surfaceCard: '#232D2A',
+        surfaceCardSubtle: '#1D2623',
+        borderHairline: '#33413D',
+        inkPrimary: '#E6E1D6',
+        inkSecondary: '#A6B2AB',
+        inkTertiary: '#98A59E',
+        accentPrimary: '#86AA96',
+        accentPrimarySoft: '#2B3B35',
+        accentSecondary: '#C79A7A',
+        sealVermilion: '#D47566',
+        onAccent: '#161D1B',
+        cardCornerRadiusDp: 24,
+        farRidge: '#263531',
+        midRidge: '#334842',
+        crestStroke: '#4B655D',
+        mistColor: '#293733',
+        mistOpacity: 0.52,
+        celestialColor: '#E4CFA8',
+        garmentFill: '#2E403B',
+        garmentShadow: '#22302C',
+        skinTone: '#D9C5B4',
+        hairFill: '#141B19',
+        contourStroke: '#86AA96',
+        contourWidth: 1.8,
+        sealText: '听松',
+        sealShape: 'GOURD_XIANZHANG',
+        haloName: '竹月潮汐',
+        soundProfile: 'guqin',
+        soundLabel: '396Hz 松风琴韵',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 38,
+        grainFilter: 'sx-grain-silk'
+      },
+      spring_blossom: {
+        id: 'spring_blossom',
+        titleCn: '春涧花影',
+        subtitleCn: '暖陶芳菲',
+        fusionBadge: '三分半春涧山水 · 六分半草木插画',
+        greetingPrefix: '春涧花影 · 宜舒腕温目',
+        completionVerse: '眉间春水暖，指下花影轻。',
+        isDark: false,
+        canvasPrimary: '#F8F1EA',
+        canvasSkyWashTop: '#F2E5DA',
+        surfaceCard: '#FDF9F5',
+        surfaceCardSubtle: '#EFE4DA',
+        borderHairline: '#E2D3C6',
+        inkPrimary: '#322926',
+        inkSecondary: '#685A54',
+        inkTertiary: '#6E5F58',
+        accentPrimary: '#9B5A49',
+        accentPrimarySoft: '#FAF0EC',
+        accentSecondary: '#4E7266',
+        sealVermilion: '#B54639',
+        onAccent: '#FDF9F5',
+        cardCornerRadiusDp: 26,
+        farRidge: '#D7DFD8',
+        midRidge: '#AEC4B8',
+        crestStroke: '#C99B84',
+        mistColor: '#FBF6F1',
+        mistOpacity: 0.70,
+        celestialColor: '#EBBFA9',
+        garmentFill: '#EDD5C9',
+        garmentShadow: '#DBBCAE',
+        skinTone: '#F2DFD3',
+        hairFill: '#3A2F2C',
+        contourStroke: '#4A3B36',
+        contourWidth: 1.7,
+        sealText: '春山',
+        sealShape: 'ROUND_ZHUWEN',
+        haloName: '花影舒张',
+        soundProfile: 'rain',
+        soundLabel: '440Hz 春涧细雨',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 48,
+        grainFilter: 'sx-grain-xuan'
+      }
+    };
+
+    const ZONE_LABELS = {
+      neck: { short: '风池', full: '后颈风池' },
+      shoulder: { short: '双肩', full: '双肩斜方' },
+      thoracic: { short: '胸椎', full: '胸椎圆肩' },
+      lumbar: { short: '下腰', full: '下腰久坐' },
+      wrist: { short: '护腕', full: '手腕鼠标侧' },
+      eye: { short: '温目', full: '眼周眉心' }
+    };
+
+    function kf(tilt, chin, lDrop, rDrop, spine, lArm, rArm, wrist, eyesClosed = true) {
+      return { headTiltDeg: tilt, chinTuckRatio: chin, leftShoulderDropRatio: lDrop, rightShoulderDropRatio: rDrop, spineArcRatio: spine, leftArmAngleDeg: lArm, rightArmAngleDeg: rArm, wristFlexRatio: wrist, eyesClosed };
+    }
+
+    // 24 Ergonomic Micro-Poses (1:1 ID, Cue, Keyframe & Bilateral Parity with SongxiStretchCatalog.kt, every cue <= 36 chars)
+    const STRETCH_POSES = [
+      { id: 'neck_chin_tuck', titleCn: '收颌微点头', title: '收颌微点头', name: '收颌微点头', archetype: 'neck', zone: 'neck', secondaryZone: '', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '视线平视，下颌水平微收半寸，随呼气让紧绷的后颈柔和变长。', cue: '视线平视，下颌水平微收半寸，随呼气让紧绷的后颈柔和变长。', inhale: kf(0, 0.15, 0.45, 0.45, 0.15, 14, 14, 0, false), exhale: kf(0, 0.85, 0.85, 0.85, 0.25, 12, 12, 0, true) },
+      { id: 'neck_occiput_cradle', titleCn: '双手相扣颈后温托', title: '双手相扣颈后温托', name: '双手相扣颈后温托', archetype: 'neck', zone: 'neck', secondaryZone: 'thoracic', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '掌心轻托后颈风池，下颌微扬半寸，借头部自重缓缓靠入温热掌心。', cue: '掌心轻托后颈风池，下颌微扬半寸，借头部自重缓缓靠入温热掌心。', inhale: kf(0, -0.35, 0.50, 0.50, 0.45, 118, 118, 0, false), exhale: kf(0, -0.65, 0.82, 0.82, 0.30, 112, 112, 0, true) },
+      { id: 'neck_fengchi_nod', titleCn: '左右风池微倾松解', title: '左右风池微倾松解', name: '左右风池微倾松解', archetype: 'neck', zone: 'neck', secondaryZone: 'shoulder', durationSeconds: 45, bilateralSwitchAtHalfway: true, gentleCue: '摘下耳机松开牙关，头向一侧微倾停留，在绵长呼气里等颈侧变软。', cue: '摘下耳机松开牙关，头向一侧微倾停留，在绵长呼气里等颈侧变软。', inhale: kf(8, 0.20, 0.55, 0.55, 0.10, 15, 15, 0, true), exhale: kf(22, 0.35, 0.95, 0.75, 0.05, 10, 12, 0, true) },
+      { id: 'neck_thumb_fengchi_press', titleCn: '指腹轻倚风池温养', title: '指腹轻倚风池温养', name: '指腹轻倚风池温养', archetype: 'neck', zone: 'neck', secondaryZone: 'eye', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '双肘轻支桌面，拇指落于脑后发际凹处，随长呼气卸下低头整日的重量。', cue: '双肘轻支桌面，拇指落于脑后发际凹处，随长呼气卸下低头整日的重量。', inhale: kf(0, -0.15, 0.50, 0.50, 0.05, 98, 98, 0, true), exhale: kf(0, -0.45, 0.85, 0.85, 0.15, 94, 94, 0, true) },
+
+      { id: 'shoulder_ear_melt', titleCn: '坐姿侧耳寻肩', title: '坐姿侧耳寻肩', name: '坐姿侧耳寻肩', archetype: 'neck', zone: 'shoulder', secondaryZone: 'neck', durationSeconds: 45, bilateralSwitchAtHalfway: true, gentleCue: '左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。', cue: '左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。', inhale: kf(10, 0.10, 0.60, 0.55, 0.10, 16, 16, 0, true), exhale: kf(24, 0.20, 1.00, 0.80, 0.05, 8, 12, 0, true) },
+      { id: 'shoulder_scapula_sigh', titleCn: '肩胛微收长叹息', title: '肩胛微收长叹息', name: '肩胛微收长叹息', archetype: 'shoulder', zone: 'shoulder', secondaryZone: 'thoracic', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '吸气时双肩微微向后展开，呼气时顺着脊柱自然垂落，眉心也随之松开。', cue: '吸气时双肩微微向后展开，呼气时顺着脊柱自然垂落，眉心也随之松开。', inhale: kf(0, 0.10, 0.20, 0.20, 0.40, 28, 28, 0, true), exhale: kf(0, 0.25, 0.98, 0.98, 0.10, 10, 10, 0, true) },
+      { id: 'shoulder_double_inhale_sigh', titleCn: '生理性双吸长叹息', title: '生理性双吸长叹息', name: '生理性双吸长叹息', archetype: 'shoulder', zone: 'shoulder', secondaryZone: '', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '鼻吸两小口填满胸臆，随后极慢地长呼而出，让耸起的双肩瞬间卸力。', cue: '鼻吸两小口填满胸臆，随后极慢地长呼而出，让耸起的双肩瞬间卸力。', inhale: kf(0, 0.0, 0.15, 0.15, 0.35, 22, 22, 0, true), exhale: kf(0, 0.20, 1.00, 1.00, 0.0, 8, 8, 0, true) },
+      { id: 'shoulder_water_circle', titleCn: '双肩温水画圆归位', title: '双肩温水画圆归位', name: '双肩温水画圆归位', archetype: 'shoulder', zone: 'shoulder', secondaryZone: 'thoracic', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '想象肩头浸在温水里，随吸气轻柔前升，随长呼气向后向下缓缓落定。', cue: '想象肩头浸在温水里，随吸气轻柔前升，随长呼气向后向下缓缓落定。', inhale: kf(0, 0.05, 0.18, 0.18, 0.30, 32, 32, 0, true), exhale: kf(0, 0.15, 0.92, 0.92, 0.18, 12, 12, 0, true) },
+
+      { id: 'thoracic_desk_cat_cow', titleCn: '扶桌猫牛微浪', title: '扶桌猫牛微浪', name: '扶桌猫牛微浪', archetype: 'thoracic', zone: 'thoracic', secondaryZone: 'lumbar', durationSeconds: 50, bilateralSwitchAtHalfway: false, gentleCue: '指尖轻扶桌沿，吸气轻展胸口，呼气将背部柔和拱起，逐节唤醒胸椎。', cue: '指尖轻扶桌沿，吸气轻展胸口，呼气将背部柔和拱起，逐节唤醒胸椎。', inhale: kf(0, -0.25, 0.70, 0.70, 0.75, 58, 58, 0.15, false), exhale: kf(0, 0.65, 0.85, 0.85, -0.75, 64, 64, 0.10, true) },
+      { id: 'thoracic_clasp_chest_open', titleCn: '背后十指轻扣开胸', title: '背后十指轻扣开胸', name: '背后十指轻扣开胸', archetype: 'thoracic', zone: 'thoracic', secondaryZone: 'shoulder', durationSeconds: 50, bilateralSwitchAtHalfway: false, gentleCue: '双手在身后轻握，顺着吸气让锁骨向两侧微笑展开，不必刻意挺腰。', cue: '双手在身后轻握，顺着吸气让锁骨向两侧微笑展开，不必刻意挺腰。', inhale: kf(0, -0.15, 0.78, 0.78, 0.82, 42, 42, 0.10, true), exhale: kf(0, 0.10, 0.95, 0.95, 0.45, 30, 30, 0, true) },
+      { id: 'thoracic_chair_clavicle_smile', titleCn: '椅侧锁骨微笑展开', title: '椅侧锁骨微笑展开', name: '椅侧锁骨微笑展开', archetype: 'thoracic', zone: 'thoracic', secondaryZone: '', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '双手轻扶椅侧向后微展，让内扣一天的肩头温和归位，呼吸直达胸臆。', cue: '双手轻扶椅侧向后微展，让内扣一天的肩头温和归位，呼吸直达胸臆。', inhale: kf(0, -0.10, 0.72, 0.72, 0.70, 46, 46, 0.15, true), exhale: kf(0, 0.10, 0.90, 0.90, 0.35, 34, 34, 0, true) },
+      { id: 'thoracic_seated_gentle_twist', titleCn: '坐姿扶椅温和扭转', title: '坐姿扶椅温和扭转', name: '坐姿扶椅温和扭转', archetype: 'thoracic', zone: 'thoracic', secondaryZone: 'lumbar', durationSeconds: 45, bilateralSwitchAtHalfway: true, gentleCue: '一手轻扶椅背，随长呼气从胸口温和转向一侧，让肋间重获轻盈空间。', cue: '一手轻扶椅背，随长呼气从胸口温和转向一侧，让肋间重获轻盈空间。', inhale: kf(4, 0.10, 0.55, 0.65, 0.35, 35, 55, 0, false), exhale: kf(12, 0.15, 0.80, 0.88, 0.55, 42, 68, 0, true) },
+
+      { id: 'lumbar_pelvic_rock', titleCn: '椅沿骨盆前后微倾', title: '椅沿骨盆前后微倾', name: '椅沿骨盆前后微倾', archetype: 'lumbar', zone: 'lumbar', secondaryZone: '', durationSeconds: 45, bilateralSwitchAtHalfway: false, gentleCue: '坐于椅前三分之一，吸气轻立腰椎，呼气微卷尾骨，唤醒腰骶温和流动。', cue: '坐于椅前三分之一，吸气轻立腰椎，呼气微卷尾骨，唤醒腰骶温和流动。', inhale: kf(0, 0.05, 0.60, 0.60, 0.55, 20, 20, 0, true), exhale: kf(0, 0.35, 0.85, 0.85, -0.55, 18, 18, 0, true) },
+      { id: 'lumbar_willow_side_bend', titleCn: '坐姿柳枝脊柱侧弯', title: '坐姿柳枝脊柱侧弯', name: '坐姿柳枝脊柱侧弯', archetype: 'lumbar', zone: 'lumbar', secondaryZone: 'thoracic', durationSeconds: 50, bilateralSwitchAtHalfway: true, gentleCue: '一手轻撑椅面，另一臂如柳枝顺呼吸向头顶延展，舒展久坐紧缩的侧腰。', cue: '一手轻撑椅面，另一臂如柳枝顺呼吸向头顶延展，舒展久坐紧缩的侧腰。', inhale: kf(8, 0.0, 0.45, 0.75, 0.30, 138, 24, 0.10, false), exhale: kf(16, 0.10, 0.65, 0.92, 0.50, 156, 18, 0.20, true) },
+      { id: 'lumbar_seated_figure_four', titleCn: '坐姿搭膝臀腰轻舒', title: '坐姿搭膝臀腰轻舒', name: '坐姿搭膝臀腰轻舒', archetype: 'lumbar', zone: 'lumbar', secondaryZone: '', durationSeconds: 45, bilateralSwitchAtHalfway: true, gentleCue: '一踝轻搭对侧膝上，保持背部舒展随呼气微微前倾，化开臀腰深处酸沉。', cue: '一踝轻搭对侧膝上，保持背部舒展随呼气微微前倾，化开臀腰深处酸沉。', inhale: kf(0, 0.10, 0.60, 0.60, 0.25, 26, 26, 0, true), exhale: kf(0, 0.35, 0.88, 0.88, -0.45, 34, 34, 0, true) },
+      { id: 'lumbar_bedside_butterfly_fold', titleCn: '床沿蝴蝶轻俯释腰', title: '床沿蝴蝶轻俯释腰', name: '床沿蝴蝶轻俯释腰', archetype: 'lumbar', zone: 'lumbar', secondaryZone: '', durationSeconds: 60, bilateralSwitchAtHalfway: false, gentleCue: '脚心相对松散安放，上身随绵长呼气自然微倾，给下腰留出温柔呼吸余地。', cue: '脚心相对松散安放，上身随绵长呼气自然微倾，给下腰留出温柔呼吸余地。', inhale: kf(0, 0.15, 0.65, 0.65, 0.15, 28, 28, 0, true), exhale: kf(0, 0.50, 0.95, 0.95, -0.65, 38, 38, 0, true) },
+
+      { id: 'wrist_palm_forward_silk', titleCn: '前臂掌心朝外轻展', title: '前臂掌心朝外轻展', name: '前臂掌心朝外轻展', archetype: 'wrist', zone: 'wrist', secondaryZone: '', durationSeconds: 40, bilateralSwitchAtHalfway: true, gentleCue: '一臂平伸掌心朝外，另一手轻拢四指向回微引，舒展鼠标侧前臂内侧筋膜。', cue: '一臂平伸掌心朝外，另一手轻拢四指向回微引，舒展鼠标侧前臂内侧筋膜。', inhale: kf(0, 0.10, 0.65, 0.60, 0.10, 68, 78, 0.45, false), exhale: kf(0, 0.15, 0.85, 0.82, 0.05, 64, 82, 0.92, true) },
+      { id: 'wrist_warm_water_wave', titleCn: '十指温水波浪舒张', title: '十指温水波浪舒张', name: '十指温水波浪舒张', archetype: 'wrist', zone: 'wrist', secondaryZone: '', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '像指尖拂过温水表面，随呼吸逐根舒展指节再轻柔松落，唤回指端温热。', cue: '像指尖拂过温水表面，随呼吸逐根舒展指节再轻柔松落，唤回指端温热。', inhale: kf(0, 0.05, 0.60, 0.60, 0.15, 56, 56, 0.70, true), exhale: kf(0, 0.15, 0.88, 0.88, 0.05, 42, 42, -0.55, true) },
+      { id: 'wrist_prayer_lotus_turn', titleCn: '胸前合掌腕节轻转', title: '胸前合掌腕节轻转', name: '胸前合掌腕节轻转', archetype: 'wrist', zone: 'wrist', secondaryZone: 'shoulder', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '掌心于胸前温和相合，随呼气将前臂轻轻下沉半寸，松开敲字后的酸胀。', cue: '掌心于胸前温和相合，随呼气将前臂轻轻下沉半寸，松开敲字后的酸胀。', inhale: kf(0, 0.10, 0.55, 0.55, 0.20, 72, 72, 0.50, true), exhale: kf(0, 0.20, 0.90, 0.90, 0.10, 60, 60, 0.88, true) },
+      { id: 'wrist_thumb_tendon_release', titleCn: '握拳包拇尺侧轻舒', title: '握拳包拇尺侧轻舒', name: '握拳包拇尺侧轻舒', archetype: 'wrist', zone: 'wrist', secondaryZone: '', durationSeconds: 40, bilateralSwitchAtHalfway: true, gentleCue: '四指轻拢拇指成柔拳，手腕向小指侧微倾，顺长呼气解开腕侧细微紧绷。', cue: '四指轻拢拇指成柔拳，手腕向小指侧微倾，顺长呼气解开腕侧细微紧绷。', inhale: kf(0, 0.08, 0.60, 0.60, 0.12, 52, 52, -0.25, false), exhale: kf(0, 0.15, 0.85, 0.85, 0.05, 48, 48, -0.80, true) },
+
+      { id: 'eye_warm_palming', titleCn: '搓热掌心温敷双目', title: '搓热掌心温敷双目', name: '搓热掌心温敷双目', archetype: 'eye', zone: 'eye', secondaryZone: '', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '搓热双掌轻轻拢在眼眶周围，不压眼球，在温热静暗里听三声绵长呼吸。', cue: '搓热双掌轻轻拢在眼眶周围，不压眼球，在温热静暗里听三声绵长呼吸。', inhale: kf(0, 0.15, 0.60, 0.60, 0.05, 108, 108, 0.10, true), exhale: kf(0, 0.28, 0.88, 0.88, -0.08, 102, 102, 0.0, true) },
+      { id: 'eye_slow_orbit_mist', titleCn: '闭目凝神极慢转睛', title: '闭目凝神极慢转睛', name: '闭目凝神极慢转睛', archetype: 'eye', zone: 'eye', secondaryZone: '', durationSeconds: 40, bilateralSwitchAtHalfway: true, gentleCue: '轻轻合上双眼，眼球如浮云般极慢画圆两周，把久盯屏幕的干涩缓缓化开。', cue: '轻轻合上双眼，眼球如浮云般极慢画圆两周，把久盯屏幕的干涩缓缓化开。', inhale: kf(-3, 0.05, 0.65, 0.65, 0.15, 14, 14, 0, true), exhale: kf(3, 0.18, 0.90, 0.90, 0.08, 10, 10, 0, true) },
+      { id: 'eye_brow_cuanzhu_smoothing', titleCn: '指腹轻拂攒竹眉心', title: '指腹轻拂攒竹眉心', name: '指腹轻拂攒竹眉心', archetype: 'eye', zone: 'eye', secondaryZone: 'neck', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '双手指腹由眉心向两侧太阳穴轻柔拂开，随呼气松开不自觉蹙起的眉头。', cue: '双手指腹由眉心向两侧太阳穴轻柔拂开，随呼气松开不自觉蹙起的眉头。', inhale: kf(0, 0.10, 0.58, 0.58, 0.10, 112, 112, 0.15, true), exhale: kf(0, 0.22, 0.85, 0.85, 0.05, 104, 104, 0.05, true) },
+      { id: 'eye_horizon_soft_gaze', titleCn: '远山凝眸与柔眨润目', title: '远山凝眸与柔眨润目', name: '远山凝眸与柔眨润目', archetype: 'eye', zone: 'eye', secondaryZone: 'neck', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '目光越过屏幕投向远处窗外天际，轻眨三次后闭目小憩，让眼底重归清润。', cue: '目光越过屏幕投向远处窗外天际，轻眨三次后闭目小憩，让眼底重归清润。', inhale: kf(0, -0.10, 0.62, 0.62, 0.22, 15, 15, 0, false), exhale: kf(0, 0.12, 0.90, 0.90, 0.10, 12, 12, 0, true) }
+    ];
+    const ALL_POSES = {};
+    STRETCH_POSES.forEach(p => {
+      p.poseId = p.id;
+      p.regions = p.secondaryZone ? [p.zone, p.secondaryZone] : [p.zone];
+      p.targetRegions = p.regions;
+      p.inhaleKeyframe = p.inhale;
+      p.exhaleKeyframe = p.exhale;
+      ALL_POSES[p.id] = p;
+    });
+
+    const PRIMARY_POOL_BY_ZONE = {
+      neck: ['neck_chin_tuck', 'neck_occiput_cradle', 'neck_fengchi_nod', 'neck_thumb_fengchi_press'],
+      shoulder: ['shoulder_ear_melt', 'shoulder_scapula_sigh', 'shoulder_double_inhale_sigh', 'shoulder_water_circle'],
+      thoracic: ['thoracic_desk_cat_cow', 'thoracic_clasp_chest_open', 'thoracic_chair_clavicle_smile', 'thoracic_seated_gentle_twist'],
+      lumbar: ['lumbar_pelvic_rock', 'lumbar_willow_side_bend', 'lumbar_seated_figure_four', 'lumbar_bedside_butterfly_fold'],
+      wrist: ['wrist_palm_forward_silk', 'wrist_warm_water_wave', 'wrist_prayer_lotus_turn', 'wrist_thumb_tendon_release'],
+      eye: ['eye_warm_palming', 'eye_slow_orbit_mist', 'eye_brow_cuanzhu_smoothing', 'eye_horizon_soft_gaze']
+    };
+
+    function withSec(poseId, sec) {
+      return Object.assign({}, ALL_POSES[poseId], { durationSeconds: sec });
+    }
+
+    const HERO_ROUTINES = {
+      desk: {
+        id: 'hero_desk_seated',
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        sceneBadge: '邻座无感 · 坐姿微幅',
+        durationBadge: '3 分钟 · 可闭眼',
+        title: '午后伏案 · 沉肩松颈帖',
+        subtitle: '不必起身换装，伴随温润泛音与微震，把耸起的双肩轻轻放下。',
+        poses: [withSec('shoulder_ear_melt', 60), withSec('shoulder_scapula_sigh', 60), withSec('neck_occiput_cradle', 60)]
+      },
+      tea: {
+        id: 'hero_tea_break',
+        scene: 'tea',
+        eyesFreeCapable: true,
+        seatedDiscreet: false,
+        sceneBadge: '茶歇桌边 · 免脱鞋',
+        durationBadge: '2分半 · 可闭眼',
+        title: '接水间隙 · 胸椎开阔帖',
+        subtitle: '趁站在桌边或茶歇片刻，温和打开整日内扣的胸口与侧肋。',
+        poses: [withSec('thoracic_desk_cat_cow', 50), withSec('thoracic_clasp_chest_open', 50), withSec('lumbar_willow_side_bend', 50)]
+      },
+      bed: {
+        id: 'hero_evening_bedside',
+        scene: 'bed',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        sceneBadge: '晚间床沿 · 助眠柔舒',
+        durationBadge: '6 分钟 · 可闭眼',
+        title: '晚间沉香 · 腰背解绑帖',
+        subtitle: '坐于床沿随四秒吸气、六秒长呼气，把白日思绪与腰背酸沉一并放下。',
+        poses: [
+          withSec('lumbar_bedside_butterfly_fold', 60),
+          withSec('lumbar_willow_side_bend', 60),
+          withSec('thoracic_seated_gentle_twist', 60),
+          withSec('neck_fengchi_nod', 60),
+          withSec('eye_warm_palming', 60),
+          withSec('shoulder_double_inhale_sigh', 60)
+        ]
+      }
+    };
+
+    const QUICK_ROUTINES = [
+      {
+        id: 'quick_meeting_sigh',
+        title: '连会余韵叹息',
+        subtitle: '90秒 · 摘下耳机松开眉心与双肩',
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        poses: [withSec('shoulder_double_inhale_sigh', 45), withSec('neck_fengchi_nod', 45)]
+      },
+      {
+        id: 'quick_screen_warm_eyes',
+        title: '久盯屏幕温目',
+        subtitle: '2分钟 · 风池穴与眼周干涩舒缓',
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        poses: [withSec('neck_thumb_fengchi_press', 40), withSec('eye_slow_orbit_mist', 40), withSec('eye_warm_palming', 40)]
+      },
+      {
+        id: 'quick_mouse_wrist_relief',
+        title: '鼠标手解缚',
+        subtitle: '2分钟 · 前臂筋膜与十指温润回流',
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        poses: [withSec('wrist_palm_forward_silk', 40), withSec('wrist_warm_water_wave', 40), withSec('wrist_prayer_lotus_turn', 40)]
+      },
+      {
+        id: 'quick_sedentary_lumbar_wake',
+        title: '久坐松腰唤醒',
+        subtitle: '3分钟 · 椅沿骨盆与侧腰温和舒展',
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: true,
+        poses: [withSec('lumbar_pelvic_rock', 45), withSec('lumbar_seated_figure_four', 45), withSec('thoracic_seated_gentle_twist', 45), withSec('lumbar_willow_side_bend', 45)]
+      }
+    ];
+
+    function buildDailyRoutines(bookletId, dayTitles, scene, poolIds, posesPerDay, secondsPerPose) {
+      return dayTitles.map((dayTitle, dayIndex) => {
+        const selected = [];
+        for (let slot = 0; slot < posesPerDay; slot++) {
+          const pid = poolIds[(dayIndex * 2 + slot) % poolIds.length];
+          selected.push(withSec(pid, secondsPerPose));
+        }
+        return {
+          id: `${bookletId}_day_${dayIndex}`,
+          title: dayTitle,
+          subtitle: `第 ${dayIndex + 1} 息 · 随时暂歇不计名次`,
+          scene,
+          eyesFreeCapable: true,
+          seatedDiscreet: scene !== 'tea',
+          poses: selected
+        };
+      });
+    }
+
+    const BOOKLET_NECK_ROUTINES = buildDailyRoutines(
+      'booklet_neck_thoracic',
+      ['初息 · 归正收颌', '二息 · 风池化雨', '三息 · 沉肩卸甲', '四息 · 锁骨微笑', '五息 · 胸臆开阔', '六息 · 温水归位', '七息 · 青山自在'],
+      'desk',
+      ['neck_chin_tuck', 'shoulder_ear_melt', 'thoracic_chair_clavicle_smile', 'neck_occiput_cradle', 'shoulder_scapula_sigh', 'thoracic_clasp_chest_open', 'neck_fengchi_nod', 'shoulder_water_circle'],
+      5, 60
+    );
+    const BOOKLET_LUMBAR_ROUTINES = buildDailyRoutines(
+      'booklet_lumbar_pelvis',
+      ['初息 · 骨盆轻摇', '二息 · 柳枝舒肋', '三息 · 搭膝释臀', '四息 · 脊柱微浪', '五息 · 胸肋轻旋', '六息 · 蝴蝶安坐', '七息 · 腰脊轻安'],
+      'desk',
+      ['lumbar_pelvic_rock', 'lumbar_willow_side_bend', 'lumbar_seated_figure_four', 'thoracic_desk_cat_cow', 'thoracic_seated_gentle_twist', 'lumbar_bedside_butterfly_fold', 'shoulder_double_inhale_sigh'],
+      6, 60
+    );
+    const BOOKLET_EVENING_ROUTINES = buildDailyRoutines(
+      'booklet_evening_breath',
+      ['初息 · 长叹卸尘', '二息 · 温掌敛光', '三息 · 风池晚风', '四息 · 床沿蝶息', '五息 · 侧肋听松', '六息 · 枕前温托', '七息 · 夜静神宁'],
+      'bed',
+      ['shoulder_double_inhale_sigh', 'neck_fengchi_nod', 'lumbar_bedside_butterfly_fold', 'eye_warm_palming', 'lumbar_willow_side_bend', 'neck_occiput_cradle', 'shoulder_scapula_sigh'],
+      6, 60
+    );
+    const BOOKLET_EYES_WRIST_ROUTINES = buildDailyRoutines(
+      'booklet_eyes_wrist_care',
+      ['初息 · 温掌润目', '二息 · 指尖温水', '三息 · 攒竹舒眉', '四息 · 合掌松腕', '五息 · 远山清眸'],
+      'desk',
+      ['eye_warm_palming', 'wrist_palm_forward_silk', 'eye_slow_orbit_mist', 'wrist_warm_water_wave', 'eye_brow_cuanzhu_smoothing', 'wrist_prayer_lotus_turn', 'wrist_thumb_tendon_release', 'eye_horizon_soft_gaze'],
+      4, 60
+    );
+
+    const CURATED_BOOKLETS = [
+      {
+        id: 'booklet_neck_thoracic',
+        title: '《伏案颈胸开阔记》',
+        subtitle: '温和改善圆肩含胸与长期低头后的颈后紧绷，随时暂歇续练亦无妨。',
+        totalDays: 7,
+        dailyMinutes: 5,
+        routines: BOOKLET_NECK_ROUTINES,
+        poses: BOOKLET_NECK_ROUTINES[0].poses
+      },
+      {
+        id: 'booklet_lumbar_pelvis',
+        title: '《久坐腰骶归位帖》',
+        subtitle: '针对久坐臀腰酸沉与骨盆僵滞的椅沿及桌边温和舒展。',
+        totalDays: 7,
+        dailyMinutes: 6,
+        routines: BOOKLET_LUMBAR_ROUTINES,
+        poses: BOOKLET_LUMBAR_ROUTINES[0].poses
+      },
+      {
+        id: 'booklet_evening_breath',
+        title: '《晚间呼吸解绑》',
+        subtitle: '以四吸六呼长节律配合全身轻柔松解，洗去日间疲惫安然入眠。',
+        totalDays: 7,
+        dailyMinutes: 6,
+        routines: BOOKLET_EVENING_ROUTINES,
+        poses: BOOKLET_EVENING_ROUTINES[0].poses
+      },
+      {
+        id: 'booklet_eyes_wrist_care',
+        title: '《屏幕温目护腕册》',
+        subtitle: '专为高频敲字与盯屏人群调配的眉眼清润及手腕前臂养护专册。',
+        totalDays: 5,
+        dailyMinutes: 4,
+        routines: BOOKLET_EYES_WRIST_ROUTINES,
+        poses: BOOKLET_EYES_WRIST_ROUTINES[0].poses
+      }
+    ];
+
+    const HOUSE_SPLASH_CREATIVES = [
+      {
+        id: 'house_celadon_tea',
+        artworkTheme: 'CELADON_TEA',
+        sponsorName: '山茗器物 · 东方茶席',
+        title: '案头一盏汝瓷温茶，陪你度过伏案午后',
+        subtitle: '手作原矿天青釉主人杯 · 温润握感不烫手',
+        ctaLabel: '了解器物详情',
+        landingSummary: '山茗器物春季茶席展：原矿天青釉案头杯与茶则细节一览（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/celadon-tea',
+        durationSeconds: 3
+      },
+      {
+        id: 'house_pine_incense',
+        artworkTheme: 'PINE_INCENSE',
+        sponsorName: '松间闻香 · 草木线香',
+        title: '一缕山松冷香，为书房留出片刻清净',
+        subtitle: '古法柏木与冷杉合香 · 无化学助燃剂',
+        ctaLabel: '探索草木香谱',
+        landingSummary: '松间闻香节气合香志：天然冷杉、柏木与艾草线香配方介绍（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/pine-incense',
+        durationSeconds: 3
+      },
+      {
+        id: 'house_wood_stand',
+        artworkTheme: 'WOOD_DESK_STAND',
+        sponsorName: '案头清风 · 木作工坊',
+        title: '把屏幕抬高半寸，让低垂的后颈自然归位',
+        subtitle: '整块北美黑胡桃木榫卯桌面架 · 稳固温润',
+        ctaLabel: '查看木作尺寸',
+        landingSummary: '案头清风人体工学木作：黑胡桃木显示器增高架与护腕掌托说明（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/wood-stand',
+        durationSeconds: 3
+      }
+    ];
+
+    const SongxiAudioEngine = (() => {
+      let ctx = null;
+      let activeNodes = [];
+      let isPlaying = false;
+
+      function ensureCtx() {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!ctx) ctx = new AC();
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        return ctx;
+      }
+
+      function stopAll() {
+        activeNodes.forEach(n => {
+          try { n.stop && n.stop(); } catch (_) {}
+          try { n.disconnect && n.disconnect(); } catch (_) {}
+        });
+        activeNodes = [];
+        isPlaying = false;
+      }
+
+      function playProfile(profile, phase = 'inhale') {
+        stopAll();
+        if (profile === 'silent') {
+          try { if (navigator.vibrate) navigator.vibrate([26]); } catch (_) {}
+          return;
+        }
+        try {
+          const ac = ensureCtx();
+          if (!ac) return;
+          isPlaying = true;
+          const now = ac.currentTime;
+          const shift = phase === 'exhale' ? 0.94 : 1.0;
+          const freqs = profile === 'bamboo'
+            ? [528, 1056, 1668]
+            : profile === 'guqin'
+            ? [396, 594, 792, 1188]
+            : profile === 'rain'
+            ? [440, 739, 1100]
+            : [432, 648, 1183];
+
+          freqs.forEach((f, idx) => {
+            const osc = ac.createOscillator();
+            const g = ac.createGain();
+            osc.type = (profile === 'guqin' && idx === 0) ? 'triangle' : 'sine';
+            osc.frequency.setValueAtTime(f * shift, now);
+            const peak = [0.046, 0.019, 0.011, 0.006][idx] || 0.006;
+            const dur = Math.max(0.65, 2.05 - idx * 0.32);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.exponentialRampToValueAtTime(peak, now + 0.06);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+            osc.connect(g); g.connect(ac.destination);
+            osc.start(now); osc.stop(now + dur + 0.05);
+            activeNodes.push(osc, g);
+          });
+        } catch (_) {}
+      }
+
+      return { playProfile, stopAll, isPlaying: () => isPlaying };
+    })();
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function mirrorKeyframe(k) {
+      return {
+        headTiltDeg: -k.headTiltDeg,
+        chinTuckRatio: k.chinTuckRatio,
+        leftShoulderDropRatio: k.rightShoulderDropRatio,
+        rightShoulderDropRatio: k.leftShoulderDropRatio,
+        spineArcRatio: k.spineArcRatio,
+        leftArmAngleDeg: k.rightArmAngleDeg,
+        rightArmAngleDeg: k.leftArmAngleDeg,
+        wristFlexRatio: k.wristFlexRatio,
+        eyesClosed: k.eyesClosed !== false
+      };
+    }
+
+    function interpolatePose(pose, breathT, mirrorBilateral = false) {
+      const ex = mirrorBilateral ? mirrorKeyframe(pose.exhale) : pose.exhale;
+      const inh = mirrorBilateral ? mirrorKeyframe(pose.inhale) : pose.inhale;
+      return {
+        headTiltDeg: lerp(ex.headTiltDeg, inh.headTiltDeg, breathT),
+        chinTuckRatio: lerp(ex.chinTuckRatio, inh.chinTuckRatio, breathT),
+        leftShoulderDropRatio: lerp(ex.leftShoulderDropRatio, inh.leftShoulderDropRatio, breathT),
+        rightShoulderDropRatio: lerp(ex.rightShoulderDropRatio, inh.rightShoulderDropRatio, breathT),
+        spineArcRatio: lerp(ex.spineArcRatio, inh.spineArcRatio, breathT),
+        leftArmAngleDeg: lerp(ex.leftArmAngleDeg, inh.leftArmAngleDeg, breathT),
+        rightArmAngleDeg: lerp(ex.rightArmAngleDeg, inh.rightArmAngleDeg, breathT),
+        wristFlexRatio: lerp(ex.wristFlexRatio, inh.wristFlexRatio, breathT),
+        eyesClosed: breathT >= 0.5 ? (inh.eyesClosed !== false) : (ex.eyesClosed !== false)
+      };
+    }
+
+    function renderSealSVG(skinId, scale = 1) {
+      const s = SONGXI_SKINS[skinId];
+      const c = s.sealVermilion;
+      const bg = s.canvasPrimary;
+      if (s.sealShape === 'SQUARE_ZHUWEN') {
+        const w = Math.round(30 * scale);
+        return `<svg width="${w}" height="${w}" viewBox="0 0 30 30" aria-label="朱文印 ${s.sealText}">
+          <rect x="2" y="2" width="26" height="26" rx="3" fill="none" stroke="${c}" stroke-width="1.9" />
+          <text x="15" y="13.5" text-anchor="middle" fill="${c}" font-size="8.8" font-weight="700" class="font-serif-cn">松</text>
+          <text x="15" y="23.5" text-anchor="middle" fill="${c}" font-size="8.8" font-weight="700" class="font-serif-cn">息</text>
+        </svg>`;
+      }
+      if (s.sealShape === 'OBLONG_BAIWEN') {
+        const w = Math.round(24 * scale), h = Math.round(42 * scale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 24 42" aria-label="白文印 ${s.sealText}">
+          <rect x="1.5" y="1.5" width="21" height="39" rx="2.5" fill="${c}" />
+          <text x="12" y="12" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">山</text>
+          <text x="12" y="20.5" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">居</text>
+          <text x="12" y="29" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">清</text>
+          <text x="12" y="37.5" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">息</text>
+        </svg>`;
+      }
+      if (s.sealShape === 'GOURD_XIANZHANG') {
+        const w = Math.round(26 * scale), h = Math.round(38 * scale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 26 38" aria-label="葫芦章 ${s.sealText}">
+          <path d="M13 2 C18.5 2 20.5 7 17.8 13 C22.5 17.5 23 33.5 13 35.5 C3 33.5 3.5 17.5 8.2 13 C5.5 7 7.5 2 13 2 Z" fill="${c}" />
+          <text x="13" y="12.5" text-anchor="middle" fill="${bg}" font-size="7.2" font-weight="700" class="font-serif-cn">听</text>
+          <text x="13" y="27.5" text-anchor="middle" fill="${bg}" font-size="8.6" font-weight="700" class="font-serif-cn">松</text>
+        </svg>`;
+      }
+      const w = Math.round(30 * scale);
+      return `<svg width="${w}" height="${w}" viewBox="0 0 30 30" aria-label="圆印 ${s.sealText}">
+        <circle cx="15" cy="15" r="13" fill="none" stroke="${c}" stroke-width="1.8" />
+        <text x="15" y="13.5" text-anchor="middle" fill="${c}" font-size="8" font-weight="700" class="font-serif-cn">春</text>
+        <text x="15" y="23" text-anchor="middle" fill="${c}" font-size="8" font-weight="700" class="font-serif-cn">山</text>
+      </svg>`;
+    }
+
+    function renderFigureAndHaloSVG(skinId, pose, breathT, uid, mirrorBilateral = false) {
+      const s = SONGXI_SKINS[skinId];
+      const k = interpolatePose(pose, breathT, mirrorBilateral);
+      const arch = pose.archetype || 'neck';
+      const cx = 120;
+      const baseY = 142 - k.spineArcRatio * 5;
+      const lShY = baseY - 22 + k.leftShoulderDropRatio * 11;
+      const rShY = baseY - 22 + k.rightShoulderDropRatio * 11;
+      const lShX = cx - 28 - k.spineArcRatio * 2.5;
+      const rShX = cx + 28 + k.spineArcRatio * 2.5;
+      const headX = cx + k.headTiltDeg * 0.22;
+      const headY = baseY - 27 + k.chinTuckRatio * 3.8;
+
+      let lElX, lElY, lHaX, lHaY, rElX, rElY, rHaX, rHaY;
+      if (arch === 'eye') {
+        lElX = lShX - 14; lElY = lShY + 26; lHaX = cx - 10; lHaY = headY - 18;
+        rElX = rShX + 14; rElY = rShY + 26; rHaX = cx + 10; rHaY = headY - 18;
+      } else if (arch === 'wrist') {
+        lElX = lShX - 9; lElY = lShY + 26; lHaX = cx + 9; lHaY = baseY + 3;
+        rElX = rShX + 13; rElY = rShY + 20; rHaX = cx + 20; rHaY = baseY - 2 - k.wristFlexRatio * 5;
+      } else if (arch === 'lumbar') {
+        const rad = (k.leftArmAngleDeg * Math.PI) / 180;
+        lElX = lShX - Math.sin(rad) * 24; lElY = lShY + Math.cos(rad) * 24;
+        lHaX = lElX + 14; lHaY = lElY - 24;
+        rElX = rShX + 11; rElY = rShY + 28; rHaX = rShX + 16; rHaY = baseY + 38;
+      } else if (arch === 'thoracic') {
+        lElX = lShX - 18 - k.spineArcRatio * 5; lElY = lShY + 25; lHaX = cx - 13; lHaY = baseY + 30;
+        rElX = rShX + 18 + k.spineArcRatio * 5; rElY = rShY + 25; rHaX = cx + 13; rHaY = baseY + 30;
+      } else {
+        lElX = lShX - 11 - (k.leftArmAngleDeg - 10) * 0.22; lElY = lShY + 28; lHaX = cx - 20; lHaY = baseY + 39;
+        rElX = rShX + 11 + (k.rightArmAngleDeg - 10) * 0.22; rElY = rShY + 28; rHaX = cx + 20; rHaY = baseY + 39;
+      }
+
+      const haloScale = (0.86 + 0.22 * breathT).toFixed(3);
+      let haloSvg = '';
+      if (skinId === 'ink_mist') {
+        haloSvg = `<g transform="translate(${cx}, ${baseY - 6}) scale(${haloScale})">
+          <circle r="68" fill="${s.accentPrimary}" fill-opacity="0.08" />
+          <circle r="64" fill="none" stroke="${s.accentPrimary}" stroke-width="2" stroke-opacity="0.35" stroke-dasharray="150 14 90 12" />
+          <circle r="49" fill="none" stroke="${s.inkPrimary}" stroke-width="1.1" stroke-opacity="0.22" stroke-dasharray="95 12" />
+        </g>`;
+      } else if (skinId === 'qinglv_celadon') {
+        haloSvg = `<g transform="translate(${cx}, ${baseY - 6}) scale(${haloScale})">
+          <path d="M0 -68 C18 -68 28 -54 46 -46 C54 -28 68 -18 68 0 C68 18 54 28 46 46 C28 54 18 68 0 68 C-18 68 -28 54 -46 46 C-54 28 -68 18 -68 0 C-68 -18 -54 -28 -46 -46 C-28 -54 -18 -68 0 -68 Z" fill="${s.accentPrimary}" fill-opacity="0.12" stroke="${s.accentPrimary}" stroke-width="1.3" stroke-opacity="0.36" />
+          <circle r="50" fill="none" stroke="#B88655" stroke-width="1.1" stroke-opacity="0.52" stroke-dasharray="6 4" />
+        </g>`;
+      } else if (skinId === 'dusk_pine') {
+        haloSvg = `<g transform="translate(${cx}, ${baseY - 6}) scale(${haloScale})">
+          <circle r="66" fill="${s.accentPrimary}" fill-opacity="0.11" />
+          <circle r="61" fill="none" stroke="${s.accentPrimary}" stroke-width="1.8" stroke-opacity="0.42" />
+          <path d="M-44 -34 A56 56 0 1 1 38 42" fill="none" stroke="${s.accentSecondary}" stroke-width="2.1" stroke-opacity="0.48" stroke-linecap="round" />
+        </g>`;
+      } else {
+        haloSvg = `<g transform="translate(${cx}, ${baseY - 6}) scale(${haloScale})">
+          <ellipse rx="66" ry="33" fill="${s.accentPrimary}" fill-opacity="0.10" stroke="${s.accentPrimary}" stroke-width="1.1" stroke-opacity="0.28" />
+          <ellipse rx="66" ry="33" transform="rotate(60)" fill="${s.accentPrimary}" fill-opacity="0.10" stroke="${s.accentPrimary}" stroke-width="1.1" stroke-opacity="0.28" />
+          <ellipse rx="66" ry="33" transform="rotate(120)" fill="${s.accentSecondary}" fill-opacity="0.09" stroke="${s.accentSecondary}" stroke-width="1.1" stroke-opacity="0.26" />
+        </g>`;
+      }
+
+      const collarColor = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.contourStroke);
+
+      return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title}">
+        <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
+        ${haloSvg}
+        <path d="M${cx - 42} ${baseY + 18} Q${cx} ${baseY + 9} ${cx + 42} ${baseY + 18}" fill="none" stroke="${s.accentSecondary}" stroke-width="2.2" stroke-opacity="0.38" stroke-linecap="round" />
+        <path d="M${lShX} ${lShY} Q${cx} ${baseY - 24} ${rShX} ${rShY} C${rShX + 13} ${rShY + 26}, ${cx + 35} ${baseY + 34}, ${cx + 33} ${baseY + 48} L${cx - 33} ${baseY + 48} C${cx - 35} ${baseY + 34}, ${lShX - 13} ${lShY + 26}, ${lShX} ${lShY} Z"
+          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
+        <path d="M${cx - 12} ${baseY - 23} L${cx + 4} ${baseY + 3} M${cx + 12} ${baseY - 23} L${cx - 2} ${baseY - 4}"
+          fill="none" stroke="${collarColor}" stroke-width="1.3" stroke-opacity="0.72" stroke-linecap="round" />
+
+        <path d="M${lShX + 2} ${lShY + 3} Q${lElX} ${lElY} ${lHaX} ${lHaY}" fill="none" stroke="${s.garmentFill}" stroke-width="13" stroke-linecap="round" />
+        <path d="M${lShX + 2} ${lShY + 3} Q${lElX} ${lElY} ${lHaX} ${lHaY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
+        <circle cx="${lHaX}" cy="${lHaY}" r="4.8" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
+
+        <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.garmentFill}" stroke-width="13" stroke-linecap="round" />
+        <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
+        <circle cx="${rHaX}" cy="${rHaY}" r="4.8" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
+
+        <rect x="${cx - 5.5}" y="${baseY - 32}" width="11" height="13" rx="4.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.1" />
+        <g transform="translate(${headX}, ${headY}) rotate(${k.headTiltDeg.toFixed(2)})">
+          <circle cx="-12" cy="-13" r="8" fill="${s.hairFill}" />
+          <path d="M-16 -20 C-17 -35, 17 -35, 16 -20 Z" fill="${s.hairFill}" />
+          <ellipse cx="0" cy="-17" rx="13.8" ry="16.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
+          <path d="M-13.8 -20 C-11 -31, 9 -32, 13.8 -19 C7 -24.5, -6 -24.5, -13.8 -20 Z" fill="${s.hairFill}" />
+          ${k.eyesClosed === false
+            ? `<circle cx="-4.8" cy="-16.6" r="1.35" fill="${s.contourStroke}" /><circle cx="4.8" cy="-16.6" r="1.35" fill="${s.contourStroke}" />`
+            : `<path d="M-8 -17 Q-4.6 -14.8 -1.6 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />
+               <path d="M1.6 -17 Q4.6 -14.8 8 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />`
+          }
+          <path d="M-2.8 -10 Q0 -8.2 2.8 -10" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+        </g>
+        ${uid === 'player' ? `<text x="120" y="206" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title}</text>` : ''}
+      </svg>`;
+    }
+
+    function renderHomeShanShuiSVG(skinId, pose, breathT) {
+      const s = SONGXI_SKINS[skinId];
+      const farAlpha = skinId === 'dusk_pine' ? '0.78' : (skinId === 'qinglv_celadon' ? '0.68' : '0.56');
+      const midAlpha = skinId === 'dusk_pine' ? '0.88' : (skinId === 'qinglv_celadon' ? '0.78' : '0.66');
+
+      const ridgeSvg = skinId === 'qinglv_celadon'
+        ? `<path d="M-10 112 L58 48 L112 82 L176 38 L242 80 L308 46 L372 92 L372 160 L-10 160 Z" fill="url(#hfar)" />
+           <path d="M-10 128 L42 82 L98 106 L160 66 L224 104 L292 72 L372 108 L372 160 L-10 160 Z" fill="url(#hmid)" />
+           <path d="M42 82 L98 106 L160 66 L224 104 L292 72" fill="none" stroke="${s.crestStroke}" stroke-width="1.25" stroke-opacity="0.82" />`
+        : `<path d="M-10 108 Q64 56 138 84 T288 58 L372 96 L372 160 L-10 160 Z" fill="url(#hfar)" />
+           <path d="M-10 126 Q88 82 174 106 T332 82 L372 110 L372 160 L-10 160 Z" fill="url(#hmid)" />
+           ${s.crestStroke ? `<path d="M-10 126 Q88 82 174 106 T332 82 L372 110" fill="none" stroke="${s.crestStroke}" stroke-width="1.05" stroke-opacity="0.62" />` : ''}
+           ${skinId === 'spring_blossom' ? `<path d="M254 118 C222 128, 266 142, 224 156" fill="none" stroke="#4E7266" stroke-width="4.5" stroke-opacity="0.22" stroke-linecap="round" />` : ''}`;
+
+      const celestial = skinId === 'dusk_pine'
+        ? `<path d="M304 24 A13 13 0 1 0 318 46 A10.5 10.5 0 1 1 304 24 Z" fill="${s.celestialColor}" fill-opacity="0.9" />`
+        : `<circle cx="${skinId === 'spring_blossom' ? 68 : 302}" cy="36" r="16" fill="${s.celestialColor}" fill-opacity="0.54" />`;
+
+      const botanical = skinId === 'ink_mist' || skinId === 'dusk_pine'
+        ? `<g stroke="${skinId === 'dusk_pine' ? '#86AA96' : s.inkPrimary}" stroke-linecap="round" stroke-opacity="0.62">
+            <path d="M-4 30 Q30 35 60 22" fill="none" stroke-width="2" />
+            <path d="M60 22 L53 10 M60 22 L61 9 M60 22 L69 12" stroke-width="1.05" />
+          </g>`
+        : skinId === 'qinglv_celadon'
+        ? `<g><path d="M332 160 Q338 112 326 76" fill="none" stroke="#2B5B50" stroke-width="1.8" stroke-opacity="0.65" /><path d="M326 88 Q312 82 306 90 Q316 93 326 88 Z" fill="#2B5B50" fill-opacity="0.65" /></g>`
+        : `<g><path d="M366 22 Q326 34 294 22" fill="none" stroke="#685A54" stroke-width="1.6" /><circle cx="294" cy="22" r="5" fill="#E6A598" /><circle cx="318" cy="28" r="4.5" fill="#EBB7AC" /></g>`;
+
+      return `<svg viewBox="0 0 360 160" class="w-full h-full block" role="img" aria-label="${s.titleCn} 山水画眉">
+        <defs>
+          <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.canvasSkyWashTop}" />
+            <stop offset="85%" stop-color="${s.canvasPrimary}" />
+          </linearGradient>
+          <linearGradient id="hfar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.farRidge}" stop-opacity="${farAlpha}" />
+            <stop offset="100%" stop-color="${s.canvasPrimary}" stop-opacity="0.05" />
+          </linearGradient>
+          <linearGradient id="hmid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.midRidge}" stop-opacity="${midAlpha}" />
+            <stop offset="100%" stop-color="${s.canvasPrimary}" stop-opacity="0.06" />
+          </linearGradient>
+        </defs>
+        <rect width="360" height="160" fill="url(#hsky)" />
+        <rect width="360" height="160" filter="url(#${s.grainFilter})" />
+        ${celestial}
+        ${ridgeSvg}
+        <g class="sx-cloud-drift" opacity="${s.mistOpacity}">
+          <ellipse cx="105" cy="112" rx="95" ry="12" fill="${s.mistColor}" />
+          <ellipse cx="262" cy="126" rx="102" ry="13" fill="${s.mistColor}" />
+        </g>
+        ${botanical}
+        <g transform="translate(106, 6) scale(0.66)">
+          ${renderFigureAndHaloSVG(skinId, pose, breathT, 'homefig').replace(/<svg[^>]*>|<\/svg>/g, '').replace(/<rect[^>]*>/, '')}
+        </g>
+      </svg>`;
+    }
+
+    function renderBodyMapSVG(skinId, selectedZones) {
+      const s = SONGXI_SKINS[skinId];
+      const hotspots = [
+        { zone: 'eye', cx: 70, cy: 30, label: '眉眼' },
+        { zone: 'neck', cx: 70, cy: 52, label: '风池' },
+        { zone: 'shoulder', cx: 44, cy: 68, label: '双肩' },
+        { zone: 'thoracic', cx: 70, cy: 88, label: '胸椎' },
+        { zone: 'lumbar', cx: 70, cy: 122, label: '腰骶' },
+        { zone: 'wrist', cx: 28, cy: 132, label: '手腕' }
+      ];
+
+      return `<svg viewBox="0 0 140 184" class="w-full h-full block" role="img" aria-label="东方气韵人形点选图">
+        <!-- Gentle Eastern brush silhouette -->
+        <circle cx="70" cy="30" r="14" fill="${s.surfaceCard}" stroke="${s.contourStroke}" stroke-width="1.5" />
+        <path d="M65 44 L65 55 M75 44 L75 55" stroke="${s.contourStroke}" stroke-width="1.4" />
+        <path d="M40 66 Q70 54 100 66 C106 90, 96 126, 92 156 L48 156 C44 126, 34 90, 40 66 Z" fill="${s.surfaceCard}" stroke="${s.contourStroke}" stroke-width="1.5" />
+        <path d="M40 68 Q26 100 28 136 M100 68 Q114 100 112 136" fill="none" stroke="${s.contourStroke}" stroke-width="6" stroke-linecap="round" stroke-opacity="0.28" />
+        <line x1="70" y1="54" x2="70" y2="146" stroke="${s.accentPrimary}" stroke-width="1" stroke-dasharray="3 3" stroke-opacity="0.5" />
+        ${hotspots.map(h => {
+          const on = selectedZones.includes(h.zone);
+          return `<g data-svg-zone="${h.zone}" class="cursor-pointer">
+            ${on ? `<circle cx="${h.cx}" cy="${h.cy}" r="11" fill="${s.accentPrimary}" fill-opacity="0.24" />` : ''}
+            <circle cx="${h.cx}" cy="${h.cy}" r="${on ? 6.2 : 4.6}" fill="${on ? s.accentPrimary : s.surfaceCardSubtle}" stroke="${s.accentPrimary}" stroke-width="1.6" />
+          </g>`;
+        }).join('')}
+      </svg>`;
+    }
+
+    function renderCompletionRippleSVG(skinId) {
+      const s = SONGXI_SKINS[skinId];
+      return `<svg viewBox="0 0 180 180" class="w-full h-full block" role="img" aria-label="一息成同心水纹">
+        <circle cx="90" cy="90" r="78" fill="none" stroke="${s.accentPrimary}" stroke-width="1.1" stroke-opacity="0.22" />
+        <circle cx="90" cy="90" r="58" fill="none" stroke="${s.accentPrimary}" stroke-width="1.5" stroke-opacity="0.38" stroke-dasharray="95 10" />
+        <circle cx="90" cy="90" r="38" fill="${s.accentPrimary}" fill-opacity="0.12" stroke="${s.accentPrimary}" stroke-width="1.8" stroke-opacity="0.55" />
+        <g transform="translate(75, 75)">${renderSealSVG(skinId, 1)}</g>
+      </svg>`;
+    }
+
+    function renderSplashCreativeSVG(theme, skin) {
+      if (theme === 'CELADON_TEA') {
+        return `<svg viewBox="0 0 300 200" class="w-full h-44 rounded-2xl block" role="img" aria-label="汝瓷茶席画心">
+          <rect width="300" height="200" fill="${skin.surfaceCardSubtle}" />
+          <rect x="30" y="14" width="240" height="96" rx="8" fill="${skin.canvasPrimary}" stroke="${skin.borderHairline}" stroke-width="1.2" />
+          <path d="M30 88 Q98 52 162 74 T270 60 L270 110 L30 110 Z" fill="${skin.accentPrimary}" fill-opacity="0.22" />
+          <ellipse cx="150" cy="156" rx="82" ry="15" fill="#C9BCA6" fill-opacity="0.45" />
+          <path d="M118 124 C120 150, 180 150, 182 124 Z" fill="#CFE2DC" stroke="#35685C" stroke-width="1.5" />
+          <ellipse cx="150" cy="124" rx="32" ry="7.5" fill="#DFECE6" stroke="#35685C" stroke-width="1.4" />
+          <path d="M142 112 C136 98, 148 88, 142 76 M158 110 C164 96, 154 86, 160 74" fill="none" stroke="${skin.accentPrimary}" stroke-width="1.4" stroke-opacity="0.5" stroke-linecap="round" />
+        </svg>`;
+      }
+      if (theme === 'PINE_INCENSE') {
+        return `<svg viewBox="0 0 300 200" class="w-full h-44 rounded-2xl block" role="img" aria-label="松间线香画心">
+          <rect width="300" height="200" fill="${skin.surfaceCardSubtle}" />
+          <circle cx="228" cy="46" r="16" fill="#E4CFA8" fill-opacity="0.7" />
+          <path d="M0 124 Q86 82 172 104 T300 86 L300 158 L0 158 Z" fill="${skin.accentPrimary}" fill-opacity="0.20" />
+          <rect x="74" y="148" width="152" height="11" rx="5.5" fill="#685246" />
+          <circle cx="108" cy="146" r="7.5" fill="#B88655" />
+          <line x1="110" y1="143" x2="184" y2="112" stroke="#8C6D58" stroke-width="2.1" stroke-linecap="round" />
+          <circle cx="185" cy="111.5" r="2.2" fill="#D47566" />
+          <path d="M186 107 C200 90, 170 76, 184 56 C194 42, 178 30, 188 18" fill="none" stroke="${skin.inkSecondary}" stroke-width="1.5" stroke-opacity="0.5" stroke-linecap="round" />
+        </svg>`;
+      }
+      return `<svg viewBox="0 0 300 200" class="w-full h-44 rounded-2xl block" role="img" aria-label="案头木作画心">
+        <rect width="300" height="200" fill="${skin.surfaceCardSubtle}" />
+        <path d="M68 156 L232 156 L218 168 L82 168 Z" fill="#7C5843" />
+        <rect x="88" y="64" width="104" height="76" rx="6" fill="#8E6750" />
+        <rect x="96" y="70" width="88" height="64" rx="4" fill="${skin.surfaceCard}" stroke="${skin.borderHairline}" stroke-width="1.1" />
+        <line x1="140" y1="72" x2="140" y2="132" stroke="${skin.borderHairline}" stroke-width="1.1" />
+        <path d="M216 128 C208 138, 210 154, 222 156 C234 154, 236 138, 228 128 Z" fill="#CFE2DC" stroke="#35685C" stroke-width="1.2" />
+        <path d="M222 128 Q228 110 238 102" fill="none" stroke="#486356" stroke-width="1.7" stroke-linecap="round" />
+      </svg>`;
+    }
+
+    // --- Deterministic ClockProvider & Persistent LocalStorage Store ---
+    const STORAGE_KEY = 'songxi_android_v2_store';
+    const urlParams = new URLSearchParams(window.location.search);
+
+    function isTruthyParam(...names) {
+      return names.some(n => {
+        const v = urlParams.get(n);
+        return v !== null && ['1', 'true', 'yes'].includes(v.trim().toLowerCase());
+      });
+    }
+
+    const RESET_PARAM_KEYS = ['reset', 'resetState', 'RESET_STATE', 'reset_state', 'com.songxi.app.extra.RESET_STATE'];
+    if (isTruthyParam(...RESET_PARAM_KEYS)) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+      try {
+        const cleanUrl = new URL(window.location.href);
+        RESET_PARAM_KEYS.forEach(k => cleanUrl.searchParams.delete(k));
+        window.history.replaceState(null, '', cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+      } catch (_) {}
+    }
+
+    const rawEpochParam =
+      urlParams.get('com.songxi.app.extra.SIMULATED_EPOCH_MS') ??
+      urlParams.get('SIMULATED_EPOCH_MS') ??
+      urlParams.get('simulated_epoch_ms') ??
+      urlParams.get('simulatedEpochMs') ??
+      urlParams.get('epochMs') ??
+      urlParams.get('now');
+    let customClockOffsetMs = rawEpochParam !== null && rawEpochParam.trim() !== '' && !Number.isNaN(Number(rawEpochParam))
+      ? Number(rawEpochParam) - Date.now()
+      : null;
+
+    function nowEpochMs() {
+      return customClockOffsetMs !== null ? Date.now() + customClockOffsetMs : Date.now();
+    }
+
+    function setSimulatedEpochMs(targetMs) {
+      customClockOffsetMs = targetMs - Date.now();
+      applySkinAndRefreshUI();
+    }
+
+    function formatIsoDate(ms) {
+      const d = new Date(ms);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function formatClockHHMM(ms) {
+      const d = new Date(ms);
+      return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function defaultStore() {
+      return {
+        onboardingSeen: false,
+        selectedSkinId: 'ink_mist',
+        autoNightDuskPine: false,
+        selectedScene: 'desk',
+        selectedZones: ['neck', 'shoulder'],
+        customMinutes: 4,
+        bookletCompletedDays: {},
+        records: [],
+        reminder: {
+          enabled: true,
+          intervalMinutes: 60,
+          dailyCap: 2,
+          lunchQuietEnabled: true,
+          nightQuietEnabled: true,
+          weekendQuietEnabled: true,
+          mutedDateIso: null,
+          notifiedByDate: {}
+        },
+        splash: {
+          totalAppLaunches: 0,
+          lastImpressionEpochMs: null,
+          impressionsByDate: {},
+          personalizedEnabled: false,
+          creativeCursor: 0,
+          totalSkips: 0,
+          totalCtaClicks: 0,
+          lastGateDecision: 'NONE'
+        }
+      };
+    }
+
+    function sanitizePlainMap(val) {
+      return val && typeof val === 'object' && !Array.isArray(val) ? val : {};
+    }
+
+    function isValidNonNegativeCount(v) {
+      if (v === null || v === undefined || typeof v === 'boolean' || typeof v === 'object') return false;
+      if (typeof v === 'string' && v.trim() === '') return false;
+      const n = Number(v);
+      return Number.isFinite(n) && n >= 0;
+    }
+
+    function sanitizeCountMap(val) {
+      if (!val || typeof val !== 'object' || Array.isArray(val)) return {};
+      const out = {};
+      Object.entries(val).forEach(([k, v]) => {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isValidNonNegativeCount(v)) {
+          out[k] = Math.floor(Number(v));
+        }
+      });
+      return out;
+    }
+
+    function loadStore() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultStore();
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return defaultStore();
+        const base = defaultStore();
+        const validZones = ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'];
+        const rawZones = Array.isArray(parsed.selectedZones)
+          ? parsed.selectedZones.filter(z => typeof z === 'string' && validZones.includes(z)).slice(0, 3)
+          : base.selectedZones;
+        const rawBooklets = sanitizePlainMap(parsed.bookletCompletedDays);
+        const cleanBooklets = {};
+        Object.keys(rawBooklets).forEach(k => {
+          if (Array.isArray(rawBooklets[k])) {
+            cleanBooklets[k] = rawBooklets[k].filter(n => Number.isInteger(n) && n >= 0);
+          }
+        });
+        const rawRecords = Array.isArray(parsed.records)
+          ? parsed.records.filter(r => r && typeof r === 'object' && !Array.isArray(r))
+          : [];
+        const remIn = sanitizePlainMap(parsed.reminder);
+        const splIn = sanitizePlainMap(parsed.splash);
+        const ivNum = Number(remIn.intervalMinutes);
+        return {
+          onboardingSeen: typeof parsed.onboardingSeen === 'boolean' ? parsed.onboardingSeen : base.onboardingSeen,
+          selectedSkinId: typeof parsed.selectedSkinId === 'string' && SONGXI_SKINS[parsed.selectedSkinId] ? parsed.selectedSkinId : base.selectedSkinId,
+          autoNightDuskPine: typeof parsed.autoNightDuskPine === 'boolean' ? parsed.autoNightDuskPine : base.autoNightDuskPine,
+          selectedScene: typeof parsed.selectedScene === 'string' && HERO_ROUTINES[parsed.selectedScene] ? parsed.selectedScene : base.selectedScene,
+          selectedZones: rawZones,
+          customMinutes: [2, 4, 6].includes(Number(parsed.customMinutes)) ? Number(parsed.customMinutes) : base.customMinutes,
+          bookletCompletedDays: cleanBooklets,
+          records: rawRecords,
+          reminder: {
+            enabled: typeof remIn.enabled === 'boolean' ? remIn.enabled : base.reminder.enabled,
+            intervalMinutes: [45, 60, 90, 120].includes(ivNum) ? ivNum : base.reminder.intervalMinutes,
+            dailyCap: isValidNonNegativeCount(remIn.dailyCap) && Math.floor(Number(remIn.dailyCap)) > 0 ? Math.floor(Number(remIn.dailyCap)) : base.reminder.dailyCap,
+            lunchQuietEnabled: typeof remIn.lunchQuietEnabled === 'boolean' ? remIn.lunchQuietEnabled : base.reminder.lunchQuietEnabled,
+            nightQuietEnabled: typeof remIn.nightQuietEnabled === 'boolean' ? remIn.nightQuietEnabled : base.reminder.nightQuietEnabled,
+            weekendQuietEnabled: typeof remIn.weekendQuietEnabled === 'boolean' ? remIn.weekendQuietEnabled : base.reminder.weekendQuietEnabled,
+            mutedDateIso: typeof remIn.mutedDateIso === 'string' ? remIn.mutedDateIso : null,
+            notifiedByDate: sanitizeCountMap(remIn.notifiedByDate)
+          },
+          splash: {
+            totalAppLaunches: isValidNonNegativeCount(splIn.totalAppLaunches) ? Math.floor(Number(splIn.totalAppLaunches)) : 0,
+            lastImpressionEpochMs: isValidNonNegativeCount(splIn.lastImpressionEpochMs) && Number(splIn.lastImpressionEpochMs) > 0 ? Math.floor(Number(splIn.lastImpressionEpochMs)) : null,
+            impressionsByDate: sanitizeCountMap(splIn.impressionsByDate),
+            personalizedEnabled: typeof splIn.personalizedEnabled === 'boolean' ? splIn.personalizedEnabled : false,
+            creativeCursor: isValidNonNegativeCount(splIn.creativeCursor) ? Math.floor(Number(splIn.creativeCursor)) : 0,
+            totalSkips: isValidNonNegativeCount(splIn.totalSkips) ? Math.floor(Number(splIn.totalSkips)) : 0,
+            totalCtaClicks: isValidNonNegativeCount(splIn.totalCtaClicks) ? Math.floor(Number(splIn.totalCtaClicks)) : 0,
+            lastGateDecision: typeof splIn.lastGateDecision === 'string' ? splIn.lastGateDecision : 'NONE'
+          }
+        };
+      } catch (_) {
+        return defaultStore();
+      }
+    }
+
+    let store = loadStore();
+
+    function saveStore() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (_) {}
+    }
+
+    function resolveEffectiveSkinId() {
+      const hour = new Date(nowEpochMs()).getHours();
+      if (store.autoNightDuskPine && (hour >= 20 || hour < 8)) {
+        return 'dusk_pine';
+      }
+      return SONGXI_SKINS[store.selectedSkinId] ? store.selectedSkinId : 'ink_mist';
+    }
+
+    // --- Custom Routine Composer (1:1 Parity with DataStoreStretchCatalogRepository.kt) ---
+    function composeCustomRoutine(zones, targetMinutes) {
+      const safeMins = Math.max(1, Math.min(15, Number(targetMinutes) || 4));
+      const ordered = ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'].filter(z => Array.isArray(zones) && zones.includes(z));
+      const activeZones = ordered.length > 0 ? ordered : ['neck', 'shoulder'];
+      const baseCount = safeMins <= 2 ? 3 : safeMins <= 4 ? 4 : 6;
+      const poseCount = Math.max(baseCount, activeZones.length);
+      const pickedIds = [];
+
+      for (let depth = 0; depth < 4 && pickedIds.length < poseCount; depth++) {
+        for (const z of activeZones) {
+          if (pickedIds.length >= poseCount) break;
+          const candidateId = PRIMARY_POOL_BY_ZONE[z][depth];
+          if (candidateId && !pickedIds.includes(candidateId)) pickedIds.push(candidateId);
+        }
+      }
+      for (const p of STRETCH_POSES) {
+        if (pickedIds.length >= poseCount) break;
+        if (p.regions.some(r => activeZones.includes(r)) && !pickedIds.includes(p.id)) {
+          pickedIds.push(p.id);
+        }
+      }
+      const closingFallback = ['shoulder_double_inhale_sigh', 'shoulder_scapula_sigh', 'eye_warm_palming', 'neck_occiput_cradle']
+        .concat(STRETCH_POSES.map(p => p.id));
+      for (const fid of closingFallback) {
+        if (pickedIds.length >= poseCount) break;
+        if (ALL_POSES[fid] && !pickedIds.includes(fid)) pickedIds.push(fid);
+      }
+
+      const totalCycles = Math.floor((safeMins * 60) / 10);
+      const baseCycles = Math.floor(totalCycles / pickedIds.length);
+      const extraCycles = totalCycles % pickedIds.length;
+      const poses = pickedIds.map((pid, idx) => {
+        const cycles = baseCycles + (idx < extraCycles ? 1 : 0);
+        return withSec(pid, Math.max(10, cycles * 10));
+      });
+
+      const prefix = activeZones.length <= 3
+        ? activeZones.map(z => ZONE_LABELS[z].short).join('与')
+        : `${ZONE_LABELS[activeZones[0]].short}等${activeZones.length}处`;
+      const styleWord = safeMins <= 2 ? '救急轻方' : safeMins <= 4 ? '温养小方' : '深舒长卷';
+      return {
+        id: `custom_${activeZones.join('_')}_${safeMins}m`,
+        title: `《${prefix} · ${styleWord}（${safeMins}分钟）》`,
+        subtitle: `含：${poses.map(p => p.title).join(' · ')}`,
+        scene: 'desk',
+        eyesFreeCapable: true,
+        seatedDiscreet: poses.every(p => p.id !== 'thoracic_desk_cat_cow' && p.id !== 'thoracic_clasp_chest_open'),
+        poses
+      };
+    }
+
+    // --- Runtime UI & Session State ---
+    const runtime = {
+      activeTab: 'home',
+      callerTab: 'home',
+      homeBreathStartMs: Date.now(),
+      hiddenAtEpochMs: null,
+      journalSelectedDateIso: null,
+      splash: {
+        visible: false,
+        pausedForSheet: false,
+        remainingMs: 3000,
+        lastTickWallMs: 0,
+        creative: HOUSE_SPLASH_CREATIVES[0],
+        simulatedProviderDelayMs: 0
+      },
+      player: {
+        active: false,
+        paused: false,
+        pausedByFlip: false,
+        eyesFree: false,
+        soundProfile: 'bowl',
+        routine: null,
+        bookletId: null,
+        bookletDayIdx: null,
+        poseIndex: 0,
+        poseElapsedMs: 0,
+        breathElapsedMs: 0,
+        lastTickWallMs: 0,
+        lastTriggeredBreathPhase: null,
+        sensorListenersCount: 0
+      },
+      completion: {
+        visible: false,
+        selectedFeeling: null,
+        committedLock: false,
+        completedRoutine: null,
+        completedDurationSec: 0,
+        completedBookletId: null,
+        completedBookletDayIdx: null
+      }
+    };
+
+    // --- 7-Gate Calm Splash-Ad Policy Engine ---
+    function evaluateSplashLaunch(opts = {}) {
+      const {
+        forcePreview = false,
+        warmBackgroundDurationMs = null,
+        isReminderDeepLink = false,
+        isInAppAction = false,
+        providerDelayMs = runtime.splash.simulatedProviderDelayMs
+      } = opts;
+
+      const now = nowEpochMs();
+      const todayIso = formatIsoDate(now);
+
+      if (forcePreview) {
+        const creative = HOUSE_SPLASH_CREATIVES[store.splash.creativeCursor % HOUSE_SPLASH_CREATIVES.length];
+        store.splash.creativeCursor += 1;
+        store.splash.lastGateDecision = 'SHOW_MANUAL_PREVIEW';
+        saveStore();
+        showSplashScreen(creative);
+        return { shown: true, reason: 'SHOW_MANUAL_PREVIEW' };
+      }
+
+      if (runtime.splash.visible && !forcePreview) {
+        return { shown: true, reason: 'ALREADY_VISIBLE' };
+      }
+
+      if (!isInAppAction && warmBackgroundDurationMs === null) {
+        store.splash.totalAppLaunches += 1;
+      }
+
+      // Gate 1: First-Launch Sanctuary Grace
+      if (store.splash.totalAppLaunches === 1 && warmBackgroundDurationMs === null) {
+        store.splash.lastGateDecision = 'FIRST_LAUNCH_GRACE';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'FIRST_LAUNCH_GRACE' };
+      }
+
+      // Gate 2: Active or Paused Stretch Session Immunity
+      if (runtime.player.active) {
+        store.splash.lastGateDecision = 'ACTIVE_STRETCH_SESSION';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'ACTIVE_STRETCH_SESSION' };
+      }
+
+      // Gate 3: Reminder Deep-Link Immunity
+      if (isReminderDeepLink) {
+        store.splash.lastGateDecision = 'REMINDER_QUICK_START';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'REMINDER_QUICK_START' };
+      }
+
+      // Gate 4: Short Warm-Resume Suppression (< 30 min)
+      if (warmBackgroundDurationMs !== null && warmBackgroundDurationMs < 30 * 60 * 1000) {
+        store.splash.lastGateDecision = 'SHORT_WARM_RESUME';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'SHORT_WARM_RESUME' };
+      }
+
+      // Gate 5: Strict Daily Cap (<= 3 / local calendar day)
+      const nCountToday = Number(store.splash.impressionsByDate[todayIso]);
+      const countToday = Number.isFinite(nCountToday) ? Math.max(0, Math.floor(nCountToday)) : 0;
+      if (countToday >= 3) {
+        store.splash.lastGateDecision = 'DAILY_CAP_REACHED';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'DAILY_CAP_REACHED' };
+      }
+
+      // Gate 6: Minimum Cooldown (>= 4 hours)
+      if (store.splash.lastImpressionEpochMs !== null && (now - store.splash.lastImpressionEpochMs) < 4 * 60 * 60 * 1000) {
+        store.splash.lastGateDecision = 'COOLDOWN_ACTIVE';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'COOLDOWN_ACTIVE' };
+      }
+
+      // Gate 7: Timeout Fallback (> 1200ms never blocks user)
+      if (providerDelayMs > 1200) {
+        store.splash.lastGateDecision = 'PROVIDER_TIMEOUT_OR_EMPTY';
+        saveStore();
+        refreshDiagnostics();
+        return { shown: false, reason: 'PROVIDER_TIMEOUT_OR_EMPTY' };
+      }
+
+      const creative = HOUSE_SPLASH_CREATIVES[store.splash.creativeCursor % HOUSE_SPLASH_CREATIVES.length];
+      store.splash.creativeCursor += 1;
+      store.splash.lastImpressionEpochMs = now;
+      store.splash.impressionsByDate[todayIso] = countToday + 1;
+      store.splash.lastGateDecision = 'SHOW_IMPRESSION';
+      saveStore();
+      showSplashScreen(creative);
+      return { shown: true, reason: 'SHOW_IMPRESSION' };
+    }
+
+    function showSplashScreen(creative) {
+      SongxiAudioEngine.stopAll(); // Splash ad is strictly muted!
+      runtime.splash.creative = creative;
+      runtime.splash.visible = true;
+      runtime.splash.pausedForSheet = false;
+      runtime.splash.remainingMs = 3000;
+      runtime.splash.lastTickWallMs = Date.now();
+
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+      const screen = document.getElementById('el-splash-screen');
+      const backdrop = document.getElementById('el-splash-backdrop');
+      backdrop.style.backgroundColor = skin.surfaceCard;
+      backdrop.style.borderColor = skin.borderHairline;
+
+      document.getElementById('splash-artwork-container').innerHTML = renderSplashCreativeSVG(creative.artworkTheme, skin);
+      document.getElementById('splash-sponsor-name').textContent = creative.sponsorName;
+      document.getElementById('splash-creative-title').textContent = creative.title;
+      document.getElementById('splash-creative-subtitle').textContent = creative.subtitle;
+      document.getElementById('btn-splash-cta').textContent = creative.ctaLabel;
+      document.getElementById('splash-confirm-summary').textContent = creative.landingSummary;
+      document.getElementById('splash-footer-seal').innerHTML = renderSealSVG(skinId, 1);
+      document.getElementById('el-splash-confirm-sheet').classList.add('hidden');
+      document.getElementById('btn-splash-skip').textContent = '跳过 3s';
+      screen.classList.remove('hidden');
+      renderSettingsTab();
+      syncHeartbeatTimer();
+      refreshDiagnostics();
+    }
+
+    function hideSplashScreen() {
+      runtime.splash.visible = false;
+      runtime.splash.pausedForSheet = false;
+      document.getElementById('el-splash-confirm-sheet').classList.add('hidden');
+      document.getElementById('el-splash-screen').classList.add('hidden');
+      syncHeartbeatTimer();
+      refreshDiagnostics();
+    }
+
+    // --- Sedentary Reminder Quiet-Hours Evaluator ---
+    function evaluateScheduledReminder(opts = { manualPreview: false }) {
+      const now = nowEpochMs();
+      const d = new Date(now);
+      const todayIso = formatIsoDate(now);
+      const rem = store.reminder;
+
+      if (!opts.manualPreview) {
+        if (!rem.enabled) return { allowed: false, reason: 'DISABLED' };
+        if (rem.mutedDateIso === todayIso) return { allowed: false, reason: 'MUTED_TODAY' };
+        const dayOfWeek = d.getDay(); // 0 Sun, 6 Sat
+        if (rem.weekendQuietEnabled && (dayOfWeek === 0 || dayOfWeek === 6)) {
+          return { allowed: false, reason: 'WEEKEND_QUIET' };
+        }
+        const minsOfDay = d.getHours() * 60 + d.getMinutes();
+        if (rem.lunchQuietEnabled && minsOfDay >= 12 * 60 && minsOfDay < 13 * 60 + 30) {
+          return { allowed: false, reason: 'LUNCH_QUIET' };
+        }
+        if (rem.nightQuietEnabled && (minsOfDay >= 20 * 60 || minsOfDay < 9 * 60)) {
+          return { allowed: false, reason: 'NIGHT_QUIET' };
+        }
+        const nSent = Number(rem.notifiedByDate[todayIso]);
+        const sentToday = Number.isFinite(nSent) ? Math.max(0, Math.floor(nSent)) : 0;
+        const cap = Number.isFinite(Number(rem.dailyCap)) && Number(rem.dailyCap) > 0 ? Math.floor(Number(rem.dailyCap)) : 2;
+        if (sentToday >= cap) {
+          return { allowed: false, reason: 'DAILY_CAP' };
+        }
+        rem.notifiedByDate[todayIso] = sentToday + 1;
+        saveStore();
+      }
+
+      document.getElementById('el-reminder-banner').classList.remove('hidden');
+      return { allowed: true, reason: opts.manualPreview ? 'MANUAL_PREVIEW' : 'SCHEDULED_ALLOWED' };
+    }
+
+    // --- Stretch Player Lifecycle ---
+    function startRoutineInPlayer(routine, bookletId = null, bookletDayIdx = null) {
+      const skin = SONGXI_SKINS[resolveEffectiveSkinId()];
+      runtime.callerTab = runtime.activeTab;
+      runtime.completion.visible = false;
+      document.getElementById('view-completion').classList.add('hidden');
+
+      runtime.player.active = true;
+      runtime.player.paused = false;
+      runtime.player.pausedByFlip = false;
+      runtime.player.eyesFree = false;
+      runtime.player.soundProfile = skin.soundProfile;
+      runtime.player.routine = routine;
+      runtime.player.bookletId = bookletId;
+      runtime.player.bookletDayIdx = bookletDayIdx;
+      runtime.player.poseIndex = 0;
+      runtime.player.poseElapsedMs = 0;
+      runtime.player.breathElapsedMs = 0;
+      runtime.player.lastTickWallMs = Date.now();
+      runtime.player.lastTriggeredBreathPhase = 'inhale';
+      runtime.player.sensorListenersCount = 1; // Scoped strictly to StretchPlayerScreen!
+
+      ['home', 'bodymap', 'skins', 'journal', 'settings'].forEach(t => {
+        const el = document.getElementById('view-' + t);
+        if (el) el.classList.add('hidden');
+      });
+      document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
+      document.getElementById('el-flip-banner').classList.add('hidden');
+      document.getElementById('btn-player-flip').setAttribute('aria-pressed', 'false');
+      document.getElementById('btn-player-eyes-free').setAttribute('aria-pressed', 'false');
+      document.getElementById('status-keep-awake').textContent = '常亮守护中';
+      document.getElementById('view-player').classList.remove('hidden');
+
+      SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
+      renderPlayerFrame();
+      syncHeartbeatTimer();
+      refreshDiagnostics();
+    }
+
+    function stopAndClosePlayer() {
+      SongxiAudioEngine.stopAll();
+      runtime.player.active = false;
+      runtime.player.paused = false;
+      runtime.player.pausedByFlip = false;
+      runtime.player.sensorListenersCount = 0; // Immediately unregistered!
+      document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
+      document.getElementById('status-keep-awake').textContent = '本地私密';
+      document.getElementById('view-player').classList.add('hidden');
+      syncHeartbeatTimer();
+      switchTab(runtime.callerTab);
+      refreshDiagnostics();
+    }
+
+    function enterCompletionScreen() {
+      SongxiAudioEngine.stopAll();
+      const finishedRoutine = runtime.player.routine;
+      const finishedBookletId = runtime.player.bookletId;
+      const finishedBookletDayIdx = runtime.player.bookletDayIdx;
+      const totalSec = finishedRoutine
+        ? finishedRoutine.poses.reduce((acc, p) => acc + (p.durationSeconds || 45), 0)
+        : 120;
+
+      runtime.player.active = false;
+      runtime.player.sensorListenersCount = 0;
+      syncHeartbeatTimer();
+      document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
+      document.getElementById('status-keep-awake').textContent = '本地私密';
+      document.getElementById('view-player').classList.add('hidden');
+
+      runtime.completion.visible = true;
+      runtime.completion.selectedFeeling = null;
+      runtime.completion.committedLock = false;
+      runtime.completion.completedRoutine = finishedRoutine;
+      runtime.completion.completedDurationSec = totalSec;
+      runtime.completion.completedBookletId = finishedBookletId;
+      runtime.completion.completedBookletDayIdx = finishedBookletDayIdx;
+
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+      document.getElementById('el-completion-ripple').innerHTML = renderCompletionRippleSVG(skinId);
+      document.getElementById('completion-verse-text').textContent = skin.completionVerse;
+      document.getElementById('completion-routine-meta').textContent =
+        `${finishedRoutine ? finishedRoutine.title : '今日微拉伸'} · 共舒展 ${Math.max(1, Math.round(totalSec / 60))} 分钟`;
+      syncFeelingButtons();
+      document.getElementById('view-completion').classList.remove('hidden');
+      refreshDiagnostics();
+    }
+
+    function commitCompletionToJournal() {
+      if (!runtime.completion.visible || runtime.completion.committedLock) return;
+      runtime.completion.committedLock = true; // Idempotent guard against rapid double-tap!
+
+      const now = nowEpochMs();
+      const todayIso = formatIsoDate(now);
+      const skinId = resolveEffectiveSkinId();
+      const routine = runtime.completion.completedRoutine;
+
+      store.records.push({
+        id: 'rec_' + now + '_' + store.records.length,
+        completedAtEpochMs: now,
+        epochMillis: now,
+        dateIso: todayIso,
+        routineId: routine ? routine.id : 'hero_desk_seated',
+        routineTitle: routine ? routine.title : '午后伏案 · 沉肩松颈帖',
+        durationSeconds: runtime.completion.completedDurationSec || 180,
+        feeling: runtime.completion.selectedFeeling,
+        skinId: skinId,
+        skinIdUsed: skinId
+      });
+
+      if (runtime.completion.completedBookletId) {
+        const bId = runtime.completion.completedBookletId;
+        const bk = CURATED_BOOKLETS.find(b => b.id === bId);
+        const maxDays = bk ? bk.totalDays : 7;
+        const prev = Array.isArray(store.bookletCompletedDays[bId]) ? store.bookletCompletedDays[bId] : [];
+        const dayIdxToMark = runtime.completion.completedBookletDayIdx !== null && runtime.completion.completedBookletDayIdx !== undefined
+          ? runtime.completion.completedBookletDayIdx
+          : prev.length;
+        if (dayIdxToMark >= 0 && dayIdxToMark < maxDays && !prev.includes(dayIdxToMark)) {
+          store.bookletCompletedDays[bId] = prev.concat([dayIdxToMark]).sort((a, b) => a - b);
+        }
+      }
+
+      runtime.journalSelectedDateIso = null;
+      saveStore();
+      runtime.completion.visible = false;
+      document.getElementById('view-completion').classList.add('hidden');
+      switchTab('journal');
+    }
+
+    function computePlayerBreath(elapsedMs) {
+      const cyclePos = ((elapsedMs % 10000) + 10000) % 10000;
+      if (cyclePos < 4000) {
+        const p = cyclePos / 4000;
+        return {
+          phase: 'inhale',
+          label: '吸气 · 轻展',
+          breathT: 0.5 - 0.5 * Math.cos(Math.PI * p)
+        };
+      }
+      const p = (cyclePos - 4000) / 6000;
+      return {
+        phase: 'exhale',
+        label: '呼气 · 沉肩',
+        breathT: 0.5 + 0.5 * Math.cos(Math.PI * p)
+      };
+    }
+
+    function renderPlayerFrame() {
+      if (!runtime.player.active || !runtime.player.routine) return;
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+      const poses = runtime.player.routine.poses;
+      const idx = Math.max(0, Math.min(poses.length - 1, runtime.player.poseIndex));
+      const pose = poses[idx];
+      const remSec = Math.max(0, Math.ceil((pose.durationSeconds * 1000 - runtime.player.poseElapsedMs) / 1000));
+      const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
+      const ss = String(remSec % 60).padStart(2, '0');
+      const mirrorBilateral = Boolean(pose.bilateralSwitchAtHalfway && runtime.player.poseElapsedMs >= pose.durationSeconds * 500);
+
+      const bm = computePlayerBreath(runtime.player.breathElapsedMs);
+      document.getElementById('view-player').setAttribute('data-pose-id', pose.id);
+      document.getElementById('player-routine-title').textContent = runtime.player.routine.title;
+      document.getElementById('player-pose-counter').textContent = `第 ${idx + 1} / ${poses.length} 式 · ${pose.title} · ${mm}:${ss}`;
+      document.getElementById('el-breath-phase-label').textContent = bm.label;
+      const poseTitleEl = document.getElementById('player-pose-title');
+      poseTitleEl.setAttribute('data-pose-id', pose.id);
+      poseTitleEl.textContent = pose.title;
+      document.getElementById('player-pose-cue').textContent = pose.gentleCue;
+
+      const haloBox = document.getElementById('el-player-halo');
+      haloBox.style.boxShadow = `0 0 ${Math.round(18 + 26 * bm.breathT)}px var(--sx-accent-glow)`;
+      haloBox.setAttribute('data-pose-id', pose.id);
+      haloBox.setAttribute('aria-label', pose.title);
+      const figEl = document.getElementById('el-player-figure');
+      figEl.setAttribute('data-pose-id', pose.id);
+      figEl.setAttribute('data-pose', pose.id);
+      figEl.setAttribute('data-pose-title', pose.title);
+      figEl.setAttribute('data-bilateral-mirrored', String(mirrorBilateral));
+      figEl.setAttribute('aria-label', pose.title);
+      figEl.innerHTML = renderFigureAndHaloSVG(skinId, pose, bm.breathT, 'player', mirrorBilateral);
+
+      const isPausedAny = Boolean(runtime.player.paused || runtime.player.pausedByFlip);
+      const pauseBtn = document.getElementById('btn-player-pause');
+      pauseBtn.setAttribute('aria-pressed', String(isPausedAny));
+      pauseBtn.textContent = isPausedAny ? '继续' : '暂歇';
+
+      const soundSel = document.getElementById('el-sound-selector');
+      if (soundSel) soundSel.setAttribute('data-active-sound', runtime.player.soundProfile);
+
+      document.querySelectorAll('.sound-pill').forEach(btn => {
+        const active = btn.dataset.sound === runtime.player.soundProfile;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.backgroundColor = active ? skin.accentPrimary : skin.surfaceCard;
+        btn.style.color = active ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = active ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      const silentBtn = document.getElementById('btn-sound-silent');
+      const isSilent = runtime.player.soundProfile === 'silent';
+      silentBtn.setAttribute('aria-pressed', String(isSilent));
+      silentBtn.style.backgroundColor = isSilent ? skin.accentPrimary : skin.surfaceCard;
+      silentBtn.style.color = isSilent ? skin.onAccent : skin.inkPrimary;
+      silentBtn.style.borderColor = isSilent ? skin.accentPrimary : skin.borderHairline;
+    }
+
+    // --- Screen Renderers ---
+    function switchTab(tabName) {
+      if (runtime.player.active) {
+        SongxiAudioEngine.stopAll();
+        runtime.player.active = false;
+        runtime.player.paused = false;
+        runtime.player.pausedByFlip = false;
+        runtime.player.sensorListenersCount = 0;
+        document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
+        document.getElementById('status-keep-awake').textContent = '本地私密';
+        document.getElementById('view-player').classList.add('hidden');
+        syncHeartbeatTimer();
+      }
+      if (runtime.completion.visible) {
+        runtime.completion.visible = false;
+        document.getElementById('view-completion').classList.add('hidden');
+      }
+      document.getElementById('el-share-dialog').classList.add('hidden');
+
+      runtime.activeTab = tabName;
+      ['home', 'bodymap', 'skins', 'journal', 'settings'].forEach(t => {
+        const el = document.getElementById('view-' + t);
+        if (el) el.classList.toggle('hidden', t !== tabName);
+      });
+      applySkinAndRefreshUI();
+    }
+
+    function syncFeelingButtons() {
+      const skin = SONGXI_SKINS[resolveEffectiveSkinId()];
+      document.querySelectorAll('.feeling-pill').forEach(btn => {
+        const on = runtime.completion.selectedFeeling === btn.dataset.feeling;
+        btn.setAttribute('aria-pressed', String(on));
+        btn.style.backgroundColor = on ? skin.accentPrimary : skin.surfaceCard;
+        btn.style.color = on ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
+      });
+    }
+
+    function renderHomeTab() {
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+
+      const obCard = document.getElementById('el-onboarding-card');
+      obCard.classList.toggle('hidden', Boolean(store.onboardingSeen));
+      document.getElementById('onboarding-seal-slot').innerHTML = renderSealSVG(skinId, 0.85);
+
+      document.getElementById('home-greeting-prefix').textContent = skin.greetingPrefix;
+      document.getElementById('home-skin-badge-text').textContent = skin.titleCn;
+
+      const hero = HERO_ROUTINES[store.selectedScene] || HERO_ROUTINES.desk;
+      document.getElementById('hero-scene-badge').textContent = hero.sceneBadge;
+      document.getElementById('hero-duration-badge').textContent = hero.durationBadge;
+      document.getElementById('hero-routine-title').textContent = hero.title;
+      document.getElementById('hero-routine-subtitle').textContent = hero.subtitle;
+
+      document.querySelectorAll('.scene-pill').forEach(btn => {
+        const active = btn.dataset.scene === store.selectedScene;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.backgroundColor = active ? skin.accentPrimary : skin.surfaceCard;
+        btn.style.color = active ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = active ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      const homeElapsed = (Date.now() - runtime.homeBreathStartMs) % 10000;
+      const bm = computePlayerBreath(homeElapsed);
+      document.getElementById('el-home-backdrop').innerHTML =
+        renderHomeShanShuiSVG(skinId, hero.poses[0], bm.breathT);
+    }
+
+    function renderBodyMapTab() {
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+      const mapEl = document.getElementById('el-bodymap-canvas');
+      mapEl.innerHTML = renderBodyMapSVG(skinId, store.selectedZones);
+      mapEl.querySelectorAll('[data-svg-zone]').forEach(node => {
+        node.addEventListener('click', () => toggleBodyZone(node.getAttribute('data-svg-zone')));
+      });
+
+      document.querySelectorAll('.zone-pill').forEach(btn => {
+        const on = store.selectedZones.includes(btn.dataset.zone);
+        btn.setAttribute('aria-pressed', String(on));
+        btn.style.backgroundColor = on ? skin.accentPrimary : skin.surfaceCardSubtle;
+        btn.style.color = on ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      document.querySelectorAll('.dur-pill').forEach(btn => {
+        const on = Number(btn.dataset.mins) === store.customMinutes;
+        btn.setAttribute('aria-pressed', String(on));
+        btn.style.backgroundColor = on ? skin.accentPrimary : skin.surfaceCardSubtle;
+        btn.style.color = on ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      const count = store.selectedZones.length;
+      document.getElementById('bodymap-selection-hint').textContent =
+        count > 0
+          ? `已选 ${count} 处（${store.selectedZones.map(z => ZONE_LABELS[z].short).join('·')}）· ${store.customMinutes}分钟`
+          : `未选部位时默认温和舒展风池与双肩 · ${store.customMinutes}分钟`;
+
+      CURATED_BOOKLETS.forEach((bk, idx) => {
+        const card = document.getElementById('el-booklet-' + idx);
+        const doneCount = (store.bookletCompletedDays[bk.id] || []).length;
+        card.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">${bk.title}</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px]" style="background-color:var(--sx-accent-soft);color:var(--sx-accent);">免费全开放</span>
+            </div>
+            <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">${bk.subtitle}</p>
+          </div>
+          <div class="text-right shrink-0">
+            <p class="text-xs font-mono" style="color:var(--sx-accent);">${doneCount}/${bk.totalDays} 息</p>
+            <p class="text-[10px]" style="color:var(--sx-ink-soft);">每日${bk.dailyMinutes}分</p>
+          </div>
+        `;
+      });
+    }
+
+    function renderSkinsTab() {
+      const effectiveId = resolveEffectiveSkinId();
+      const cardMap = {
+        ink_mist: 'el-skin-ink',
+        qinglv_celadon: 'el-skin-qinglv',
+        dusk_pine: 'el-skin-dusk',
+        spring_blossom: 'el-skin-spring'
+      };
+
+      Object.values(SONGXI_SKINS).forEach(sk => {
+        const btn = document.getElementById(cardMap[sk.id]);
+        const isSelected = store.selectedSkinId === sk.id;
+        const isEffective = effectiveId === sk.id;
+        btn.setAttribute('aria-pressed', String(isEffective));
+        btn.style.borderColor = isEffective ? sk.accentPrimary : 'var(--sx-border)';
+        btn.style.boxShadow = isEffective ? `0 0 0 1.5px ${sk.accentPrimary}` : 'none';
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-12 h-12 rounded-xl border shrink-0 flex items-center justify-center" style="background-color:${sk.canvasPrimary};border-color:${sk.borderHairline};">
+                ${renderSealSVG(sk.id, 0.8)}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">${sk.titleCn} · ${sk.subtitleCn}</span>
+                  <span class="px-2 py-0.5 rounded-full text-[10px]" style="background-color:var(--sx-accent-soft);color:var(--sx-accent);">免费</span>
+                </div>
+                <p class="text-[11px] truncate mt-0.5" style="color:var(--sx-ink-sec);">${sk.fusionBadge}</p>
+                <p class="text-[10px] mt-0.5 font-mono" style="color:var(--sx-ink-soft);">${sk.soundLabel} · ${sk.haloName}</p>
+              </div>
+            </div>
+            <span class="text-xs font-medium shrink-0" style="color:var(--sx-accent);">
+              ${isEffective ? '使用中' : (isSelected ? '日间默认' : '换上')}
+            </span>
+          </div>
+        `;
+      });
+
+      const activeSkin = SONGXI_SKINS[effectiveId];
+      const sw = document.getElementById('btn-auto-night-switch');
+      sw.setAttribute('aria-checked', String(store.autoNightDuskPine));
+      sw.textContent = store.autoNightDuskPine ? '开启' : '关闭';
+      sw.style.backgroundColor = store.autoNightDuskPine ? activeSkin.accentPrimary : activeSkin.surfaceCardSubtle;
+      sw.style.color = store.autoNightDuskPine ? activeSkin.onAccent : activeSkin.inkPrimary;
+      sw.style.borderColor = store.autoNightDuskPine ? activeSkin.accentPrimary : activeSkin.borderHairline;
+    }
+
+    function renderJournalTab() {
+      const now = nowEpochMs();
+      const d = new Date(now);
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const skinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[skinId];
+      const feelingText = { light: '肩颈轻快', warm: '温热舒展', calm: '心神安宁' };
+
+      const monthRecords = store.records.filter(r => (r.dateIso || '').startsWith(monthPrefix));
+      const totalSessions = monthRecords.length;
+      const totalSec = monthRecords.reduce((acc, r) => acc + (Number(r.durationSeconds) || 0), 0);
+      const totalMinutes = totalSessions === 0 ? 0 : Math.max(1, Math.round(totalSec / 60));
+
+      document.getElementById('el-journal-summary').innerHTML = `
+        <p class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">
+          本月留白 ${totalSessions} 息 · 舒展 ${totalMinutes} 分钟
+        </p>
+        <p class="text-[11px]" style="color:var(--sx-ink-sec);">
+          不计名次与天数压力，每一次停下呼吸皆成水纹，留白亦是休息。
+        </p>
+      `;
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0..Sun=6
+      const cells = [];
+      for (let i = 0; i < firstDow; i++) {
+        cells.push(`<div class="h-10"></div>`);
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateIso = `${monthPrefix}-${String(day).padStart(2, '0')}`;
+        const dayRecs = monthRecords.filter(r => r.dateIso === dateIso);
+        const rippleCount = dayRecs.length;
+        const isPickedDay = runtime.journalSelectedDateIso === dateIso;
+        const dayFeelings = dayRecs.map(r => r.feeling ? feelingText[r.feeling] : '静默落墨').join('、');
+        const cellLabel = rippleCount > 0
+          ? `${dateIso} · 舒展 ${rippleCount} 息（${dayFeelings}）`
+          : `${dateIso} · 留白休息`;
+        cells.push(`
+          <div
+            data-date="${dateIso}"
+            data-date-iso="${dateIso}"
+            data-ripples="${rippleCount}"
+            data-ripple-count="${rippleCount}"
+            data-practiced="${rippleCount > 0}"
+            title="${cellLabel}"
+            aria-label="${cellLabel}"
+            class="h-10 rounded-xl flex items-center justify-center relative border text-xs ${rippleCount > 0 ? 'cursor-pointer' : ''}"
+            style="background-color:${rippleCount > 0 ? skin.accentPrimary : skin.surfaceCardSubtle};border-color:${isPickedDay ? skin.sealVermilion : (rippleCount > 0 ? skin.accentPrimary : skin.borderHairline)};color:${rippleCount > 0 ? skin.onAccent : skin.inkSecondary};"
+          >
+            ${rippleCount > 0 ? `
+              <svg viewBox="0 0 36 36" class="absolute inset-0 w-full h-full pointer-events-none">
+                <circle cx="18" cy="18" r="14" fill="none" stroke="${skin.onAccent}" stroke-width="0.9" stroke-opacity="0.52" />
+                ${rippleCount >= 2 ? `<circle cx="18" cy="18" r="10" fill="none" stroke="${skin.onAccent}" stroke-width="0.95" stroke-opacity="0.72" />` : ''}
+                ${rippleCount >= 3 ? `<circle cx="18" cy="18" r="6.2" fill="none" stroke="${skin.onAccent}" stroke-width="1.0" stroke-opacity="0.88" />` : ''}
+              </svg>
+            ` : ''}
+            <span class="relative z-10 font-mono text-[11px]">${day}</span>
+          </div>
+        `);
+      }
+      const gridEl = document.getElementById('el-journal-grid');
+      gridEl.innerHTML = cells.join('');
+      gridEl.querySelectorAll('[data-practiced="true"]').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const iso = cell.getAttribute('data-date-iso');
+          runtime.journalSelectedDateIso = runtime.journalSelectedDateIso === iso ? null : iso;
+          renderJournalTab();
+        });
+      });
+
+      const recentBox = document.getElementById('journal-recent-notes');
+      if (store.records.length === 0) {
+        recentBox.innerHTML = `<p class="text-xs text-center py-2" style="color:var(--sx-ink-soft);">尚无水纹小记 · 完成任意一息即可落墨入册</p>`;
+      } else {
+        const filtered = runtime.journalSelectedDateIso
+          ? store.records.filter(r => r.dateIso === runtime.journalSelectedDateIso).slice().reverse()
+          : store.records.slice(-6).reverse();
+        recentBox.innerHTML = filtered.map(rec => `
+          <div class="sx-card p-2.5 flex items-center justify-between text-xs" data-record-date="${rec.dateIso}">
+            <div class="min-w-0 pr-2">
+              <span class="font-serif-cn font-semibold" style="color:var(--sx-ink);">${rec.routineTitle}</span>
+              <span class="ml-1.5 text-[11px]" style="color:var(--sx-ink-sec);">${rec.dateIso}</span>
+            </div>
+            <span class="text-[11px] shrink-0" style="color:var(--sx-accent);">${rec.feeling ? feelingText[rec.feeling] : '静默落墨'}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderSettingsTab() {
+      const skin = SONGXI_SKINS[resolveEffectiveSkinId()];
+      const rem = store.reminder;
+      const todayIso = formatIsoDate(nowEpochMs());
+      const mutedToday = rem.mutedDateIso === todayIso;
+
+      function styleSwitch(id, checked) {
+        const el = document.getElementById(id);
+        el.setAttribute('aria-checked', String(checked));
+        el.textContent = checked ? '开启' : '关闭';
+        el.style.backgroundColor = checked ? skin.accentPrimary : skin.surfaceCardSubtle;
+        el.style.color = checked ? skin.onAccent : skin.inkPrimary;
+        el.style.borderColor = checked ? skin.accentPrimary : skin.borderHairline;
+      }
+
+      styleSwitch('sw-reminder-enable', rem.enabled);
+      styleSwitch('sw-lunch-quiet', rem.lunchQuietEnabled);
+      styleSwitch('sw-night-quiet', rem.nightQuietEnabled);
+      styleSwitch('sw-weekend-quiet', rem.weekendQuietEnabled);
+      styleSwitch('sw-mute-today', mutedToday);
+      styleSwitch('sw-splash-personalized', store.splash.personalizedEnabled);
+
+      document.querySelectorAll('.iv-pill').forEach(btn => {
+        const active = Number(btn.dataset.iv) === rem.intervalMinutes;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.backgroundColor = active ? skin.accentPrimary : skin.surfaceCardSubtle;
+        btn.style.color = active ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = active ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      const nShown = Number(store.splash.impressionsByDate[todayIso]);
+      const shownToday = Number.isFinite(nShown) ? Math.max(0, Math.floor(nShown)) : 0;
+      document.getElementById('splash-ledger-readout').textContent =
+        `今日已展 ${shownToday}/3 次 · 冷却 ≥4h · 零摇一摇传感器`;
+    }
+
+    function applySkinAndRefreshUI() {
+      const effectiveSkinId = resolveEffectiveSkinId();
+      const skin = SONGXI_SKINS[effectiveSkinId];
+      const shell = document.getElementById('songxi-phone-shell');
+      shell.setAttribute('data-skin', effectiveSkinId);
+
+      document.getElementById('status-clock-text').textContent = formatClockHHMM(nowEpochMs());
+
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        const active = btn.dataset.tab === runtime.activeTab;
+        btn.setAttribute('aria-selected', String(active));
+        btn.style.backgroundColor = active ? skin.accentPrimary : 'transparent';
+        btn.style.color = active ? skin.onAccent : skin.inkSecondary;
+      });
+
+      renderHomeTab();
+      renderBodyMapTab();
+      renderSkinsTab();
+      renderJournalTab();
+      renderSettingsTab();
+      if (runtime.player.active) renderPlayerFrame();
+      if (runtime.completion.visible) {
+        document.getElementById('el-completion-ripple').innerHTML = renderCompletionRippleSVG(effectiveSkinId);
+        document.getElementById('completion-verse-text').textContent = skin.completionVerse;
+        syncFeelingButtons();
+      }
+      if (runtime.splash.visible && runtime.splash.creative) {
+        const backdrop = document.getElementById('el-splash-backdrop');
+        backdrop.style.backgroundColor = skin.surfaceCard;
+        backdrop.style.borderColor = skin.borderHairline;
+        document.getElementById('splash-artwork-container').innerHTML = renderSplashCreativeSVG(runtime.splash.creative.artworkTheme, skin);
+        document.getElementById('splash-footer-seal').innerHTML = renderSealSVG(effectiveSkinId, 1);
+      }
+      refreshDiagnostics();
+    }
+
+    function refreshDiagnostics() {
+      const eff = resolveEffectiveSkinId();
+      const sk = SONGXI_SKINS[eff];
+      const dSkin = document.getElementById('director-diag-skin');
+      const dSplash = document.getElementById('director-diag-splash');
+      const dSensor = document.getElementById('director-diag-sensor');
+      if (dSkin) dSkin.textContent = `生效画境：${sk.titleCn} (${eff}) · 时钟 ${formatClockHHMM(nowEpochMs())}`;
+      if (dSplash) dSplash.textContent = `最近门禁决策：${store.splash.lastGateDecision}`;
+      if (dSensor) dSensor.textContent = `重力传感器监听数：${runtime.player.sensorListenersCount}（开屏与主页恒为 0）`;
+    }
+
+    function toggleBodyZone(zone) {
+      const idx = store.selectedZones.indexOf(zone);
+      if (idx >= 0) {
+        store.selectedZones.splice(idx, 1);
+      } else {
+        if (store.selectedZones.length >= 3) store.selectedZones.shift();
+        store.selectedZones.push(zone);
+      }
+      saveStore();
+      renderBodyMapTab();
+    }
+
+    // --- Event Wiring ---
+    function wireInteractions() {
+      // Onboarding
+      document.getElementById('btn-onboarding-enter').addEventListener('click', () => {
+        store.onboardingSeen = true;
+        saveStore();
+        renderHomeTab();
+      });
+
+      // Bottom Nav Tabs
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // Home Screen Actions
+      document.getElementById('btn-home-skin-badge').addEventListener('click', () => switchTab('skins'));
+      document.querySelectorAll('.scene-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          store.selectedScene = btn.dataset.scene;
+          saveStore();
+          renderHomeTab();
+        });
+      });
+      document.getElementById('btn-home-start-hero').addEventListener('click', () => {
+        const hero = HERO_ROUTINES[store.selectedScene] || HERO_ROUTINES.desk;
+        startRoutineInPlayer(hero, null);
+      });
+      document.querySelectorAll('[data-quick-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const r = QUICK_ROUTINES[Number(btn.dataset.quickIdx)];
+          if (r) startRoutineInPlayer(r, null);
+        });
+      });
+
+      // Body Map & Booklets Actions
+      document.querySelectorAll('.zone-pill').forEach(btn => {
+        btn.addEventListener('click', () => toggleBodyZone(btn.dataset.zone));
+      });
+      document.querySelectorAll('.dur-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          store.customMinutes = Number(btn.dataset.mins);
+          saveStore();
+          renderBodyMapTab();
+        });
+      });
+      document.getElementById('btn-bodymap-compose').addEventListener('click', () => {
+        const custom = composeCustomRoutine(store.selectedZones, store.customMinutes);
+        startRoutineInPlayer(custom, null);
+      });
+      CURATED_BOOKLETS.forEach((bk, idx) => {
+        document.getElementById('el-booklet-' + idx).addEventListener('click', () => {
+          const doneDays = Array.isArray(store.bookletCompletedDays[bk.id]) ? store.bookletCompletedDays[bk.id] : [];
+          const dayIdx = Math.min(doneDays.length, bk.routines.length - 1);
+          const dayRoutine = bk.routines[dayIdx];
+          startRoutineInPlayer(
+            { id: dayRoutine.id, title: `${bk.title} · ${dayRoutine.title}`, poses: dayRoutine.poses },
+            bk.id,
+            dayIdx
+          );
+        });
+      });
+
+      // Skin Gallery Actions
+      document.querySelectorAll('[data-pick-skin]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const picked = btn.dataset.pickSkin;
+          if (SONGXI_SKINS[picked]) {
+            store.selectedSkinId = picked;
+            saveStore();
+            applySkinAndRefreshUI();
+          }
+        });
+      });
+      document.getElementById('btn-skin-chime-preview').addEventListener('click', () => {
+        const sk = SONGXI_SKINS[resolveEffectiveSkinId()];
+        SongxiAudioEngine.playProfile(sk.soundProfile, 'inhale');
+      });
+      document.getElementById('btn-auto-night-switch').addEventListener('click', () => {
+        store.autoNightDuskPine = !store.autoNightDuskPine;
+        saveStore();
+        applySkinAndRefreshUI();
+      });
+
+      // Journal Share Card Modal
+      document.getElementById('btn-journal-share').addEventListener('click', () => {
+        const skinId = resolveEffectiveSkinId();
+        const sk = SONGXI_SKINS[skinId];
+        document.getElementById('share-card-seal').innerHTML = renderSealSVG(skinId, 0.9);
+        document.getElementById('share-card-art').innerHTML = renderHomeShanShuiSVG(skinId, HERO_ROUTINES.desk.poses[0], 0.65);
+        document.getElementById('share-card-verse').textContent = `“${sk.completionVerse}”`;
+        document.getElementById('share-card-stats').textContent =
+          `松息 Sōngxī · 已静心舒展 ${store.records.length} 息 · 全程免登录本地珍藏`;
+        document.getElementById('el-share-dialog').classList.remove('hidden');
+      });
+      document.getElementById('btn-share-close').addEventListener('click', () => {
+        document.getElementById('el-share-dialog').classList.add('hidden');
+      });
+      document.getElementById('btn-share-system').addEventListener('click', () => {
+        if (navigator.share) {
+          navigator.share({ title: '松息日笺', text: '一松一息，身自舒展。' }).catch(() => {});
+        }
+        document.getElementById('el-share-dialog').classList.add('hidden');
+      });
+
+      // Settings & Reminders Actions
+      document.getElementById('sw-reminder-enable').addEventListener('click', () => {
+        store.reminder.enabled = !store.reminder.enabled;
+        saveStore();
+        scheduleNextReminderTick();
+        renderSettingsTab();
+      });
+      document.querySelectorAll('.iv-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          store.reminder.intervalMinutes = Number(btn.dataset.iv);
+          saveStore();
+          scheduleNextReminderTick();
+          renderSettingsTab();
+        });
+      });
+      document.getElementById('sw-lunch-quiet').addEventListener('click', () => {
+        store.reminder.lunchQuietEnabled = !store.reminder.lunchQuietEnabled;
+        saveStore(); renderSettingsTab();
+      });
+      document.getElementById('sw-night-quiet').addEventListener('click', () => {
+        store.reminder.nightQuietEnabled = !store.reminder.nightQuietEnabled;
+        saveStore(); renderSettingsTab();
+      });
+      document.getElementById('sw-weekend-quiet').addEventListener('click', () => {
+        store.reminder.weekendQuietEnabled = !store.reminder.weekendQuietEnabled;
+        saveStore(); renderSettingsTab();
+      });
+      document.getElementById('sw-mute-today').addEventListener('click', () => {
+        const todayIso = formatIsoDate(nowEpochMs());
+        store.reminder.mutedDateIso = store.reminder.mutedDateIso === todayIso ? null : todayIso;
+        saveStore(); renderSettingsTab();
+      });
+      document.getElementById('btn-reminder-preview').addEventListener('click', () => {
+        evaluateScheduledReminder({ manualPreview: true });
+      });
+      const launchReminderQuickRelief = () => {
+        document.getElementById('el-reminder-banner').classList.add('hidden');
+        hideSplashScreen();
+        evaluateSplashLaunch({ isReminderDeepLink: true, isInAppAction: true });
+        startRoutineInPlayer(QUICK_ROUTINES[0], null);
+      };
+      document.getElementById('el-reminder-banner').addEventListener('click', launchReminderQuickRelief);
+      document.getElementById('btn-reminder-banner-start').addEventListener('click', e => {
+        e.stopPropagation();
+        launchReminderQuickRelief();
+      });
+      document.getElementById('btn-reminder-banner-close').addEventListener('click', e => {
+        e.stopPropagation();
+        document.getElementById('el-reminder-banner').classList.add('hidden');
+      });
+      document.getElementById('sw-splash-personalized').addEventListener('click', () => {
+        store.splash.personalizedEnabled = !store.splash.personalizedEnabled;
+        saveStore(); renderSettingsTab();
+      });
+      document.getElementById('btn-splash-preview').addEventListener('click', () => {
+        evaluateSplashLaunch({ forcePreview: true });
+      });
+
+      // Splash Ad Overlay Controls (Backdrop is strictly inert!)
+      document.getElementById('btn-splash-skip').addEventListener('click', e => {
+        e.stopPropagation();
+        store.splash.totalSkips = (store.splash.totalSkips || 0) + 1;
+        saveStore();
+        hideSplashScreen();
+      });
+      document.getElementById('btn-splash-cta').addEventListener('click', e => {
+        e.stopPropagation();
+        store.splash.totalCtaClicks = (store.splash.totalCtaClicks || 0) + 1;
+        saveStore();
+        runtime.splash.pausedForSheet = true;
+        document.getElementById('el-splash-confirm-sheet').classList.remove('hidden');
+      });
+      document.getElementById('btn-splash-confirm-dismiss').addEventListener('click', e => {
+        e.stopPropagation();
+        runtime.splash.pausedForSheet = false;
+        runtime.splash.lastTickWallMs = Date.now();
+        document.getElementById('el-splash-confirm-sheet').classList.add('hidden');
+      });
+
+      // Player Controls
+      document.getElementById('btn-player-close').addEventListener('click', stopAndClosePlayer);
+      document.getElementById('btn-player-eyes-free').addEventListener('click', () => {
+        runtime.player.eyesFree = !runtime.player.eyesFree;
+        document.getElementById('btn-player-eyes-free').setAttribute('aria-pressed', String(runtime.player.eyesFree));
+        document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', String(runtime.player.eyesFree));
+      });
+      const AUDIBLE_SOUNDS = ['bowl', 'bamboo', 'guqin', 'rain'];
+      const elSoundSelector = document.getElementById('el-sound-selector');
+      const cycleAudibleSound = () => {
+        const curIdx = AUDIBLE_SOUNDS.indexOf(runtime.player.soundProfile);
+        runtime.player.soundProfile = AUDIBLE_SOUNDS[(curIdx + 1) % AUDIBLE_SOUNDS.length];
+        if (!runtime.player.paused && !runtime.player.pausedByFlip) {
+          SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
+        }
+        renderPlayerFrame();
+      };
+      if (elSoundSelector) {
+        elSoundSelector.addEventListener('click', e => {
+          if (e.target === elSoundSelector) {
+            cycleAudibleSound();
+          }
+        });
+      }
+      document.querySelectorAll('.sound-pill').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          if (runtime.player.soundProfile === btn.dataset.sound) {
+            cycleAudibleSound();
+          } else {
+            runtime.player.soundProfile = btn.dataset.sound;
+            if (!runtime.player.paused && !runtime.player.pausedByFlip) {
+              SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
+            }
+            renderPlayerFrame();
+          }
+        });
+      });
+      document.getElementById('btn-sound-silent').addEventListener('click', () => {
+        runtime.player.soundProfile = 'silent';
+        SongxiAudioEngine.stopAll();
+        renderPlayerFrame();
+      });
+      document.getElementById('btn-player-pause').addEventListener('click', () => {
+        if (runtime.player.pausedByFlip) {
+          runtime.player.pausedByFlip = false;
+          document.getElementById('el-flip-banner').classList.add('hidden');
+          document.getElementById('btn-player-flip').setAttribute('aria-pressed', 'false');
+        } else {
+          runtime.player.paused = !runtime.player.paused;
+        }
+        if (runtime.player.paused) SongxiAudioEngine.stopAll();
+        runtime.player.lastTickWallMs = Date.now();
+        renderPlayerFrame();
+      });
+      document.getElementById('btn-player-prev').addEventListener('click', () => {
+        runtime.player.poseIndex = Math.max(0, runtime.player.poseIndex - 1);
+        runtime.player.poseElapsedMs = 0;
+        runtime.player.lastTickWallMs = Date.now();
+        renderPlayerFrame();
+      });
+      document.getElementById('btn-player-next').addEventListener('click', () => {
+        if (!runtime.player.routine) return;
+        if (runtime.player.poseIndex + 1 >= runtime.player.routine.poses.length) {
+          enterCompletionScreen();
+        } else {
+          runtime.player.poseIndex += 1;
+          runtime.player.poseElapsedMs = 0;
+          runtime.player.lastTickWallMs = Date.now();
+          renderPlayerFrame();
+        }
+      });
+      document.getElementById('btn-player-flip').addEventListener('click', () => {
+        runtime.player.pausedByFlip = !runtime.player.pausedByFlip;
+        document.getElementById('btn-player-flip').setAttribute('aria-pressed', String(runtime.player.pausedByFlip));
+        document.getElementById('el-flip-banner').classList.toggle('hidden', !runtime.player.pausedByFlip);
+        if (runtime.player.pausedByFlip) {
+          SongxiAudioEngine.stopAll();
+        } else {
+          runtime.player.lastTickWallMs = Date.now();
+          if (!runtime.player.paused) {
+            SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
+          }
+        }
+        renderPlayerFrame();
+      });
+
+      // Completion Screen Controls
+      document.querySelectorAll('.feeling-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const f = btn.dataset.feeling;
+          runtime.completion.selectedFeeling = runtime.completion.selectedFeeling === f ? null : f;
+          syncFeelingButtons();
+        });
+      });
+      document.getElementById('btn-completion-finish').addEventListener('click', commitCompletionToJournal);
+
+      // Director Console Shortcuts
+      const setHourMin = (y, m, d, hh, mm) => setSimulatedEpochMs(new Date(y, m, d, hh, mm, 0).getTime());
+      document.getElementById('director-clock-0930')?.addEventListener('click', () => setHourMin(2026, 10, 16, 9, 30));
+      document.getElementById('director-clock-1230')?.addEventListener('click', () => setHourMin(2026, 10, 16, 12, 30));
+      document.getElementById('director-clock-1959')?.addEventListener('click', () => setHourMin(2026, 10, 16, 19, 59));
+      document.getElementById('director-clock-2005')?.addEventListener('click', () => setHourMin(2026, 10, 16, 20, 5));
+      document.getElementById('director-clock-0630')?.addEventListener('click', () => setHourMin(2026, 10, 17, 6, 30));
+      document.getElementById('director-clock-sat')?.addEventListener('click', () => setHourMin(2026, 10, 21, 15, 0));
+
+      document.getElementById('director-cold-launch-next')?.addEventListener('click', () => {
+        hideSplashScreen();
+        setSimulatedEpochMs(nowEpochMs() + (4 * 60 + 5) * 60 * 1000);
+        evaluateSplashLaunch({});
+      });
+      document.getElementById('director-cold-launch-cooldown')?.addEventListener('click', () => {
+        hideSplashScreen();
+        setSimulatedEpochMs(nowEpochMs() + (3 * 60 + 59) * 60 * 1000);
+        evaluateSplashLaunch({});
+      });
+      document.getElementById('director-warm-29m')?.addEventListener('click', () => {
+        evaluateSplashLaunch({ warmBackgroundDurationMs: 29 * 60 * 1000 });
+      });
+      document.getElementById('director-reminder-deep')?.addEventListener('click', () => {
+        hideSplashScreen();
+        evaluateSplashLaunch({ isReminderDeepLink: true });
+        startRoutineInPlayer(QUICK_ROUTINES[0], null);
+      });
+      document.getElementById('director-reset-all')?.addEventListener('click', () => {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+        store = defaultStore();
+        runtime.journalSelectedDateIso = null;
+        hideSplashScreen();
+        if (runtime.player.active) stopAndClosePlayer();
+        scheduleNextReminderTick();
+        evaluateSplashLaunch({});
+        switchTab('home');
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' || document.hidden === true) {
+          if (runtime.hiddenAtEpochMs === null) {
+            runtime.hiddenAtEpochMs = nowEpochMs();
+          }
+          runtime.player.lastTickWallMs = Date.now();
+          runtime.splash.lastTickWallMs = Date.now();
+          SongxiAudioEngine.stopAll();
+        } else if (runtime.hiddenAtEpochMs !== null) {
+          const warmBgMs = Math.max(0, nowEpochMs() - runtime.hiddenAtEpochMs);
+          runtime.hiddenAtEpochMs = null;
+          runtime.player.lastTickWallMs = Date.now();
+          runtime.splash.lastTickWallMs = Date.now();
+          applySkinAndRefreshUI();
+          evaluateSplashLaunch({ warmBackgroundDurationMs: warmBgMs });
+          refreshDiagnostics();
+          if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && !runtime.splash.visible && runtime.player.soundProfile !== 'silent') {
+            const bm = computePlayerBreath(runtime.player.breathElapsedMs);
+            SongxiAudioEngine.playProfile(runtime.player.soundProfile, bm.phase);
+          }
+        }
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        const shareDlg = document.getElementById('el-share-dialog');
+        if (shareDlg && !shareDlg.classList.contains('hidden')) {
+          shareDlg.classList.add('hidden');
+          return;
+        }
+        const confirmSheet = document.getElementById('el-splash-confirm-sheet');
+        if (confirmSheet && !confirmSheet.classList.contains('hidden')) {
+          runtime.splash.pausedForSheet = false;
+          runtime.splash.lastTickWallMs = Date.now();
+          confirmSheet.classList.add('hidden');
+          return;
+        }
+        const obCard = document.getElementById('el-onboarding-card');
+        if (obCard && !obCard.classList.contains('hidden') && !runtime.splash.visible && !runtime.player.active) {
+          store.onboardingSeen = true;
+          saveStore();
+          renderHomeTab();
+        }
+      });
+
+      window.addEventListener('themechange', applySkinAndRefreshUI);
+    }
+
+    // --- On-Demand 50ms Heartbeat (Active ONLY during Splash or Stretch Player; zero idle CPU!) ---
+    let heartbeatTimerId = null;
+
+    function tickHeartbeat() {
+      const nowWall = Date.now();
+      if (document.visibilityState === 'hidden' || document.hidden === true || runtime.hiddenAtEpochMs !== null) {
+        runtime.splash.lastTickWallMs = nowWall;
+        runtime.player.lastTickWallMs = nowWall;
+        return;
+      }
+
+      // 1. Splash Countdown Tick
+      if (runtime.splash.visible && !runtime.splash.pausedForSheet) {
+        const rawSplashDt = nowWall - runtime.splash.lastTickWallMs;
+        const dt = rawSplashDt > 0 ? rawSplashDt : 50;
+        runtime.splash.lastTickWallMs = nowWall;
+        runtime.splash.remainingMs -= dt;
+        if (runtime.splash.remainingMs <= 0) {
+          hideSplashScreen();
+        } else {
+          const secLeft = Math.max(1, Math.ceil(runtime.splash.remainingMs / 1000));
+          document.getElementById('btn-splash-skip').textContent = `跳过 ${secLeft}s`;
+        }
+      }
+
+      // 2. Guided Stretch Player Tick
+      if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && runtime.player.routine) {
+        const rawPlayerDt = nowWall - runtime.player.lastTickWallMs;
+        const dt = rawPlayerDt > 0 ? rawPlayerDt : 50;
+        runtime.player.lastTickWallMs = nowWall;
+        runtime.player.poseElapsedMs += dt;
+        runtime.player.breathElapsedMs += dt;
+
+        const bm = computePlayerBreath(runtime.player.breathElapsedMs);
+        if (bm.phase !== runtime.player.lastTriggeredBreathPhase) {
+          runtime.player.lastTriggeredBreathPhase = bm.phase;
+          SongxiAudioEngine.playProfile(runtime.player.soundProfile, bm.phase);
+        }
+
+        while (runtime.player.routine && runtime.player.poseIndex < runtime.player.routine.poses.length) {
+          const currentPose = runtime.player.routine.poses[runtime.player.poseIndex];
+          const targetMs = (currentPose ? currentPose.durationSeconds : 45) * 1000;
+          if (runtime.player.poseElapsedMs < targetMs) break;
+          runtime.player.poseElapsedMs -= targetMs;
+          if (runtime.player.poseIndex + 1 >= runtime.player.routine.poses.length) {
+            enterCompletionScreen();
+            return;
+          }
+          runtime.player.poseIndex += 1;
+        }
+        renderPlayerFrame();
+      }
+    }
+
+    function syncHeartbeatTimer() {
+      const shouldRun = runtime.splash.visible || runtime.player.active;
+      if (shouldRun && heartbeatTimerId === null) {
+        heartbeatTimerId = setInterval(tickHeartbeat, 50);
+      } else if (!shouldRun && heartbeatTimerId !== null) {
+        clearInterval(heartbeatTimerId);
+        heartbeatTimerId = null;
+      }
+    }
+
+    // --- Scheduled Sedentary Reminder Timer (Fires at exact configured intervalMinutes) ---
+    let reminderTimeoutId = null;
+    function scheduleNextReminderTick() {
+      if (reminderTimeoutId !== null) {
+        clearTimeout(reminderTimeoutId);
+        reminderTimeoutId = null;
+      }
+      if (!store.reminder.enabled) return;
+      const ivMs = Math.max(15, Number(store.reminder.intervalMinutes) || 60) * 60 * 1000;
+      reminderTimeoutId = setTimeout(() => {
+        reminderTimeoutId = null;
+        if (store.reminder.enabled && !runtime.player.active && !runtime.splash.visible) {
+          evaluateScheduledReminder({ manualPreview: false });
+        }
+        scheduleNextReminderTick();
+      }, ivMs);
+    }
+    scheduleNextReminderTick();
+
+    // Expose clean test/simulation bridge for programmatic clock & lifecycle verification
+    window.__SONGXI_BRIDGE__ = {
+      setSimulatedEpochMs,
+      evaluateSplashLaunch,
+      evaluateScheduledReminder,
+      simulateWarmResume: ms => evaluateSplashLaunch({ warmBackgroundDurationMs: ms }),
+      setProviderDelayMs: ms => { runtime.splash.simulatedProviderDelayMs = ms; },
+      isAudioPlaying: () => SongxiAudioEngine.isPlaying(),
+      getSensorListenerCount: () => runtime.player.sensorListenersCount,
+      getStateSnapshot: () => JSON.parse(JSON.stringify({ store, effectiveSkinId: resolveEffectiveSkinId() }))
+    };
+
+    // --- Boot Sequence ---
+    wireInteractions();
+    applySkinAndRefreshUI();
+
+    window.SONGXI_POSE_CATALOG = Object.values(ALL_POSES);
+    const forceSplashBoot = isTruthyParam(
+      'forceSplash', 'forceSplashPreview', 'FORCE_SPLASH_PREVIEW', 'force_splash_preview', 'com.songxi.app.extra.FORCE_SPLASH_PREVIEW'
+    );
+    const reminderDeepBoot = isTruthyParam(
+      'fromReminder', 'fromReminderQuickStart', 'FROM_REMINDER_QUICK_START', 'from_reminder_quick_start',
+      'com.songxi.app.extra.FROM_REMINDER_QUICK_START', 'reminder', 'reminderQuickStart', 'reminder_quick_start', 'quickStart'
+    ) || urlParams.get('source') === 'reminder' || urlParams.get('entry') === 'reminder' || window.location.hash.includes('reminder');
+    const warmBgBoot = urlParams.get('warmBgMs') ?? urlParams.get('WARM_BG_MS') ?? urlParams.get('warmBackgroundDurationMs');
+    const providerDelayBoot = urlParams.get('providerDelayMs') ?? urlParams.get('PROVIDER_DELAY_MS');
+    if (providerDelayBoot !== null && providerDelayBoot.trim() !== '' && !Number.isNaN(Number(providerDelayBoot))) {
+      runtime.splash.simulatedProviderDelayMs = Number(providerDelayBoot);
+    }
+
+    if (forceSplashBoot) {
+      evaluateSplashLaunch({ forcePreview: true });
+    } else if (reminderDeepBoot) {
+      evaluateSplashLaunch({ isReminderDeepLink: true });
+      startRoutineInPlayer(QUICK_ROUTINES[0], null);
+    } else if (warmBgBoot !== null && warmBgBoot.trim() !== '' && !Number.isNaN(Number(warmBgBoot))) {
+      evaluateSplashLaunch({ warmBackgroundDurationMs: Number(warmBgBoot) });
+    } else {
+      evaluateSplashLaunch({});
+    }
+
+    if (isTruthyParam('evalReminder', 'EVAL_REMINDER', 'eval_reminder')) {
+      evaluateScheduledReminder({ manualPreview: false });
+    }
+  </script>
+</body>
+</html>

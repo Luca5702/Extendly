@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>松息 Sōngxī · 山居画境四皮肤美学与五维架构图谱</title>
+  <meta name="description" content="松息（Sōngxī）插画风格与中国山水画融合的五维可替换皮肤系统参考图谱：水墨远山、青绿山居、暮山听松、春涧花影四境同台细览与开屏雅鉴装裱预览。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='4' fill='none' stroke='%23B5493A' stroke-width='2.5'/%3E%3C/svg%3E" />
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; max-width: 100%; overflow-x: hidden;
+      background-color: var(--background, #F3EFE7);
+      color: var(--foreground, #262B28);
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, p, ul, figure, article, section, footer, header { margin: 0; }
+    button { font: inherit; color: inherit; background: transparent; border: 1px solid transparent; cursor: pointer; }
+    svg { display: block; max-width: 100%; }
+    table { width: 100%; border-collapse: collapse; }
+    .font-serif-cn { font-family: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", serif; }
+    .font-sans-cn { font-family: "Noto Sans CJK SC", "Source Han Sans SC", "PingFang SC", sans-serif; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    /* Offline-resilient utility sheet (mirrors Tailwind classes when CDN is unreachable) */
+    .hidden { display: none !important; }
+    .block { display: block; }
+    .flex { display: flex; }
+    .inline-flex { display: inline-flex; }
+    .grid { display: grid; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .shrink-0 { flex-shrink: 0; }
+    .min-w-0 { min-width: 0; }
+    .relative { position: relative; }
+    .absolute { position: absolute; }
+    .pointer-events-none { pointer-events: none; }
+    .select-none { user-select: none; }
+    .grid-cols-1 { grid-template-columns: minmax(0, 1fr); }
+    .gap-2 { gap: 8px; } .gap-2\.5 { gap: 10px; } .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; } .gap-5 { gap: 20px; } .gap-6 { gap: 24px; }
+    .space-y-1\.5 > * + * { margin-top: 6px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .space-y-5 > * + * { margin-top: 20px; }
+    .space-y-7 > * + * { margin-top: 28px; }
+    .w-full { width: 100%; } .h-full { height: 100%; }
+    .w-2 { width: 8px; } .h-2 { height: 8px; } .w-12 { width: 48px; }
+    .h-7 { height: 28px; } .h-44 { height: 176px; } .h-56 { height: 224px; } .h-64 { height: 256px; }
+    .h-\[520px\] { height: 520px; } .h-\[78\%\] { height: 78%; } .h-\[20\%\] { height: 20%; }
+    .max-w-3xl { max-width: 48rem; } .max-w-7xl { max-width: 80rem; } .max-w-\[340px\] { max-width: 340px; }
+    .min-h-screen { min-height: 100vh; }
+    .min-h-\[34px\] { min-height: 34px; } .min-h-\[36px\] { min-height: 36px; }
+    .min-h-\[38px\] { min-height: 38px; } .min-h-\[40px\] { min-height: 40px; }
+    .min-w-\[84px\] { min-width: 84px; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .mt-0\.5 { margin-top: 2px; } .mt-1 { margin-top: 4px; } .my-1 { margin-top: 4px; margin-bottom: 4px; } .mr-1 { margin-right: 4px; }
+    .p-3\.5 { padding: 14px; } .p-4 { padding: 16px; } .p-5 { padding: 20px; }
+    .px-1\.5 { padding-left: 6px; padding-right: 6px; } .px-2 { padding-left: 8px; padding-right: 8px; }
+    .px-2\.5 { padding-left: 10px; padding-right: 10px; } .px-3 { padding-left: 12px; padding-right: 12px; }
+    .px-3\.5 { padding-left: 14px; padding-right: 14px; } .px-4 { padding-left: 16px; padding-right: 16px; }
+    .py-0\.5 { padding-top: 2px; padding-bottom: 2px; } .py-1 { padding-top: 4px; padding-bottom: 4px; }
+    .py-1\.5 { padding-top: 6px; padding-bottom: 6px; } .py-2\.5 { padding-top: 10px; padding-bottom: 10px; }
+    .py-3 { padding-top: 12px; padding-bottom: 12px; }
+    .pt-1 { padding-top: 4px; } .pb-4 { padding-bottom: 16px; } .pb-5 { padding-bottom: 20px; }
+    .pr-4 { padding-right: 16px; } .pl-3 { padding-left: 12px; } .pl-4 { padding-left: 16px; }
+    .overflow-hidden { overflow: hidden; } .overflow-x-auto { overflow-x: auto; max-width: 100%; }
+    .whitespace-nowrap { white-space: nowrap; }
+    .border { border: 1px solid var(--border, rgba(72,99,86,0.18)); }
+    .border-b { border-bottom: 1px solid var(--border, rgba(72,99,86,0.14)); }
+    .divide-y > * + * { border-top: 1px solid rgba(72,99,86,0.12); }
+    .rounded { border-radius: 4px; } .rounded-lg { border-radius: 8px; } .rounded-xl { border-radius: 12px; }
+    .rounded-2xl { border-radius: 16px; } .rounded-3xl { border-radius: 24px; }
+    .rounded-\[22px\] { border-radius: 22px; } .rounded-full { border-radius: 9999px; }
+    .bg-\[var\(--card\,\#FAF7F1\)\] { background-color: var(--card, #FAF7F1); }
+    .bg-\[var\(--background\,\#F3EFE7\)\] { background-color: var(--background, #F3EFE7); }
+    .bg-\[var\(--background\,\#F5F1E8\)\] { background-color: var(--background, #F5F1E8); }
+    .bg-\[var\(--background\,\#ECE6DA\)\] { background-color: var(--background, #ECE6DA); }
+    .shadow-sm { box-shadow: 0 2px 10px rgba(38,43,40,0.05); }
+    .shadow-md { box-shadow: 0 8px 24px rgba(38,43,40,0.08); }
+    .text-xs { font-size: 12px; line-height: 1.5; } .text-sm { font-size: 14px; line-height: 1.5; }
+    .text-base { font-size: 16px; line-height: 1.5; } .text-lg { font-size: 18px; line-height: 1.4; }
+    .text-xl { font-size: 20px; line-height: 1.35; } .text-2xl { font-size: 24px; line-height: 1.3; }
+    .font-medium { font-weight: 500; } .font-semibold { font-weight: 600; }
+    .text-center { text-align: center; } .text-right { text-align: right; } .text-left { text-align: left; }
+    .leading-relaxed { line-height: 1.625; } .leading-snug { line-height: 1.375; }
+    .tracking-wider { letter-spacing: 0.05em; } .tracking-\[0\.06em\] { letter-spacing: 0.06em; }
+    .tracking-\[0\.08em\] { letter-spacing: 0.08em; } .tracking-\[0\.18em\] { letter-spacing: 0.18em; }
+    .uppercase { text-transform: uppercase; } .list-disc { list-style-type: disc; }
+    @media (min-width: 640px) {
+      .sm\:flex-row { flex-direction: row; } .sm\:items-center { align-items: center; }
+    }
+    @media (min-width: 768px) {
+      .md\:p-8 { padding: 32px; } .md\:p-7 { padding: 28px; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:flex-row { flex-direction: row; } .md\:items-center { align-items: center; }
+      .md\:text-3xl { font-size: 30px; line-height: 1.25; } .md\:text-xl { font-size: 20px; } .md\:text-sm { font-size: 14px; }
+    }
+    @media (min-width: 1024px) {
+      .lg\:flex-row { flex-direction: row; } .lg\:items-center { align-items: center; } .lg\:items-end { align-items: flex-end; }
+      .lg\:w-72 { width: 288px; }
+      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .lg\:col-span-5 { grid-column: span 5 / span 5; } .lg\:col-span-7 { grid-column: span 7 / span 7; }
+    }
+
+    /* Strictly scoped Songxi 5D skin custom properties — zero global host overrides */
+    .songxi-showcase-card[data-skin="ink_mist"],
+    .songxi-focus-stage[data-skin="ink_mist"] {
+      --sx-bg: #F5F1E8;
+      --sx-sky-top: #EBE5D8;
+      --sx-card: #FAF7F1;
+      --sx-card-subtle: #ECE6DA;
+      --sx-overlay: rgba(245, 241, 232, 0.94);
+      --sx-border: #DCD5C7;
+      --sx-ink: #262B28;
+      --sx-ink-sec: #5C645F;
+      --sx-ink-soft: #5E6661;
+      --sx-accent: #486356;
+      --sx-accent-soft: #DCE5DF;
+      --sx-accent-glow: rgba(72, 99, 86, 0.24);
+      --sx-sec-accent: #91674B;
+      --sx-seal: #B5493A;
+      --sx-on-accent: #FAF7F1;
+      --sx-grain-alpha: 0.035;
+      --sx-radius: 24px;
+    }
+
+    .songxi-showcase-card[data-skin="qinglv_celadon"],
+    .songxi-focus-stage[data-skin="qinglv_celadon"] {
+      --sx-bg: #EEF3EE;
+      --sx-sky-top: #DFECE6;
+      --sx-card: #F7FAF7;
+      --sx-card-subtle: #E3EDE7;
+      --sx-overlay: rgba(238, 243, 238, 0.94);
+      --sx-border: #CBDAD2;
+      --sx-ink: #1E2E2B;
+      --sx-ink-sec: #4F635E;
+      --sx-ink-soft: #536762;
+      --sx-accent: #35685C;
+      --sx-accent-soft: #D6E7E1;
+      --sx-accent-glow: rgba(53, 104, 92, 0.25);
+      --sx-sec-accent: #2F5669;
+      --sx-seal: #B84435;
+      --sx-on-accent: #F7FAF7;
+      --sx-grain-alpha: 0.028;
+      --sx-radius: 20px;
+    }
+
+    .songxi-showcase-card[data-skin="dusk_pine"],
+    .songxi-focus-stage[data-skin="dusk_pine"] {
+      --sx-bg: #19201E;
+      --sx-sky-top: #212C29;
+      --sx-card: #232D2A;
+      --sx-card-subtle: #1D2623;
+      --sx-overlay: rgba(22, 28, 26, 0.95);
+      --sx-border: #33413D;
+      --sx-ink: #E6E1D6;
+      --sx-ink-sec: #A6B2AB;
+      --sx-ink-soft: #98A59E;
+      --sx-accent: #86AA96;
+      --sx-accent-soft: #2B3B35;
+      --sx-accent-glow: rgba(134, 170, 150, 0.28);
+      --sx-sec-accent: #C79A7A;
+      --sx-seal: #D47566;
+      --sx-on-accent: #161D1B;
+      --sx-grain-alpha: 0.040;
+      --sx-radius: 24px;
+    }
+
+    .songxi-showcase-card[data-skin="spring_blossom"],
+    .songxi-focus-stage[data-skin="spring_blossom"] {
+      --sx-bg: #F8F1EA;
+      --sx-sky-top: #F2E5DA;
+      --sx-card: #FDF9F5;
+      --sx-card-subtle: #EFE4DA;
+      --sx-overlay: rgba(248, 241, 234, 0.94);
+      --sx-border: #E2D3C6;
+      --sx-ink: #322926;
+      --sx-ink-sec: #685A54;
+      --sx-ink-soft: #6E5F58;
+      --sx-accent: #9B5A49;
+      --sx-accent-soft: #FAF0EC;
+      --sx-accent-glow: rgba(155, 90, 73, 0.24);
+      --sx-sec-accent: #4E7266;
+      --sx-seal: #B54639;
+      --sx-on-accent: #FDF9F5;
+      --sx-grain-alpha: 0.032;
+      --sx-radius: 26px;
+    }
+
+    body,
+    body *,
+    body *::before,
+    body *::after {
+      transition-property: opacity, transform !important;
+    }
+
+    .songxi-surface {
+      background-color: var(--sx-bg);
+      color: var(--sx-ink);
+      border-color: var(--sx-border);
+      border-radius: var(--sx-radius);
+    }
+
+    @keyframes sxMistDriftA {
+      0%, 100% { transform: translateX(-8px); }
+      50% { transform: translateX(10px); }
+    }
+    @keyframes sxMistDriftB {
+      0%, 100% { transform: translateX(9px); }
+      50% { transform: translateX(-9px); }
+    }
+    .sx-mist-a { animation: sxMistDriftA 16s ease-in-out infinite; }
+    .sx-mist-b { animation: sxMistDriftB 22s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-[var(--background,#F3EFE7)] text-[var(--foreground,#262B28)] font-sans-cn antialiased min-h-screen p-4 md:p-8">
+  <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
+    <defs>
+      <filter id="sx-grain-xuan" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="3" stitchTiles="stitch" result="noise" />
+        <feColorMatrix type="saturate" values="0" in="noise" result="mono" />
+        <feComponentTransfer in="mono">
+          <feFuncA type="linear" slope="0.06" />
+        </feComponentTransfer>
+      </filter>
+      <filter id="sx-grain-silk" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="1.35 0.32" numOctaves="2" stitchTiles="stitch" result="silk" />
+        <feColorMatrix type="saturate" values="0" in="silk" result="monoSilk" />
+        <feComponentTransfer in="monoSilk">
+          <feFuncA type="linear" slope="0.05" />
+        </feComponentTransfer>
+      </filter>
+      <filter id="sx-ink-bleed" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="turb" />
+        <feDisplacementMap in="SourceGraphic" in2="turb" scale="2.1" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="w-full max-w-7xl mx-auto space-y-7 overflow-hidden">
+    <header class="bg-[var(--card,#FAF7F1)] border border-[var(--border,rgba(72,99,86,0.18))] rounded-3xl p-5 md:p-7 shadow-sm space-y-5">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4 border-b border-[var(--border,rgba(72,99,86,0.14))] pb-5">
+        <div class="space-y-2">
+          <p class="text-xs tracking-[0.18em] text-[var(--muted-foreground,#5C645F)] uppercase">Songxi 5D Theme Architecture · 远山写意 × 近人亲和</p>
+          <h1 class="font-serif-cn text-2xl md:text-3xl font-semibold tracking-[0.08em] text-[var(--foreground,#262B28)]">
+            松息 Sōngxī · 山居画境四皮肤美学与五维架构图谱
+          </h1>
+          <p class="text-xs md:text-sm text-[var(--muted-foreground,#5C645F)] max-w-3xl leading-relaxed">
+            将中国山水画的「远山皴染、云霭留白、宣绢肌理、朱砂印章」置于空间背景层，将当代温润人体插画置于近景引导层。全部四款内置画境 100% 永久免费开放，系统底层通过五维 <code class="px-1.5 py-0.5 rounded bg-[var(--background,#ECE6DA)] text-xs">SongxiSkin</code> 令牌实时联动视听触体验。
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button
+            id="btn-showcase-breath"
+            data-testid="showcase_breath_toggle"
+            type="button"
+            aria-pressed="true"
+            class="min-h-[40px] px-4 rounded-full text-xs font-medium border border-[var(--border,rgba(72,99,86,0.24))] bg-[var(--background,#F3EFE7)] text-[var(--foreground,#262B28)] hover:opacity-90 transition flex items-center gap-2"
+          >
+            <span id="breath-dot" class="w-2 h-2 rounded-full" style="background-color:#486356;"></span>
+            <span id="breath-toggle-text">呼吸律动：运行中</span>
+          </button>
+
+          <div
+            id="badge-breath-phase"
+            data-testid="showcase_breath_phase"
+            class="min-h-[40px] px-4 rounded-full text-xs font-serif-cn tracking-wider flex items-center border border-[var(--border,rgba(72,99,86,0.2))]"
+            style="background-color:#ECE6DA;color:#262B28;"
+          >
+            吸气 · 轻展
+          </div>
+
+          <button
+            id="btn-showcase-silent"
+            data-testid="showcase_sound_silent"
+            type="button"
+            aria-pressed="false"
+            class="min-h-[40px] px-3.5 rounded-full text-xs border border-[var(--border,rgba(72,99,86,0.22))] bg-[var(--background,#F3EFE7)] text-[var(--foreground,#262B28)] hover:opacity-90 transition"
+          >
+            声景：泛音开启
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="六区标准拉伸体式切换">
+          <span class="text-xs text-[var(--muted-foreground,#5C645F)] mr-1">同步检视体式：</span>
+          <button id="pose-btn-neck" data-testid="showcase_pose_neck" data-pose="neck" type="button" aria-pressed="true" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">后颈风池 · 倾耳寻肩</button>
+          <button id="pose-btn-shoulder" data-testid="showcase_pose_shoulder" data-pose="shoulder" type="button" aria-pressed="false" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">双肩斜方 · 双吸沉肩</button>
+          <button id="pose-btn-thoracic" data-testid="showcase_pose_thoracic" data-pose="thoracic" type="button" aria-pressed="false" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">胸椎圆肩 · 锁骨开胸</button>
+          <button id="pose-btn-lumbar" data-testid="showcase_pose_lumbar" data-pose="lumbar" type="button" aria-pressed="false" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">下腰久坐 · 柳枝侧展</button>
+          <button id="pose-btn-wrist" data-testid="showcase_pose_wrist" data-pose="wrist" type="button" aria-pressed="false" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">手腕鼠标 · 掌心轻展</button>
+          <button id="pose-btn-eye" data-testid="showcase_pose_eye" data-pose="eye" type="button" aria-pressed="false" class="pose-pill min-h-[34px] px-3.5 rounded-full text-xs font-medium border transition">眼周眉心 · 搓掌温目</button>
+        </div>
+
+        <div class="flex items-center gap-3 w-full lg:w-72">
+          <label for="input-breath-scrub" class="text-xs text-[var(--muted-foreground,#5C645F)] whitespace-nowrap">4s吸/6s呼进度</label>
+          <input
+            id="input-breath-scrub"
+            data-testid="showcase_breath_scrub"
+            type="range"
+            min="0"
+            max="100"
+            value="15"
+            class="w-full accent-[#486356]"
+          />
+          <span id="breath-cycle-readout" class="text-xs font-mono tabular-nums text-[var(--muted-foreground,#5C645F)] w-12 text-right">1.5s</span>
+        </div>
+      </div>
+
+      <div
+        id="swatch-inspector"
+        data-testid="swatch_inspector_readout"
+        class="rounded-2xl px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2 border border-[var(--border,rgba(72,99,86,0.16))] bg-[var(--background,#F5F1E8)]"
+      >
+        <span>矿物设色检视：点击任意画境卡片下方的 <strong>60 / 25 / 10 / 5</strong> 矿物色阶条，可查看古典矿物名、Hex 色值与 WCAG 2.1 对比度。</span>
+        <span id="audio-status-readout" class="font-mono text-xs text-[var(--muted-foreground,#5C645F)]">泛音待命 · 432Hz 温润颂钵</span>
+      </div>
+    </header>
+
+    <section aria-label="山居四境并置册页" class="grid grid-cols-1 md:grid-cols-2 gap-6" id="folio-grid"></section>
+
+    <section class="bg-[var(--card,#FAF7F1)] border border-[var(--border,rgba(72,99,86,0.18))] rounded-3xl p-5 md:p-7 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border,rgba(72,99,86,0.14))] pb-4">
+        <div>
+          <h2 class="font-serif-cn text-lg md:text-xl font-semibold tracking-[0.06em]">五层空间解构与双境并置对比台</h2>
+          <p class="text-xs text-[var(--muted-foreground,#5C645F)] mt-1">逐层开关宣绢肌理、远山云霭、前景插画人物与金石印章，验证「远景山水造境 × 近景插画导引」的空间层次。</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="btn-compare-mode"
+            data-testid="compare_mode_toggle"
+            type="button"
+            aria-pressed="false"
+            class="min-h-[36px] px-3.5 rounded-xl text-xs font-medium border border-[var(--border,rgba(72,99,86,0.24))] bg-[var(--background,#F3EFE7)] hover:opacity-90 transition"
+          >
+            切换双境并置对比（日境 vs 夜境）
+          </button>
+          <button
+            id="btn-focus-chime"
+            data-testid="skin_chime_preview_button"
+            type="button"
+            class="min-h-[36px] px-3.5 rounded-xl text-xs font-medium transition"
+            style="background-color:#486356;color:#FAF7F1;"
+          >
+            试听焦点画境泛音
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5" role="group" aria-label="五维图层显隐控制">
+        <button id="layer-btn-substrate" data-testid="layer_toggle_substrate" data-layer="substrate" type="button" aria-pressed="true" class="layer-pill min-h-[34px] px-3 rounded-lg text-xs border transition">✓ L1 宣绢纤维肌理</button>
+        <button id="layer-btn-landscape" data-testid="layer_toggle_landscape" data-layer="landscape" type="button" aria-pressed="true" class="layer-pill min-h-[34px] px-3 rounded-lg text-xs border transition">✓ L2 远山云霭草木</button>
+        <button id="layer-btn-figure" data-testid="layer_toggle_figure" data-layer="figure" type="button" aria-pressed="true" class="layer-pill min-h-[34px] px-3 rounded-lg text-xs border transition">✓ L3 插画人物与呼吸光晕</button>
+        <button id="layer-btn-seal" data-testid="layer_toggle_seal" data-layer="seal" type="button" aria-pressed="true" class="layer-pill min-h-[34px] px-3 rounded-lg text-xs border transition">✓ L4 金石朱砂印章</button>
+      </div>
+
+      <div id="focus-stage-container" data-testid="showcase_focus_stage" class="grid grid-cols-1 gap-5"></div>
+    </section>
+
+    <section class="bg-[var(--card,#FAF7F1)] border border-[var(--border,rgba(72,99,86,0.18))] rounded-3xl p-5 md:p-7 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border,rgba(72,99,86,0.14))] pb-4">
+        <div>
+          <h2 class="font-serif-cn text-lg md:text-xl font-semibold tracking-[0.06em]">「开屏雅鉴」宣绢立轴装裱预览（唯一商业化入口）</h2>
+          <p class="text-xs text-[var(--muted-foreground,#5C645F)] mt-1">78% 内缩宣绢画心 + 22% 品牌朱砂印章底栏 · 首帧 ≥48dp 跳过热区 · 画心静默防误触 · 物理级禁用摇一摇传感器。</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="splash-btn-tea" data-testid="splash_artwork_celadon_tea" data-art="CELADON_TEA" type="button" aria-pressed="true" class="splash-art-pill min-h-[36px] px-3.5 rounded-xl text-xs border transition">山茗器物 · 汝瓷茶席</button>
+          <button id="splash-btn-incense" data-testid="splash_artwork_pine_incense" data-art="PINE_INCENSE" type="button" aria-pressed="false" class="splash-art-pill min-h-[36px] px-3.5 rounded-xl text-xs border transition">松间闻香 · 草木线香</button>
+          <button id="splash-btn-wood" data-testid="splash_artwork_wood_desk_stand" data-art="WOOD_DESK_STAND" type="button" aria-pressed="false" class="splash-art-pill min-h-[36px] px-3.5 rounded-xl text-xs border transition">案头清风 · 胡桃木护颈架</button>
+        </div>
+      </div>
+
+      <div id="splash-mount-stage" data-testid="showcase_splash_stage" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"></div>
+    </section>
+
+    <section class="w-full overflow-hidden bg-[var(--card,#FAF7F1)] border border-[var(--border,rgba(72,99,86,0.18))] rounded-3xl p-5 md:p-7 space-y-4">
+      <div>
+        <h2 class="font-serif-cn text-lg md:text-xl font-semibold tracking-[0.06em]">五维 <code class="text-base">SongxiSkin</code> 系统架构令牌对照矩阵</h2>
+        <p class="text-xs text-[var(--muted-foreground,#5C645F)] mt-1">与原生 Android <code class="text-xs">:core:designsystem</code> 模块保持 1:1 严格同构，所有主墨与矿物色均通过 WCAG 2.1 AA/AAA 对比度校准。</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-[var(--border,rgba(72,99,86,0.2))] text-[var(--muted-foreground,#5C645F)]">
+              <th class="py-3 pr-4 font-medium">五维令牌域</th>
+              <th class="py-3 px-3 font-medium">水墨远山 (`ink_mist`)</th>
+              <th class="py-3 px-3 font-medium">青绿山居 (`qinglv_celadon`)</th>
+              <th class="py-3 px-3 font-medium">暮山听松 (`dusk_pine`)</th>
+              <th class="py-3 pl-3 font-medium">春涧花影 (`spring_blossom`)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--border,rgba(72,99,86,0.12))]">
+            <tr>
+              <td class="py-3 pr-4 font-medium">A. 宣绢底色 / 卡片底色</td>
+              <td class="py-3 px-3 font-mono">#F5F1E8 / #FAF7F1 (生宣)</td>
+              <td class="py-3 px-3 font-mono">#EEF3EE / #F7FAF7 (天青熟绢)</td>
+              <td class="py-3 px-3 font-mono">#19201E / #232D2A (苍墨夜山)</td>
+              <td class="py-3 pl-3 font-mono">#F8F1EA / #FDF9F5 (暖桑皮纸)</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">A. 主墨色与 WCAG 对比度</td>
+              <td class="py-3 px-3 font-mono">#262B28 (12.77:1 AAA)</td>
+              <td class="py-3 px-3 font-mono">#1E2E2B (12.62:1 AAA)</td>
+              <td class="py-3 px-3 font-mono">#E6E1D6 (12.71:1 AAA)</td>
+              <td class="py-3 pl-3 font-mono">#322926 (12.67:1 AAA)</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">A. 主矿物色 / 朱砂印泥</td>
+              <td class="py-3 px-3 font-mono">#486356 (苍葭青) / #B5493A</td>
+              <td class="py-3 px-3 font-mono">#35685C (石绿青瓷) / #B84435</td>
+              <td class="py-3 px-3 font-mono">#86AA96 (竹月清辉) / #D47566</td>
+              <td class="py-3 pl-3 font-mono">#9B5A49 (暖陶赭粉) / #B54639</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">B. 山水皴法与草木意象</td>
+              <td class="py-3 px-3">米氏泼墨层峦 · 云霭 · 苍松斜枝</td>
+              <td class="py-3 px-3">千里江山泥金勾峰 (#B88655) · 翠竹湖石</td>
+              <td class="py-3 px-3">暮山苍靛远岫 · 弦月 · 暮松针影</td>
+              <td class="py-3 pl-3">春涧缓坡 · 蜿蜒碧溪 · 山桃折枝</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">C. 插画衣冠 / 光晕 / 印式</td>
+              <td class="py-3 px-3">亚麻素衣 · 水墨涟漪 · 朱文方印「松息」</td>
+              <td class="py-3 px-3">汝瓷青衫 · 青绿云气 · 白文长印「山居清息」</td>
+              <td class="py-3 px-3">松青夜袍 · 竹月潮汐 · 葫芦闲章「听松」</td>
+              <td class="py-3 pl-3">暖杏水粉衣 · 花影舒张 · 圆朱文印「春山」</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">D. 节气题跋与一息结语</td>
+              <td class="py-3 px-3">一息墨韵散，肩头万事轻。</td>
+              <td class="py-3 px-3">身如青山立，清风入袖来。</td>
+              <td class="py-3 px-3">松风吹解带，夜静息自宁。</td>
+              <td class="py-3 pl-3">眉间春水暖，指下花影轻。</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">E. 物理泛音与微震包络</td>
+              <td class="py-3 px-3">432Hz 温润颂钵 [1, 1.5, 2.74] · 50amp</td>
+              <td class="py-3 px-3">528Hz 空谷竹磬 [1, 2.0, 3.16] · 54amp</td>
+              <td class="py-3 px-3">396Hz 松风琴韵 [1, 1.5, 2.0, 3.0] · 38amp</td>
+              <td class="py-3 pl-3">440Hz 春涧细雨 [1, 1.68, 2.5] · 48amp</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SONGXI_SKINS = {
+      ink_mist: {
+        id: 'ink_mist',
+        titleCn: '水墨远山',
+        subtitleCn: '素宣写意',
+        fusionBadge: '六分半宋人水墨 · 三分半现代插画',
+        greetingPrefix: '远山淡影 · 宜沉肩缓息',
+        completionVerse: '一息墨韵散，肩头万事轻。',
+        isDark: false,
+        canvasPrimary: '#F5F1E8',
+        canvasSkyWashTop: '#EBE5D8',
+        surfaceCard: '#FAF7F1',
+        surfaceCardSubtle: '#ECE6DA',
+        borderHairline: '#DCD5C7',
+        inkPrimary: '#262B28',
+        inkSecondary: '#5C645F',
+        inkTertiary: '#5E6661',
+        accentPrimary: '#486356',
+        accentPrimarySoft: '#DCE5DF',
+        accentSecondary: '#91674B',
+        sealVermilion: '#B5493A',
+        onAccent: '#FAF7F1',
+        cardCornerRadiusDp: 24,
+        farRidge: '#CFD6D0',
+        midRidge: '#9FB0A6',
+        crestStroke: null,
+        mistColor: '#F7F4EC',
+        mistOpacity: 0.72,
+        celestialColor: '#E3C89E',
+        garmentFill: '#E6DFD1',
+        garmentShadow: '#D2C8B6',
+        skinTone: '#EEDBCE',
+        hairFill: '#2D322F',
+        contourStroke: '#262B28',
+        contourWidth: 2.2,
+        sealText: '松息',
+        sealShape: 'SQUARE_ZHUWEN',
+        haloName: '水墨涟漪',
+        soundProfile: 'bowl',
+        soundLabel: '432Hz 温润颂钵',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 50,
+        grainFilter: 'sx-grain-xuan',
+        swatches: [
+          { role: '60% 手工生宣底', hex: '#F5F1E8', ratio: '60%', contrast: '基底色 (主墨对比 12.77:1 AAA)' },
+          { role: '25% 云水晕染次底', hex: '#ECE6DA', ratio: '25%', contrast: '次底色 (主墨对比 11.58:1 AAA)' },
+          { role: '10% 松烟骨法主墨', hex: '#262B28', ratio: '10%', contrast: '12.77:1 AAA' },
+          { role: '5% 苍葭青与朱砂印', hex: '#486356', ratio: '5%', contrast: '5.83:1 AA (按钮字 6.15:1)' }
+        ]
+      },
+      qinglv_celadon: {
+        id: 'qinglv_celadon',
+        titleCn: '青绿山居',
+        subtitleCn: '汝瓷重彩',
+        fusionBadge: '五分青绿山水 · 五分现代插画',
+        greetingPrefix: '青绿山居 · 宜开胸纳气',
+        completionVerse: '身如青山立，清风入袖来。',
+        isDark: false,
+        canvasPrimary: '#EEF3EE',
+        canvasSkyWashTop: '#DFECE6',
+        surfaceCard: '#F7FAF7',
+        surfaceCardSubtle: '#E3EDE7',
+        borderHairline: '#CBDAD2',
+        inkPrimary: '#1E2E2B',
+        inkSecondary: '#4F635E',
+        inkTertiary: '#536762',
+        accentPrimary: '#35685C',
+        accentPrimarySoft: '#D6E7E1',
+        accentSecondary: '#2F5669',
+        sealVermilion: '#B84435',
+        onAccent: '#F7FAF7',
+        cardCornerRadiusDp: 20,
+        farRidge: '#9EC0B5',
+        midRidge: '#5F9486',
+        crestStroke: '#B88655',
+        mistColor: '#F2F7F4',
+        mistOpacity: 0.66,
+        celestialColor: '#D8B074',
+        garmentFill: '#CFE2DC',
+        garmentShadow: '#B3CEC5',
+        skinTone: '#F0DDD0',
+        hairFill: '#22302D',
+        contourStroke: '#1E2E2B',
+        contourWidth: 1.5,
+        sealText: '山居清息',
+        sealShape: 'OBLONG_BAIWEN',
+        haloName: '青绿云气',
+        soundProfile: 'bamboo',
+        soundLabel: '528Hz 空谷竹磬',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 54,
+        grainFilter: 'sx-grain-silk',
+        swatches: [
+          { role: '60% 天青熟绢底', hex: '#EEF3EE', ratio: '60%', contrast: '基底色 (主墨对比 12.62:1 AAA)' },
+          { role: '25% 汝瓷云影次底', hex: '#E3EDE7', ratio: '25%', contrast: '次底色 (主墨对比 11.84:1 AAA)' },
+          { role: '10% 黛青骨法主墨', hex: '#1E2E2B', ratio: '10%', contrast: '12.62:1 AAA' },
+          { role: '5% 石绿青瓷与泥金', hex: '#35685C', ratio: '5%', contrast: '5.69:1 AA (按钮字 6.08:1)' }
+        ]
+      },
+      dusk_pine: {
+        id: 'dusk_pine',
+        titleCn: '暮山听松',
+        subtitleCn: '沉香夜境',
+        fusionBadge: '五分半暮山烟岚 · 四分半微光插画',
+        greetingPrefix: '暮山听松 · 宜敛神松腰',
+        completionVerse: '松风吹解带，夜静息自宁。',
+        isDark: true,
+        canvasPrimary: '#19201E',
+        canvasSkyWashTop: '#212C29',
+        surfaceCard: '#232D2A',
+        surfaceCardSubtle: '#1D2623',
+        borderHairline: '#33413D',
+        inkPrimary: '#E6E1D6',
+        inkSecondary: '#A6B2AB',
+        inkTertiary: '#98A59E',
+        accentPrimary: '#86AA96',
+        accentPrimarySoft: '#2B3B35',
+        accentSecondary: '#C79A7A',
+        sealVermilion: '#D47566',
+        onAccent: '#161D1B',
+        cardCornerRadiusDp: 24,
+        farRidge: '#263531',
+        midRidge: '#334842',
+        crestStroke: '#4B655D',
+        mistColor: '#293733',
+        mistOpacity: 0.52,
+        celestialColor: '#E4CFA8',
+        garmentFill: '#2E403B',
+        garmentShadow: '#22302C',
+        skinTone: '#D9C5B4',
+        hairFill: '#141B19',
+        contourStroke: '#86AA96',
+        contourWidth: 1.8,
+        sealText: '听松',
+        sealShape: 'GOURD_XIANZHANG',
+        haloName: '竹月潮汐',
+        soundProfile: 'guqin',
+        soundLabel: '396Hz 松风琴韵',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 38,
+        grainFilter: 'sx-grain-silk',
+        swatches: [
+          { role: '60% 苍墨夜山底', hex: '#19201E', ratio: '60%', contrast: '低眩光基底 (主墨 12.71:1 AAA)' },
+          { role: '25% 松烟沉香次底', hex: '#232D2A', ratio: '25%', contrast: '卡片色 (主墨 10.88:1 AAA)' },
+          { role: '10% 素绢暖白字墨', hex: '#E6E1D6', ratio: '10%', contrast: '12.71:1 AAA' },
+          { role: '5% 竹月清辉微光', hex: '#86AA96', ratio: '5%', contrast: '6.48:1 AA (按钮字 6.69:1)' }
+        ]
+      },
+      spring_blossom: {
+        id: 'spring_blossom',
+        titleCn: '春涧花影',
+        subtitleCn: '暖陶芳菲',
+        fusionBadge: '三分半春涧山水 · 六分半草木插画',
+        greetingPrefix: '春涧花影 · 宜舒腕温目',
+        completionVerse: '眉间春水暖，指下花影轻。',
+        isDark: false,
+        canvasPrimary: '#F8F1EA',
+        canvasSkyWashTop: '#F2E5DA',
+        surfaceCard: '#FDF9F5',
+        surfaceCardSubtle: '#EFE4DA',
+        borderHairline: '#E2D3C6',
+        inkPrimary: '#322926',
+        inkSecondary: '#685A54',
+        inkTertiary: '#6E5F58',
+        accentPrimary: '#9B5A49',
+        accentPrimarySoft: '#FAF0EC',
+        accentSecondary: '#4E7266',
+        sealVermilion: '#B54639',
+        onAccent: '#FDF9F5',
+        cardCornerRadiusDp: 26,
+        farRidge: '#D7DFD8',
+        midRidge: '#AEC4B8',
+        crestStroke: '#C99B84',
+        mistColor: '#FBF6F1',
+        mistOpacity: 0.70,
+        celestialColor: '#EBBFA9',
+        garmentFill: '#EDD5C9',
+        garmentShadow: '#DBBCAE',
+        skinTone: '#F2DFD3',
+        hairFill: '#3A2F2C',
+        contourStroke: '#4A3B36',
+        contourWidth: 1.7,
+        sealText: '春山',
+        sealShape: 'ROUND_ZHUWEN',
+        haloName: '花影舒张',
+        soundProfile: 'rain',
+        soundLabel: '440Hz 春涧细雨',
+        inhaleDurationMs: 4000,
+        exhaleDurationMs: 6000,
+        hapticAmplitude: 48,
+        grainFilter: 'sx-grain-xuan',
+        swatches: [
+          { role: '60% 暖桑皮纸底', hex: '#F8F1EA', ratio: '60%', contrast: '基底色 (主墨对比 12.67:1 AAA)' },
+          { role: '25% 春霞柔染次底', hex: '#EFE4DA', ratio: '25%', contrast: '次底色 (主墨对比 11.33:1 AAA)' },
+          { role: '10% 紫砂茶墨字色', hex: '#322926', ratio: '10%', contrast: '12.67:1 AAA' },
+          { role: '5% 暖陶赭粉与春碧', hex: '#9B5A49', ratio: '5%', contrast: '4.75:1 AA (按钮字 5.07:1)' }
+        ]
+      }
+    };
+
+    const POSE_ARCHETYPES = {
+      neck: {
+        id: 'shoulder_ear_melt',
+        label: '坐姿侧耳寻肩',
+        cue: '左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。',
+        bilateralSwitchAtHalfway: true,
+        inhale: { headTiltDeg: 10, chinTuckRatio: 0.10, leftShoulderDropRatio: 0.60, rightShoulderDropRatio: 0.55, spineArcRatio: 0.10, leftArmAngleDeg: 16, rightArmAngleDeg: 16, wristFlexRatio: 0, eyesClosed: true },
+        exhale: { headTiltDeg: 24, chinTuckRatio: 0.20, leftShoulderDropRatio: 1.00, rightShoulderDropRatio: 0.80, spineArcRatio: 0.05, leftArmAngleDeg: 8, rightArmAngleDeg: 12, wristFlexRatio: 0, eyesClosed: true }
+      },
+      shoulder: {
+        id: 'shoulder_double_inhale_sigh',
+        label: '生理性双吸长叹息',
+        cue: '鼻吸两小口填满胸臆，随后极慢地长呼而出，让耸起的双肩瞬间卸力。',
+        bilateralSwitchAtHalfway: false,
+        inhale: { headTiltDeg: 0, chinTuckRatio: 0.0, leftShoulderDropRatio: 0.15, rightShoulderDropRatio: 0.15, spineArcRatio: 0.35, leftArmAngleDeg: 22, rightArmAngleDeg: 22, wristFlexRatio: 0, eyesClosed: true },
+        exhale: { headTiltDeg: 0, chinTuckRatio: 0.20, leftShoulderDropRatio: 1.00, rightShoulderDropRatio: 1.00, spineArcRatio: 0.0, leftArmAngleDeg: 8, rightArmAngleDeg: 8, wristFlexRatio: 0, eyesClosed: true }
+      },
+      thoracic: {
+        id: 'thoracic_clasp_chest_open',
+        label: '背后十指轻扣开胸',
+        cue: '双手在身后轻握，顺着吸气让锁骨向两侧微笑展开，不必刻意挺腰。',
+        bilateralSwitchAtHalfway: false,
+        inhale: { headTiltDeg: 0, chinTuckRatio: -0.15, leftShoulderDropRatio: 0.78, rightShoulderDropRatio: 0.78, spineArcRatio: 0.82, leftArmAngleDeg: 42, rightArmAngleDeg: 42, wristFlexRatio: 0.10, eyesClosed: true },
+        exhale: { headTiltDeg: 0, chinTuckRatio: 0.10, leftShoulderDropRatio: 0.95, rightShoulderDropRatio: 0.95, spineArcRatio: 0.45, leftArmAngleDeg: 30, rightArmAngleDeg: 30, wristFlexRatio: 0, eyesClosed: true }
+      },
+      lumbar: {
+        id: 'lumbar_willow_side_bend',
+        label: '坐姿柳枝脊柱侧弯',
+        cue: '一手轻撑椅面，另一臂如柳枝顺呼吸向头顶延展，舒展久坐紧缩的侧腰。',
+        bilateralSwitchAtHalfway: true,
+        inhale: { headTiltDeg: 8, chinTuckRatio: 0.0, leftShoulderDropRatio: 0.45, rightShoulderDropRatio: 0.75, spineArcRatio: 0.30, leftArmAngleDeg: 138, rightArmAngleDeg: 24, wristFlexRatio: 0.10, eyesClosed: false },
+        exhale: { headTiltDeg: 16, chinTuckRatio: 0.10, leftShoulderDropRatio: 0.65, rightShoulderDropRatio: 0.92, spineArcRatio: 0.50, leftArmAngleDeg: 156, rightArmAngleDeg: 18, wristFlexRatio: 0.20, eyesClosed: true }
+      },
+      wrist: {
+        id: 'wrist_palm_forward_silk',
+        label: '前臂掌心朝外轻展',
+        cue: '一臂平伸掌心朝外，另一手轻拢四指向回微引，舒展鼠标侧前臂内侧筋膜。',
+        bilateralSwitchAtHalfway: true,
+        inhale: { headTiltDeg: 0, chinTuckRatio: 0.10, leftShoulderDropRatio: 0.65, rightShoulderDropRatio: 0.60, spineArcRatio: 0.10, leftArmAngleDeg: 68, rightArmAngleDeg: 78, wristFlexRatio: 0.45, eyesClosed: false },
+        exhale: { headTiltDeg: 0, chinTuckRatio: 0.15, leftShoulderDropRatio: 0.85, rightShoulderDropRatio: 0.82, spineArcRatio: 0.05, leftArmAngleDeg: 64, rightArmAngleDeg: 82, wristFlexRatio: 0.92, eyesClosed: true }
+      },
+      eye: {
+        id: 'eye_warm_palming',
+        label: '搓热掌心温敷双目',
+        cue: '搓热双掌轻轻拢在眼眶周围，不压眼球，在温热静暗里听三声绵长呼吸。',
+        bilateralSwitchAtHalfway: false,
+        inhale: { headTiltDeg: 0, chinTuckRatio: 0.15, leftShoulderDropRatio: 0.60, rightShoulderDropRatio: 0.60, spineArcRatio: 0.05, leftArmAngleDeg: 108, rightArmAngleDeg: 108, wristFlexRatio: 0.10, eyesClosed: true },
+        exhale: { headTiltDeg: 0, chinTuckRatio: 0.28, leftShoulderDropRatio: 0.88, rightShoulderDropRatio: 0.88, spineArcRatio: -0.08, leftArmAngleDeg: 102, rightArmAngleDeg: 102, wristFlexRatio: 0, eyesClosed: true }
+      }
+    };
+
+    const SPLASH_CREATIVES = {
+      CELADON_TEA: {
+        id: 'house_celadon_tea',
+        artworkTheme: 'CELADON_TEA',
+        sponsorName: '山茗器物 · 东方茶席',
+        title: '案头一盏汝瓷温茶，陪你度过伏案午后',
+        subtitle: '手作原矿天青釉主人杯 · 温润握感不烫手',
+        ctaLabel: '了解器物详情',
+        landingSummary: '山茗器物春季茶席展：原矿天青釉案头杯与茶则细节一览（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/celadon-tea',
+        durationSeconds: 3
+      },
+      PINE_INCENSE: {
+        id: 'house_pine_incense',
+        artworkTheme: 'PINE_INCENSE',
+        sponsorName: '松间闻香 · 草木线香',
+        title: '一缕山松冷香，为书房留出片刻清净',
+        subtitle: '古法柏木与冷杉合香 · 无化学助燃剂',
+        ctaLabel: '探索草木香谱',
+        landingSummary: '松间闻香节气合香志：天然冷杉、柏木与艾草线香配方介绍（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/pine-incense',
+        durationSeconds: 3
+      },
+      WOOD_DESK_STAND: {
+        id: 'house_wood_stand',
+        artworkTheme: 'WOOD_DESK_STAND',
+        sponsorName: '案头清风 · 木作工坊',
+        title: '把屏幕抬高半寸，让低垂的后颈自然归位',
+        subtitle: '整块北美黑胡桃木榫卯桌面架 · 稳固温润',
+        ctaLabel: '查看木作尺寸',
+        landingSummary: '案头清风人体工学木作：黑胡桃木显示器增高架与护腕掌托说明（外部浏览器打开）。',
+        landingUrl: 'https://example.com/songxi-showcase/wood-stand',
+        durationSeconds: 3
+      }
+    };
+
+    const SongxiAudioEngine = (() => {
+      let ctx = null;
+      let activeNodes = [];
+      let lastEvent = { profile: 'bowl', skinId: 'ink_mist', state: 'ready', ts: 0 };
+
+      function ensureContext() {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!ctx) ctx = new AC();
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+        return ctx;
+      }
+
+      function stopAll() {
+        activeNodes.forEach(node => {
+          try { node.stop && node.stop(); } catch (_) {}
+          try { node.disconnect && node.disconnect(); } catch (_) {}
+        });
+        activeNodes = [];
+      }
+
+      function createPinkNoiseBuffer(ac, seconds) {
+        const len = Math.max(1, Math.floor(ac.sampleRate * seconds));
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const out = buf.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < len; i++) {
+          const w = Math.random() * 2 - 1;
+          b0 = 0.99765 * b0 + w * 0.0990460;
+          b1 = 0.96300 * b1 + w * 0.2965164;
+          b2 = 0.57000 * b2 + w * 1.0526913;
+          out[i] = (b0 + b1 + b2 + w * 0.1848) * 0.042;
+        }
+        return buf;
+      }
+
+      function playProfile(profileKey, skinId = 'ink_mist', phase = 'preview') {
+        stopAll();
+        lastEvent = { profile: profileKey, skinId, phase, state: 'muted_haptic', ts: Date.now() };
+        if (profileKey === 'silent') {
+          try { if (navigator.vibrate) navigator.vibrate([30]); } catch (_) {}
+          return lastEvent;
+        }
+        try {
+          const ac = ensureContext();
+          if (!ac) return lastEvent;
+          const now = ac.currentTime;
+          const shift = phase === 'exhale' ? 0.94 : 1.0;
+
+          if (profileKey === 'bowl') {
+            [432, 432.65, 432 * 1.5, 432 * 2.74].forEach((f, i) => {
+              const osc = ac.createOscillator();
+              const g = ac.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(f * shift, now);
+              const peak = [0.052, 0.024, 0.020, 0.008][i];
+              const dur = 2.4 - i * 0.28;
+              g.gain.setValueAtTime(0.0001, now);
+              g.gain.exponentialRampToValueAtTime(peak, now + 0.08);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+              osc.connect(g); g.connect(ac.destination);
+              osc.start(now); osc.stop(now + dur + 0.05);
+              activeNodes.push(osc, g);
+            });
+          } else if (profileKey === 'bamboo') {
+            [528, 528 * 2.0, 528 * 3.16].forEach((f, i) => {
+              const osc = ac.createOscillator();
+              const g = ac.createGain();
+              osc.type = i === 0 ? 'triangle' : 'sine';
+              osc.frequency.setValueAtTime(f * shift, now);
+              const peak = [0.048, 0.019, 0.009][i];
+              const dur = 1.7 - i * 0.32;
+              g.gain.setValueAtTime(0.0001, now);
+              g.gain.exponentialRampToValueAtTime(peak, now + 0.02);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+              osc.connect(g); g.connect(ac.destination);
+              osc.start(now); osc.stop(now + dur + 0.04);
+              activeNodes.push(osc, g);
+            });
+          } else if (profileKey === 'guqin') {
+            const lp = ac.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(920, now);
+            lp.connect(ac.destination);
+            activeNodes.push(lp);
+            [396, 396 * 1.5, 396 * 2.0, 396 * 3.0].forEach((f, i) => {
+              const osc = ac.createOscillator();
+              const g = ac.createGain();
+              osc.type = i < 2 ? 'triangle' : 'sine';
+              osc.frequency.setValueAtTime(f * shift, now);
+              const peak = [0.055, 0.025, 0.015, 0.007][i];
+              const dur = 2.8 - i * 0.38;
+              g.gain.setValueAtTime(0.0001, now);
+              g.gain.exponentialRampToValueAtTime(peak, now + 0.11);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+              osc.connect(g); g.connect(lp);
+              osc.start(now); osc.stop(now + dur + 0.05);
+              activeNodes.push(osc, g);
+            });
+          } else if (profileKey === 'rain') {
+            [440, 440 * 1.68, 440 * 2.5].forEach((f, i) => {
+              const osc = ac.createOscillator();
+              const g = ac.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(f * shift, now);
+              const peak = [0.042, 0.017, 0.008][i];
+              const dur = 2.0 - i * 0.28;
+              g.gain.setValueAtTime(0.0001, now);
+              g.gain.exponentialRampToValueAtTime(peak, now + 0.05);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+              osc.connect(g); g.connect(ac.destination);
+              osc.start(now); osc.stop(now + dur + 0.04);
+              activeNodes.push(osc, g);
+            });
+            const src = ac.createBufferSource();
+            src.buffer = createPinkNoiseBuffer(ac, 1.7);
+            const bp = ac.createBiquadFilter();
+            bp.type = 'bandpass'; bp.frequency.setValueAtTime(1320, now); bp.Q.setValueAtTime(0.75, now);
+            const ng = ac.createGain();
+            ng.gain.setValueAtTime(0.0001, now);
+            ng.gain.exponentialRampToValueAtTime(0.028, now + 0.22);
+            ng.gain.exponentialRampToValueAtTime(0.0001, now + 1.65);
+            src.connect(bp); bp.connect(ng); ng.connect(ac.destination);
+            src.start(now);
+            activeNodes.push(src, bp, ng);
+          }
+          lastEvent.state = ac.state;
+        } catch (_) {
+          lastEvent.state = 'blocked_gracefully';
+        }
+        return lastEvent;
+      }
+
+      return { playProfile, stopAll, getLastEvent: () => lastEvent };
+    })();
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function interpolatePose(pose, breathT) {
+      const ex = pose.exhale;
+      const inh = pose.inhale;
+      return {
+        headTiltDeg: lerp(ex.headTiltDeg, inh.headTiltDeg, breathT),
+        chinTuckRatio: lerp(ex.chinTuckRatio, inh.chinTuckRatio, breathT),
+        leftShoulderDropRatio: lerp(ex.leftShoulderDropRatio, inh.leftShoulderDropRatio, breathT),
+        rightShoulderDropRatio: lerp(ex.rightShoulderDropRatio, inh.rightShoulderDropRatio, breathT),
+        spineArcRatio: lerp(ex.spineArcRatio, inh.spineArcRatio, breathT),
+        leftArmAngleDeg: lerp(ex.leftArmAngleDeg, inh.leftArmAngleDeg, breathT),
+        rightArmAngleDeg: lerp(ex.rightArmAngleDeg, inh.rightArmAngleDeg, breathT),
+        wristFlexRatio: lerp(ex.wristFlexRatio, inh.wristFlexRatio, breathT),
+        eyesClosed: breathT >= 0.5 ? (inh.eyesClosed !== false) : (ex.eyesClosed !== false)
+      };
+    }
+
+    function renderClassicalSealSVG(skinId, sizeScale = 1) {
+      const s = SONGXI_SKINS[skinId];
+      const c = s.sealVermilion;
+      const bg = s.canvasPrimary;
+      if (s.sealShape === 'SQUARE_ZHUWEN') {
+        const w = Math.round(32 * sizeScale);
+        return `<svg width="${w}" height="${w}" viewBox="0 0 32 32" aria-label="朱文方印 ${s.sealText}">
+          <g filter="url(#sx-ink-bleed)">
+            <rect x="2.5" y="2.5" width="27" height="27" rx="3.5" fill="none" stroke="${c}" stroke-width="2" />
+            <text x="16" y="14" text-anchor="middle" fill="${c}" font-size="9.5" font-weight="700" class="font-serif-cn">松</text>
+            <text x="16" y="25" text-anchor="middle" fill="${c}" font-size="9.5" font-weight="700" class="font-serif-cn">息</text>
+          </g>
+        </svg>`;
+      }
+      if (s.sealShape === 'OBLONG_BAIWEN') {
+        const w = Math.round(26 * sizeScale), h = Math.round(46 * sizeScale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 26 46" aria-label="白文长印 ${s.sealText}">
+          <g filter="url(#sx-ink-bleed)">
+            <rect x="2" y="2" width="22" height="42" rx="3" fill="${c}" />
+            <text x="13" y="13" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">山</text>
+            <text x="13" y="22.5" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">居</text>
+            <text x="13" y="32" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">清</text>
+            <text x="13" y="41" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">息</text>
+          </g>
+        </svg>`;
+      }
+      if (s.sealShape === 'GOURD_XIANZHANG') {
+        const w = Math.round(28 * sizeScale), h = Math.round(42 * sizeScale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 28 42" aria-label="葫芦闲章 ${s.sealText}">
+          <g filter="url(#sx-ink-bleed)">
+            <path d="M14 2 C20 2 22.5 7.5 19.2 14.5 C24.8 19.5 25.5 37.5 14 39.5 C2.5 37.5 3.2 19.5 8.8 14.5 C5.5 7.5 8 2 14 2 Z" fill="${c}" />
+            <text x="14" y="14" text-anchor="middle" fill="${bg}" font-size="8" font-weight="700" class="font-serif-cn">听</text>
+            <text x="14" y="30.5" text-anchor="middle" fill="${bg}" font-size="9.5" font-weight="700" class="font-serif-cn">松</text>
+          </g>
+        </svg>`;
+      }
+      const w = Math.round(34 * sizeScale);
+      return `<svg width="${w}" height="${w}" viewBox="0 0 34 34" aria-label="圆朱文印 ${s.sealText}">
+        <g filter="url(#sx-ink-bleed)">
+          <circle cx="17" cy="17" r="14.5" fill="none" stroke="${c}" stroke-width="1.9" />
+          <text x="17" y="15" text-anchor="middle" fill="${c}" font-size="9" font-weight="700" class="font-serif-cn">春</text>
+          <text x="17" y="25.5" text-anchor="middle" fill="${c}" font-size="9" font-weight="700" class="font-serif-cn">山</text>
+        </g>
+      </svg>`;
+    }
+
+    function renderBreathingHaloGroup(skinId, breathT) {
+      const s = SONGXI_SKINS[skinId];
+      const scale = (0.88 + 0.20 * breathT).toFixed(3);
+      const rot = (breathT * 6 - 3).toFixed(2);
+      if (skinId === 'ink_mist') {
+        return `<g transform="translate(200, 146) scale(${scale})">
+          <circle cx="0" cy="0" r="64" fill="${s.accentPrimary}" fill-opacity="0.07" />
+          <circle cx="0" cy="0" r="62" fill="none" stroke="${s.accentPrimary}" stroke-width="2.2" stroke-opacity="0.34" stroke-dasharray="155 16 92 12" />
+          <circle cx="0" cy="0" r="48" fill="none" stroke="${s.inkPrimary}" stroke-width="1.2" stroke-opacity="0.22" stroke-dasharray="110 14 75 10" />
+          <circle cx="0" cy="0" r="34" fill="none" stroke="${s.accentSecondary}" stroke-width="0.9" stroke-opacity="0.26" />
+        </g>`;
+      }
+      if (skinId === 'qinglv_celadon') {
+        return `<g transform="translate(200, 146) scale(${scale}) rotate(${rot})">
+          <path d="M0 -66 C18 -66 26 -52 44 -44 C52 -26 66 -18 66 0 C66 18 52 26 44 44 C26 52 18 66 0 66 C-18 66 -26 52 -44 44 C-52 26 -66 18 -66 0 C-66 -18 -52 -26 -44 -44 C-26 -52 -18 -66 0 -66 Z" fill="${s.accentPrimary}" fill-opacity="0.11" stroke="${s.accentPrimary}" stroke-width="1.4" stroke-opacity="0.35" />
+          <circle cx="0" cy="0" r="49" fill="none" stroke="#B88655" stroke-width="1.1" stroke-opacity="0.52" stroke-dasharray="6 4" />
+        </g>`;
+      }
+      if (skinId === 'dusk_pine') {
+        return `<g transform="translate(200, 146) scale(${scale})">
+          <circle cx="0" cy="0" r="64" fill="${s.accentPrimary}" fill-opacity="0.09" />
+          <circle cx="0" cy="0" r="60" fill="none" stroke="${s.accentPrimary}" stroke-width="1.8" stroke-opacity="0.40" />
+          <path d="M-44 -34 A56 56 0 1 1 38 42" fill="none" stroke="${s.accentSecondary}" stroke-width="2.2" stroke-opacity="0.46" stroke-linecap="round" />
+        </g>`;
+      }
+      return `<g transform="translate(200, 146) scale(${scale}) rotate(${rot})">
+        <ellipse cx="0" cy="0" rx="64" ry="32" fill="${s.accentPrimary}" fill-opacity="0.09" stroke="${s.accentPrimary}" stroke-width="1.1" stroke-opacity="0.28" />
+        <ellipse cx="0" cy="0" rx="64" ry="32" transform="rotate(60)" fill="${s.accentPrimary}" fill-opacity="0.09" stroke="${s.accentPrimary}" stroke-width="1.1" stroke-opacity="0.28" />
+        <ellipse cx="0" cy="0" rx="64" ry="32" transform="rotate(120)" fill="${s.accentSecondary}" fill-opacity="0.08" stroke="${s.accentSecondary}" stroke-width="1.1" stroke-opacity="0.26" />
+      </g>`;
+    }
+
+    function renderEditorialFigureGroup(skinId, poseKey, breathT) {
+      const s = SONGXI_SKINS[skinId];
+      const pose = POSE_ARCHETYPES[poseKey] || POSE_ARCHETYPES.neck;
+      const k = interpolatePose(pose, breathT);
+
+      const cx = 200;
+      const baseTorsoY = 148 - k.spineArcRatio * 5;
+      const lShoulderY = baseTorsoY - 22 + k.leftShoulderDropRatio * 12;
+      const rShoulderY = baseTorsoY - 22 + k.rightShoulderDropRatio * 12;
+      const lShoulderX = cx - 30 - k.spineArcRatio * 3;
+      const rShoulderX = cx + 30 + k.spineArcRatio * 3;
+
+      const headPivotX = cx + k.headTiltDeg * 0.25;
+      const headPivotY = baseTorsoY - 28 + k.chinTuckRatio * 4;
+
+      let lElbowX, lElbowY, lHandX, lHandY, rElbowX, rElbowY, rHandX, rHandY;
+      if (poseKey === 'eye') {
+        lElbowX = lShoulderX - 16; lElbowY = lShoulderY + 28;
+        lHandX = cx - 11; lHandY = headPivotY - 20;
+        rElbowX = rShoulderX + 16; rElbowY = rShoulderY + 28;
+        rHandX = cx + 11; rHandY = headPivotY - 20;
+      } else if (poseKey === 'wrist') {
+        lElbowX = lShoulderX - 10; lElbowY = lShoulderY + 28;
+        lHandX = cx + 10; lHandY = baseTorsoY + 4;
+        rElbowX = rShoulderX + 14; rElbowY = rShoulderY + 22;
+        rHandX = cx + 22; rHandY = baseTorsoY - 2 - k.wristFlexRatio * 6;
+      } else if (poseKey === 'lumbar') {
+        const rad = (k.leftArmAngleDeg * Math.PI) / 180;
+        lElbowX = lShoulderX - Math.sin(rad) * 26;
+        lElbowY = lShoulderY + Math.cos(rad) * 26;
+        lHandX = lElbowX + 16;
+        lHandY = lElbowY - 26;
+        rElbowX = rShoulderX + 12; rElbowY = rShoulderY + 30;
+        rHandX = rShoulderX + 18; rHandY = baseTorsoY + 40;
+      } else if (poseKey === 'thoracic') {
+        lElbowX = lShoulderX - 20 - k.spineArcRatio * 6; lElbowY = lShoulderY + 26;
+        lHandX = cx - 14; lHandY = baseTorsoY + 32;
+        rElbowX = rShoulderX + 20 + k.spineArcRatio * 6; rElbowY = rShoulderY + 26;
+        rHandX = cx + 14; rHandY = baseTorsoY + 32;
+      } else {
+        lElbowX = lShoulderX - 12 - (k.leftArmAngleDeg - 10) * 0.25;
+        lElbowY = lShoulderY + 30;
+        lHandX = cx - 22; lHandY = baseTorsoY + 42;
+        rElbowX = rShoulderX + 12 + (k.rightArmAngleDeg - 10) * 0.25;
+        rElbowY = rShoulderY + 30;
+        rHandX = cx + 22; rHandY = baseTorsoY + 42;
+      }
+
+      const collarAccent = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.contourStroke);
+
+      return `<g class="sx-editorial-figure">
+        <path d="M${cx - 46} ${baseTorsoY + 20} Q${cx} ${baseTorsoY + 10} ${cx + 46} ${baseTorsoY + 20}" fill="none" stroke="${s.accentSecondary}" stroke-width="2.4" stroke-opacity="0.38" stroke-linecap="round" />
+        <path d="M${cx - 56} ${baseTorsoY + 50} L${cx + 56} ${baseTorsoY + 50}" fill="none" stroke="${s.borderHairline}" stroke-width="2" stroke-linecap="round" />
+
+        <path d="M${lShoulderX} ${lShoulderY} Q${cx} ${baseTorsoY - 26} ${rShoulderX} ${rShoulderY} C${rShoulderX + 14} ${rShoulderY + 28}, ${cx + 38} ${baseTorsoY + 36}, ${cx + 36} ${baseTorsoY + 50} L${cx - 36} ${baseTorsoY + 50} C${cx - 38} ${baseTorsoY + 36}, ${lShoulderX - 14} ${lShoulderY + 28}, ${lShoulderX} ${lShoulderY} Z"
+          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
+
+        <path d="M${cx - 32} ${baseTorsoY + 34} Q${cx} ${baseTorsoY + 44} ${cx + 32} ${baseTorsoY + 34} L${cx + 35} ${baseTorsoY + 49} L${cx - 35} ${baseTorsoY + 49} Z"
+          fill="${s.garmentShadow}" fill-opacity="0.65" />
+        <path d="M${cx - 13} ${baseTorsoY - 25} L${cx + 5} ${baseTorsoY + 4} M${cx + 13} ${baseTorsoY - 25} L${cx - 2} ${baseTorsoY - 5}"
+          fill="none" stroke="${collarAccent}" stroke-width="1.35" stroke-opacity="0.72" stroke-linecap="round" />
+
+        <path d="M${lShoulderX + 2} ${lShoulderY + 3} Q${lElbowX} ${lElbowY} ${lHandX} ${lHandY}"
+          fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M${lShoulderX + 2} ${lShoulderY + 3} Q${lElbowX} ${lElbowY} ${lHandX} ${lHandY}"
+          fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
+        <circle cx="${lHandX}" cy="${lHandY}" r="5.2" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
+
+        <path d="M${rShoulderX - 2} ${rShoulderY + 3} Q${rElbowX} ${rElbowY} ${rHandX} ${rHandY}"
+          fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M${rShoulderX - 2} ${rShoulderY + 3} Q${rElbowX} ${rElbowY} ${rHandX} ${rHandY}"
+          fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
+        <circle cx="${rHandX}" cy="${rHandY}" r="5.2" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
+
+        <rect x="${cx - 6}" y="${baseTorsoY - 34}" width="12" height="14" rx="5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
+        <g transform="translate(${headPivotX}, ${headPivotY}) rotate(${k.headTiltDeg.toFixed(2)})">
+          <circle cx="-13" cy="-14" r="8.5" fill="${s.hairFill}" />
+          <path d="M-17 -22 C-18 -38, 18 -38, 17 -22 C17 -14, -17 -14, -17 -22 Z" fill="${s.hairFill}" />
+          <ellipse cx="0" cy="-18" rx="14.5" ry="17.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
+          <path d="M-14.5 -21 C-12 -33, 10 -34, 14.5 -20 C8 -26, -6 -26, -14.5 -21 Z" fill="${s.hairFill}" />
+          ${k.eyesClosed === false
+            ? `<circle cx="-5.2" cy="-17.5" r="1.45" fill="${s.contourStroke}" /><circle cx="5.2" cy="-17.5" r="1.45" fill="${s.contourStroke}" />`
+            : `<path d="M-8.5 -18 Q-5 -15.5 -1.8 -18" fill="none" stroke="${s.contourStroke}" stroke-width="1.3" stroke-linecap="round" />
+               <path d="M1.8 -18 Q5 -15.5 8.5 -18" fill="none" stroke="${s.contourStroke}" stroke-width="1.3" stroke-linecap="round" />`
+          }
+          <path d="M-3 -10.5 Q0 -8.5 3 -10.5" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.78" />
+        </g>
+      </g>`;
+    }
+
+    function renderLandscapePlanes(skinId, uid) {
+      const s = SONGXI_SKINS[skinId];
+      let celestial = '';
+      if (skinId === 'dusk_pine') {
+        celestial = `<g>
+          <circle cx="322" cy="48" r="28" fill="${s.accentPrimary}" fill-opacity="0.14" />
+          <path d="M316 32 A16 16 0 1 0 332 58 A13 13 0 1 1 316 32 Z" fill="${s.celestialColor}" fill-opacity="0.90" />
+        </g>`;
+      } else if (skinId === 'spring_blossom') {
+        celestial = `<circle cx="88" cy="52" r="26" fill="${s.celestialColor}" fill-opacity="0.46" />`;
+      } else {
+        celestial = `<g>
+          <circle cx="312" cy="50" r="29" fill="${s.celestialColor}" fill-opacity="0.18" />
+          <circle cx="312" cy="50" r="18" fill="${s.celestialColor}" fill-opacity="0.52" />
+        </g>`;
+      }
+
+      let ridges = '';
+      if (skinId === 'ink_mist') {
+        ridges = `<g>
+          <path d="M-12 138 Q62 74 136 106 T276 74 Q342 58 412 114 L412 186 L-12 186 Z" fill="url(#far-${uid})" filter="url(#sx-ink-bleed)" />
+          <path d="M-12 158 Q84 98 164 128 T322 96 Q372 88 412 126 L412 204 L-12 204 Z" fill="url(#mid-${uid})" />
+        </g>`;
+      } else if (skinId === 'qinglv_celadon') {
+        ridges = `<g>
+          <path d="M-10 146 L68 70 L122 108 L188 54 L252 104 L322 62 L392 118 L412 112 L412 188 L-10 188 Z" fill="url(#far-${uid})" />
+          <path d="M-10 164 L48 104 L106 132 L168 86 L236 130 L304 92 L368 136 L412 120 L412 206 L-10 206 Z" fill="url(#mid-${uid})" />
+          <path d="M68 70 L122 108 L188 54 L252 104 L322 62 L392 118" fill="none" stroke="${s.crestStroke}" stroke-width="1.0" stroke-opacity="0.58" />
+          <path d="M48 104 L106 132 L168 86 L236 130 L304 92 L368 136" fill="none" stroke="${s.crestStroke}" stroke-width="1.35" stroke-opacity="0.82" />
+          <path d="M168 86 L154 126 M304 92 L288 128 M68 70 L82 102" fill="none" stroke="${s.crestStroke}" stroke-width="0.8" stroke-opacity="0.45" />
+        </g>`;
+      } else if (skinId === 'dusk_pine') {
+        ridges = `<g>
+          <path d="M-12 140 Q78 82 162 110 T318 78 Q368 74 412 112 L412 192 L-12 192 Z" fill="url(#far-${uid})" />
+          <path d="M-12 162 Q96 108 184 134 T336 104 L412 132 L412 212 L-12 212 Z" fill="url(#mid-${uid})" />
+          <path d="M242 122 Q302 98 336 104 L396 126" fill="none" stroke="${s.crestStroke}" stroke-width="1.1" stroke-opacity="0.68" />
+        </g>`;
+      } else {
+        ridges = `<g>
+          <path d="M-12 144 Q88 88 182 118 T356 92 L412 118 L412 192 L-12 192 Z" fill="url(#far-${uid})" />
+          <path d="M-12 164 Q108 122 212 142 T412 122 L412 214 L-12 214 Z" fill="url(#mid-${uid})" />
+          <path d="M-12 164 Q108 122 212 142 T412 122" fill="none" stroke="${s.crestStroke}" stroke-width="0.95" stroke-opacity="0.55" />
+          <path d="M268 148 C232 162, 286 180, 232 198 C186 212, 248 226, 196 240" fill="none" stroke="#4E7266" stroke-width="6.5" stroke-opacity="0.20" stroke-linecap="round" />
+          <path d="M268 148 C232 162, 286 180, 232 198 C186 212, 248 226, 196 240" fill="none" stroke="#FDF9F5" stroke-width="1.6" stroke-opacity="0.62" stroke-linecap="round" />
+        </g>`;
+      }
+
+      let botanicals = '';
+      if (skinId === 'ink_mist') {
+        botanicals = `<g stroke="${s.inkPrimary}" stroke-linecap="round">
+          <path d="M-4 38 Q34 44 68 28 Q86 20 98 26" fill="none" stroke-width="2.5" stroke-opacity="0.72" />
+          <path d="M44 36 L60 50" fill="none" stroke-width="1.6" stroke-opacity="0.65" />
+          <path d="M68 28 L60 14 M68 28 L68 12 M68 28 L77 14 M68 28 L82 21" stroke-width="1.1" stroke-opacity="0.68" />
+          <path d="M98 26 L91 12 M98 26 L99 11 M98 26 L108 14 M98 26 L112 22" stroke-width="1.1" stroke-opacity="0.68" />
+          <path d="M60 50 L53 39 M60 50 L62 37 M60 50 L70 42" stroke-width="1.05" stroke-opacity="0.60" />
+        </g>`;
+      } else if (skinId === 'qinglv_celadon') {
+        botanicals = `<g>
+          <path d="M352 240 Q358 175 344 122 M368 240 Q374 185 364 138" fill="none" stroke="#2B5B50" stroke-width="2.0" stroke-opacity="0.68" />
+          <path d="M344 136 Q328 130 320 138 Q332 142 344 136 Z M348 152 Q330 150 322 160 Q336 161 348 152 Z M364 146 Q380 138 388 145 Q376 150 364 146 Z" fill="#2B5B50" fill-opacity="0.66" />
+          <path d="M326 240 Q332 210 354 206 Q378 204 388 240 Z" fill="#2F5669" fill-opacity="0.24" />
+        </g>`;
+      } else if (skinId === 'dusk_pine') {
+        botanicals = `<g stroke-linecap="round">
+          <path d="M-4 44 Q38 50 76 34" fill="none" stroke="#465E57" stroke-width="2.4" />
+          <path d="M76 34 L68 18 M76 34 L77 17 M76 34 L87 20 M76 34 L91 28" stroke="#86AA96" stroke-width="1.15" stroke-opacity="0.58" />
+          <path d="M46 44 L38 30 M46 44 L48 29 M46 44 L56 33" stroke="#86AA96" stroke-width="1.1" stroke-opacity="0.48" />
+        </g>`;
+      } else {
+        botanicals = `<g>
+          <path d="M406 28 Q356 42 316 26 Q296 18 282 26" fill="none" stroke="#685A54" stroke-width="1.9" stroke-linecap="round" />
+          <path d="M346 34 Q334 48 320 52" fill="none" stroke="#685A54" stroke-width="1.3" stroke-linecap="round" />
+          <circle cx="316" cy="26" r="6.2" fill="#E6A598" />
+          <circle cx="316" cy="26" r="2.1" fill="#9B5A49" />
+          <circle cx="286" cy="25" r="5.2" fill="#EBB7AC" />
+          <circle cx="286" cy="25" r="1.8" fill="#9B5A49" />
+          <circle cx="322" cy="52" r="5.5" fill="#E6A598" />
+          <circle cx="322" cy="52" r="1.9" fill="#9B5A49" />
+          <ellipse cx="362" cy="33" rx="5" ry="2.4" transform="rotate(-24 362 33)" fill="#4E7266" fill-opacity="0.72" />
+        </g>`;
+      }
+
+      return `<g class="sx-layer-landscape">
+        ${celestial}
+        ${ridges}
+        <g class="sx-mist-a" opacity="${s.mistOpacity}">
+          <ellipse cx="118" cy="146" rx="115" ry="15" fill="${s.mistColor}" />
+        </g>
+        <g class="sx-mist-b" opacity="${(s.mistOpacity * 0.85).toFixed(2)}">
+          <ellipse cx="296" cy="162" rx="125" ry="16" fill="${s.mistColor}" />
+        </g>
+        ${botanicals}
+      </g>`;
+    }
+
+    function renderFiveLayerStageSVG(skinId, poseKey, breathT, uid, layers = { substrate: true, landscape: true, figure: true, seal: true }) {
+      const s = SONGXI_SKINS[skinId];
+      const farAlpha = skinId === 'dusk_pine' ? '0.78' : (skinId === 'qinglv_celadon' ? '0.68' : '0.56');
+      const midAlpha = skinId === 'dusk_pine' ? '0.88' : (skinId === 'qinglv_celadon' ? '0.78' : '0.66');
+
+      return `<svg viewBox="0 0 400 240" class="w-full h-full block select-none" role="img" aria-label="${s.titleCn} 五维山水插画舞台">
+        <defs>
+          <linearGradient id="sky-${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.canvasSkyWashTop}" />
+            <stop offset="76%" stop-color="${s.canvasPrimary}" />
+          </linearGradient>
+          <linearGradient id="far-${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.farRidge}" stop-opacity="${farAlpha}" />
+            <stop offset="100%" stop-color="${s.canvasPrimary}" stop-opacity="0.04" />
+          </linearGradient>
+          <linearGradient id="mid-${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${s.midRidge}" stop-opacity="${midAlpha}" />
+            <stop offset="100%" stop-color="${s.canvasPrimary}" stop-opacity="0.06" />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="240" fill="url(#sky-${uid})" />
+        ${layers.substrate ? `<g class="sx-layer-substrate">
+          <rect width="400" height="240" filter="url(#${s.grainFilter})" />
+          <path d="M36 28 l5 2 M144 42 l6 -2 M262 30 l4 3 M64 198 l7 -1 M338 192 l5 2" stroke="${s.inkSecondary}" stroke-width="0.7" stroke-opacity="0.22" />
+        </g>` : ''}
+        ${layers.landscape ? renderLandscapePlanes(skinId, uid) : ''}
+        ${layers.figure ? `<g class="sx-layer-figure">
+          ${renderBreathingHaloGroup(skinId, breathT)}
+          ${renderEditorialFigureGroup(skinId, poseKey, breathT)}
+        </g>` : ''}
+        ${layers.seal ? `<g transform="translate(20, 182)">
+          ${s.sealShape === 'SQUARE_ZHUWEN'
+            ? `<rect x="0" y="0" width="26" height="26" rx="3" fill="none" stroke="${s.sealVermilion}" stroke-width="1.8" /><text x="13" y="11.5" text-anchor="middle" fill="${s.sealVermilion}" font-size="8" font-weight="700" class="font-serif-cn">松</text><text x="13" y="21" text-anchor="middle" fill="${s.sealVermilion}" font-size="8" font-weight="700" class="font-serif-cn">息</text>`
+            : s.sealShape === 'OBLONG_BAIWEN'
+            ? `<rect x="0" y="-10" width="22" height="38" rx="2.5" fill="${s.sealVermilion}" /><text x="11" y="0" text-anchor="middle" fill="${s.canvasPrimary}" font-size="6.8" font-weight="600" class="font-serif-cn">山居</text><text x="11" y="18" text-anchor="middle" fill="${s.canvasPrimary}" font-size="6.8" font-weight="600" class="font-serif-cn">清息</text>`
+            : s.sealShape === 'GOURD_XIANZHANG'
+            ? `<path d="M12 -8 C17 -8 19 -3 16.5 3 C21 7.5 21.5 23 12 25 C2.5 23 3 7.5 7.5 3 C5 -3 7 -8 12 -8 Z" fill="${s.sealVermilion}" /><text x="12" y="3" text-anchor="middle" fill="${s.canvasPrimary}" font-size="6.8" font-weight="700" class="font-serif-cn">听</text><text x="12" y="17" text-anchor="middle" fill="${s.canvasPrimary}" font-size="8" font-weight="700" class="font-serif-cn">松</text>`
+            : `<circle cx="14" cy="12" r="13" fill="none" stroke="${s.sealVermilion}" stroke-width="1.7" /><text x="14" y="10.5" text-anchor="middle" fill="${s.sealVermilion}" font-size="7.5" font-weight="700" class="font-serif-cn">春</text><text x="14" y="19.5" text-anchor="middle" fill="${s.sealVermilion}" font-size="7.5" font-weight="700" class="font-serif-cn">山</text>`
+          }
+        </g>` : ''}
+      </svg>`;
+    }
+
+    function renderSplashArtworkSVG(theme, skin) {
+      if (theme === 'CELADON_TEA') {
+        return `<svg viewBox="0 0 320 230" class="w-full h-44 rounded-2xl block" role="img" aria-label="汝瓷茶席器物画心">
+          <rect width="320" height="230" fill="${skin.surfaceCardSubtle}" />
+          <rect x="34" y="18" width="252" height="110" rx="8" fill="${skin.canvasPrimary}" stroke="${skin.borderHairline}" stroke-width="1.2" />
+          <path d="M34 104 Q108 62 176 88 T286 72 L286 128 L34 128 Z" fill="${skin.accentPrimary}" fill-opacity="0.22" />
+          <line x1="160" y1="18" x2="160" y2="128" stroke="${skin.borderHairline}" stroke-width="1.2" />
+          <ellipse cx="160" cy="176" rx="92" ry="18" fill="#C9BCA6" fill-opacity="0.45" />
+          <ellipse cx="160" cy="172" rx="44" ry="10" fill="#91674B" fill-opacity="0.68" />
+          <path d="M126 140 C128 168, 192 168, 194 140 Z" fill="#CFE2DC" stroke="#35685C" stroke-width="1.5" />
+          <ellipse cx="160" cy="140" rx="34" ry="8" fill="#DFECE6" stroke="#35685C" stroke-width="1.4" />
+          <path d="M142 150 L152 158 M174 148 L166 160" stroke="#7A9D93" stroke-width="0.9" />
+          <path d="M150 126 C144 112, 158 102, 150 88" fill="none" stroke="${skin.accentPrimary}" stroke-width="1.5" stroke-opacity="0.52" stroke-linecap="round" />
+          <path d="M168 124 C174 110, 162 98, 170 84" fill="none" stroke="${skin.accentPrimary}" stroke-width="1.4" stroke-opacity="0.42" stroke-linecap="round" />
+        </svg>`;
+      }
+      if (theme === 'PINE_INCENSE') {
+        return `<svg viewBox="0 0 320 230" class="w-full h-44 rounded-2xl block" role="img" aria-label="松间草木线香画心">
+          <rect width="320" height="230" fill="${skin.surfaceCardSubtle}" />
+          <circle cx="242" cy="54" r="18" fill="#E4CFA8" fill-opacity="0.68" />
+          <path d="M0 138 Q92 92 184 116 T320 96 L320 175 L0 175 Z" fill="${skin.accentPrimary}" fill-opacity="0.20" />
+          <rect x="82" y="168" width="156" height="12" rx="6" fill="#685246" />
+          <circle cx="118" cy="166" r="8" fill="#B88655" />
+          <line x1="120" y1="163" x2="198" y2="128" stroke="#8C6D58" stroke-width="2.2" stroke-linecap="round" />
+          <circle cx="199" cy="127.5" r="2.4" fill="#D47566" />
+          <path d="M200 123 C214 104, 182 88, 198 66 C210 50, 190 36, 202 22" fill="none" stroke="${skin.inkSecondary}" stroke-width="1.6" stroke-opacity="0.48" stroke-linecap="round" />
+        </svg>`;
+      }
+      return `<svg viewBox="0 0 320 230" class="w-full h-44 rounded-2xl block" role="img" aria-label="案头胡桃木护颈架画心">
+        <rect width="320" height="230" fill="${skin.surfaceCardSubtle}" />
+        <path d="M74 176 L246 176 L232 188 L88 188 Z" fill="#7C5843" />
+        <rect x="96" y="76" width="112" height="82" rx="6" fill="#8E6750" />
+        <rect x="104" y="82" width="96" height="70" rx="4" fill="${skin.surfaceCard}" stroke="${skin.borderHairline}" stroke-width="1.2" />
+        <line x1="152" y1="84" x2="152" y2="150" stroke="${skin.borderHairline}" stroke-width="1.2" />
+        <line x1="120" y1="100" x2="120" y2="136" stroke="${skin.inkSecondary}" stroke-width="1.4" stroke-opacity="0.45" />
+        <line x1="134" y1="100" x2="134" y2="130" stroke="${skin.inkSecondary}" stroke-width="1.4" stroke-opacity="0.45" />
+        <line x1="170" y1="100" x2="170" y2="138" stroke="${skin.inkSecondary}" stroke-width="1.4" stroke-opacity="0.45" />
+        <path d="M232 146 C224 156, 226 174, 238 176 C250 174, 252 156, 244 146 Z" fill="#CFE2DC" stroke="#35685C" stroke-width="1.3" />
+        <path d="M238 146 Q244 126 256 118" fill="none" stroke="#486356" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M256 118 L249 108 M256 118 L258 106 M256 118 L265 112" stroke="#486356" stroke-width="1.2" stroke-linecap="round" />
+      </svg>`;
+    }
+
+    const state = {
+      poseKey: 'neck',
+      focusedSkinId: 'qinglv_celadon',
+      compareMode: false,
+      layers: { substrate: true, landscape: true, figure: true, seal: true },
+      splashArt: 'CELADON_TEA',
+      isBreathing: true,
+      silentMode: false,
+      cycleElapsedMs: 1500,
+      lastFrameTs: performance.now()
+    };
+
+    function computeBreathMetrics(cycleMs) {
+      const m = ((cycleMs % 10000) + 10000) % 10000;
+      if (m < 4000) {
+        const p = m / 4000;
+        return {
+          phase: 'inhale',
+          label: '吸气 · 轻展',
+          breathT: 0.5 - 0.5 * Math.cos(Math.PI * p),
+          secondsText: (m / 1000).toFixed(1) + 's'
+        };
+      }
+      const p = (m - 4000) / 6000;
+      return {
+        phase: 'exhale',
+        label: '呼气 · 沉肩',
+        breathT: 0.5 + 0.5 * Math.cos(Math.PI * p),
+        secondsText: (m / 1000).toFixed(1) + 's'
+      };
+    }
+
+    function syncControlPills() {
+      document.querySelectorAll('.pose-pill').forEach(btn => {
+        const active = btn.dataset.pose === state.poseKey;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.backgroundColor = active ? '#486356' : 'transparent';
+        btn.style.color = active ? '#FAF7F1' : 'inherit';
+        btn.style.borderColor = active ? '#486356' : 'rgba(72,99,86,0.24)';
+      });
+
+      document.querySelectorAll('.layer-pill').forEach(btn => {
+        const key = btn.dataset.layer;
+        const on = state.layers[key];
+        btn.setAttribute('aria-pressed', String(on));
+        const labelMap = {
+          substrate: 'L1 宣绢纤维肌理',
+          landscape: 'L2 远山云霭草木',
+          figure: 'L3 插画人物与呼吸光晕',
+          seal: 'L4 金石朱砂印章'
+        };
+        btn.textContent = (on ? '✓ ' : '○ ') + labelMap[key];
+        btn.style.backgroundColor = on ? '#ECE6DA' : 'transparent';
+        btn.style.color = '#262B28';
+        btn.style.borderColor = on ? '#486356' : 'rgba(72,99,86,0.22)';
+      });
+
+      document.querySelectorAll('.splash-art-pill').forEach(btn => {
+        const active = btn.dataset.art === state.splashArt;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.backgroundColor = active ? '#486356' : 'transparent';
+        btn.style.color = active ? '#FAF7F1' : 'inherit';
+        btn.style.borderColor = active ? '#486356' : 'rgba(72,99,86,0.24)';
+      });
+
+      const silentBtn = document.getElementById('btn-showcase-silent');
+      silentBtn.setAttribute('aria-pressed', String(state.silentMode));
+      silentBtn.textContent = state.silentMode ? '声景：静默仅微震' : '声景：泛音开启';
+
+      const compareBtn = document.getElementById('btn-compare-mode');
+      compareBtn.setAttribute('aria-pressed', String(state.compareMode));
+      compareBtn.textContent = state.compareMode ? '返回单境分层细览' : '切换双境并置对比（日境 vs 夜境）';
+    }
+
+    function buildFolioGrid() {
+      const grid = document.getElementById('folio-grid');
+      const metrics = computeBreathMetrics(state.cycleElapsedMs);
+      grid.innerHTML = Object.values(SONGXI_SKINS).map(skin => {
+        const isFocused = state.focusedSkinId === skin.id;
+        return `
+          <article
+            id="folio-card-${skin.id}"
+            data-testid="skin_card_${skin.id}"
+            data-skin="${skin.id}"
+            class="songxi-showcase-card songxi-surface border p-5 flex flex-col justify-between gap-4 shadow-sm"
+            style="box-shadow: ${isFocused ? `0 0 0 2px ${skin.accentPrimary}` : 'none'};"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="font-serif-cn text-xl font-semibold tracking-[0.08em]" style="color:var(--sx-ink);">${skin.titleCn} · ${skin.subtitleCn}</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color:var(--sx-accent-soft);color:var(--sx-accent);">永久免费</span>
+                </div>
+                <p class="text-xs mt-1" style="color:var(--sx-ink-sec);">${skin.fusionBadge}</p>
+              </div>
+              <div class="shrink-0">${renderClassicalSealSVG(skin.id, 0.92)}</div>
+            </div>
+
+            <div id="stage-wrap-${skin.id}" class="rounded-2xl overflow-hidden border h-56 relative" style="border-color:var(--sx-border);">
+              ${renderFiveLayerStageSVG(skin.id, state.poseKey, metrics.breathT, 'card-' + skin.id)}
+            </div>
+
+            <div class="rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2" style="background-color:var(--sx-card);border:1px solid var(--sx-border);">
+              <div>
+                <p class="font-serif-cn text-xs font-medium" style="color:var(--sx-ink);">${skin.greetingPrefix}</p>
+                <p class="text-xs mt-0.5" style="color:var(--sx-ink-sec);">${POSE_ARCHETYPES[state.poseKey].cue}</p>
+              </div>
+              <span class="text-xs font-serif-cn shrink-0 px-2.5 py-1 rounded-full" style="background-color:var(--sx-card-subtle);color:var(--sx-ink-sec);">${skin.haloName}</span>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-xs" style="color:var(--sx-ink-sec);">
+                <span>宋韵矿物设色比例（60 / 25 / 10 / 5）</span>
+                <span class="font-mono">${skin.canvasPrimary} · ${skin.inkPrimary}</span>
+              </div>
+              <div class="h-7 w-full rounded-xl overflow-hidden flex border" style="border-color:var(--sx-border);">
+                ${skin.swatches.map((sw, idx) => `
+                  <button
+                    type="button"
+                    data-skin-swatch="${skin.id}"
+                    data-swatch-idx="${idx}"
+                    style="width:${sw.ratio};background-color:${sw.hex};"
+                    class="h-full hover:opacity-90 transition focus:outline-none"
+                    title="${skin.titleCn} · ${sw.role} (${sw.hex})"
+                    aria-label="${skin.titleCn} ${sw.role} ${sw.hex}"
+                  ></button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <button
+                type="button"
+                data-testid="chime_btn_${skin.id}"
+                data-chime-skin="${skin.id}"
+                class="min-h-[38px] px-3.5 rounded-xl text-xs font-medium border transition hover:opacity-90"
+                style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+              >
+                ♪ 试听 ${skin.soundLabel}
+              </button>
+              <button
+                type="button"
+                data-focus-skin="${skin.id}"
+                class="min-h-[38px] px-4 rounded-xl text-xs font-medium transition hover:opacity-95"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                ${isFocused ? '✓ 当前焦点细览画境' : '置入五维解构台 →'}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('[data-chime-skin]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sId = btn.dataset.chimeSkin;
+          const sk = SONGXI_SKINS[sId];
+          const prof = state.silentMode ? 'silent' : sk.soundProfile;
+          const ev = SongxiAudioEngine.playProfile(prof, sId, 'preview');
+          document.getElementById('audio-status-readout').textContent =
+            `已触发 · ${sk.titleCn} · ${state.silentMode ? '静默仅微震' : sk.soundLabel} (${ev.state})`;
+        });
+      });
+
+      grid.querySelectorAll('[data-focus-skin]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.focusedSkinId = btn.dataset.focusSkin;
+          buildFolioGrid();
+          renderFocusStage();
+          renderSplashMountStage();
+        });
+      });
+
+      grid.querySelectorAll('[data-skin-swatch]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sk = SONGXI_SKINS[btn.dataset.skinSwatch];
+          const sw = sk.swatches[Number(btn.dataset.swatchIdx)];
+          document.getElementById('swatch-inspector').innerHTML = `
+            <span><strong>${sk.titleCn}</strong> · ${sw.role} · 色值 <code class="px-1.5 py-0.5 rounded font-mono">${sw.hex}</code> · 无障碍对比度：<strong>${sw.contrast}</strong></span>
+            <span id="audio-status-readout" class="font-mono text-xs text-[var(--muted-foreground,#5C645F)]">泛音待命 · ${sk.soundLabel}</span>
+          `;
+        });
+      });
+    }
+
+    function renderFocusStage() {
+      const container = document.getElementById('focus-stage-container');
+      const metrics = computeBreathMetrics(state.cycleElapsedMs);
+      const primarySkin = SONGXI_SKINS[state.focusedSkinId];
+      const comparePartnerId = primarySkin.id === 'dusk_pine' ? 'qinglv_celadon' : 'dusk_pine';
+      const skinList = state.compareMode ? [primarySkin, SONGXI_SKINS[comparePartnerId]] : [primarySkin];
+
+      container.className = state.compareMode ? 'grid grid-cols-1 md:grid-cols-2 gap-5' : 'grid grid-cols-1 gap-5';
+      container.innerHTML = skinList.map((sk, idx) => `
+        <div data-skin="${sk.id}" class="songxi-focus-stage songxi-surface border p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-serif-cn text-base font-semibold" style="color:var(--sx-ink);">${sk.titleCn} · ${sk.subtitleCn}</h3>
+              <p class="text-xs" style="color:var(--sx-ink-sec);">${POSE_ARCHETYPES[state.poseKey].label} · “${sk.completionVerse}”</p>
+            </div>
+            <span class="text-xs px-3 py-1 rounded-full font-mono" style="background-color:var(--sx-card);color:var(--sx-ink-sec);border:1px solid var(--sx-border);">
+              ${metrics.label} · ${metrics.secondsText}
+            </span>
+          </div>
+          <div id="focus-svg-slot-${idx}" class="h-64 rounded-2xl overflow-hidden border" style="border-color:var(--sx-border);">
+            ${renderFiveLayerStageSVG(sk.id, state.poseKey, metrics.breathT, 'focus-' + idx + '-' + sk.id, state.layers)}
+          </div>
+        </div>
+      `).join('');
+
+      const focusChimeBtn = document.getElementById('btn-focus-chime');
+      focusChimeBtn.style.backgroundColor = primarySkin.accentPrimary;
+      focusChimeBtn.style.color = primarySkin.onAccent;
+      focusChimeBtn.textContent = `♪ 试听「${primarySkin.titleCn}」${primarySkin.soundLabel}`;
+    }
+
+    function renderSplashMountStage() {
+      const mount = document.getElementById('splash-mount-stage');
+      const sk = SONGXI_SKINS[state.focusedSkinId];
+      const art = SPLASH_CREATIVES[state.splashArt];
+
+      mount.innerHTML = `
+        <div class="lg:col-span-5 flex justify-center">
+          <div data-skin="${sk.id}" class="songxi-focus-stage songxi-surface w-full max-w-[340px] h-[520px] border shadow-md p-3.5 flex flex-col">
+            <div style="flex: 78 1 0%;background-color:var(--sx-card);border-color:var(--sx-border);" class="rounded-[22px] p-3.5 flex flex-col justify-between border relative">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background-color:var(--sx-card-subtle);color:var(--sx-ink);">广告 · 开屏雅鉴</span>
+                <span class="min-w-[84px] min-h-[40px] px-3 rounded-full text-xs font-medium inline-flex items-center justify-center border" style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-ink);">跳过 3s</span>
+              </div>
+
+              <div class="my-1">${renderSplashArtworkSVG(art.artworkTheme, sk)}</div>
+
+              <div class="space-y-2 text-center">
+                <p class="text-xs tracking-wider" style="color:var(--sx-ink-sec);">${art.sponsorName}</p>
+                <p class="font-serif-cn text-sm font-semibold leading-snug" style="color:var(--sx-ink);">${art.title}</p>
+                <p class="text-xs" style="color:var(--sx-ink-sec);">${art.subtitle}</p>
+                <div class="pt-1">
+                  <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-medium" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">${art.ctaLabel} →</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="flex: 22 1 0%;" class="px-2 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                ${renderClassicalSealSVG(sk.id, 0.85)}
+                <div>
+                  <p class="font-serif-cn text-sm font-semibold tracking-wider" style="color:var(--sx-ink);">松息 Sōngxī</p>
+                  <p class="text-xs" style="color:var(--sx-ink-sec);">一松一息，身自舒展 · 全功能免费开放</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-3 text-xs leading-relaxed text-[var(--foreground,#262B28)]">
+          <div class="p-4 rounded-2xl border border-[var(--border,rgba(72,99,86,0.16))] bg-[var(--background,#F5F1E8)] space-y-2">
+            <h3 class="font-serif-cn text-base font-semibold">装裱式「开屏雅鉴」五重纯净规范（当前衬底：${sk.titleCn}）</h3>
+            <ul class="space-y-1.5 list-disc pl-4 text-[var(--muted-foreground,#5C645F)]">
+              <li><strong>宋式册页立轴比例</strong>：上方 78% 留边装池承载器物插画，下方 22% 留给当前皮肤朱砂印章与「松息」字标，与用户所选主题皮肤浑然一体。</li>
+              <li><strong>零套路防误触保护</strong>：左上清晰标识「广告 · 开屏雅鉴」，右上首帧 0ms 提供 ≥48dp「跳过 3s」热区；点击画心空白区域完全静默无响应，仅底部胶囊按钮可唤起二次确认面板。</li>
+              <li><strong>硬件级物理禁绝摇一摇</strong>：开屏模块不依赖传感器组件、运行期注册 0 个加速度或陀螺仪监听器，全程静音不打断办公安静氛围。</li>
+              <li><strong>七重克制频控守护</strong>：首启免打扰、跟练中免打扰、微风提醒通知直达免开屏、30 分钟内短暂切回免开屏、单日 ≤3 次上限、每次间隔 ≥4 小时、1200ms 超时优雅跳过。</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateLiveAnimationDom() {
+      const metrics = computeBreathMetrics(state.cycleElapsedMs);
+      const badge = document.getElementById('badge-breath-phase');
+      badge.textContent = metrics.label;
+      document.getElementById('breath-cycle-readout').textContent = metrics.secondsText;
+      document.getElementById('input-breath-scrub').value = String(Math.round((state.cycleElapsedMs % 10000) / 100));
+
+      Object.keys(SONGXI_SKINS).forEach(skinId => {
+        const slot = document.getElementById('stage-wrap-' + skinId);
+        if (slot) {
+          slot.innerHTML = renderFiveLayerStageSVG(skinId, state.poseKey, metrics.breathT, 'card-' + skinId);
+        }
+      });
+
+      const primarySkin = SONGXI_SKINS[state.focusedSkinId];
+      const comparePartnerId = primarySkin.id === 'dusk_pine' ? 'qinglv_celadon' : 'dusk_pine';
+      const skinList = state.compareMode ? [primarySkin, SONGXI_SKINS[comparePartnerId]] : [primarySkin];
+      skinList.forEach((sk, idx) => {
+        const focusSlot = document.getElementById('focus-svg-slot-' + idx);
+        if (focusSlot) {
+          focusSlot.innerHTML = renderFiveLayerStageSVG(sk.id, state.poseKey, metrics.breathT, 'focus-' + idx + '-' + sk.id, state.layers);
+        }
+      });
+    }
+
+    function wireGlobalEvents() {
+      document.getElementById('btn-showcase-breath').addEventListener('click', () => {
+        state.isBreathing = !state.isBreathing;
+        const btn = document.getElementById('btn-showcase-breath');
+        btn.setAttribute('aria-pressed', String(state.isBreathing));
+        document.getElementById('breath-toggle-text').textContent = state.isBreathing ? '呼吸律动：运行中' : '呼吸律动：已定格';
+        state.lastFrameTs = performance.now();
+      });
+
+      document.getElementById('btn-showcase-silent').addEventListener('click', () => {
+        state.silentMode = !state.silentMode;
+        if (state.silentMode) SongxiAudioEngine.stopAll();
+        syncControlPills();
+      });
+
+      document.getElementById('input-breath-scrub').addEventListener('input', e => {
+        state.cycleElapsedMs = Number(e.target.value) * 100;
+        updateLiveAnimationDom();
+      });
+
+      document.querySelectorAll('.pose-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.poseKey = btn.dataset.pose;
+          syncControlPills();
+          buildFolioGrid();
+          renderFocusStage();
+        });
+      });
+
+      document.querySelectorAll('.layer-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.layer;
+          state.layers[key] = !state.layers[key];
+          syncControlPills();
+          renderFocusStage();
+        });
+      });
+
+      document.getElementById('btn-compare-mode').addEventListener('click', () => {
+        state.compareMode = !state.compareMode;
+        syncControlPills();
+        renderFocusStage();
+      });
+
+      document.getElementById('btn-focus-chime').addEventListener('click', () => {
+        const sk = SONGXI_SKINS[state.focusedSkinId];
+        const prof = state.silentMode ? 'silent' : sk.soundProfile;
+        const ev = SongxiAudioEngine.playProfile(prof, sk.id, 'preview');
+        document.getElementById('audio-status-readout').textContent =
+          `已触发 · ${sk.titleCn} · ${state.silentMode ? '静默仅微震' : sk.soundLabel} (${ev.state})`;
+      });
+
+      document.querySelectorAll('.splash-art-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.splashArt = btn.dataset.art;
+          syncControlPills();
+          renderSplashMountStage();
+        });
+      });
+
+      window.addEventListener('themechange', () => {
+        renderFocusStage();
+        renderSplashMountStage();
+      });
+    }
+
+    let lastRenderTick = 0;
+    function animationLoop(now) {
+      const dt = Math.min(100, Math.max(0, now - state.lastFrameTs));
+      state.lastFrameTs = now;
+      if (state.isBreathing) {
+        state.cycleElapsedMs = (state.cycleElapsedMs + dt) % 10000;
+        if (now - lastRenderTick >= 65) {
+          lastRenderTick = now;
+          updateLiveAnimationDom();
+        }
+      }
+      requestAnimationFrame(animationLoop);
+    }
+
+    syncControlPills();
+    buildFolioGrid();
+    renderFocusStage();
+    renderSplashMountStage();
+    wireGlobalEvents();
+    requestAnimationFrame(animationLoop);
+  </script>
+</body>
+</html>

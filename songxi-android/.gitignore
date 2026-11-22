@@ -1,0 +1,26 @@
+# Gradle & build outputs
+.gradle/
+.kotlin/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local SDK / IDE configs
+local.properties
+.idea/
+*.iml
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Packaged binaries & temp artifacts
+*.apk
+*.aab
+*.ap_
+*.dex
+*.hprof
+
+# OS metadata
+.DS_Store
+Thumbs.db
