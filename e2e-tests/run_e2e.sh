@@ -10,7 +10,7 @@ set -euo pipefail
 # ==============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKSPACE_ROOT="/home/antigravity"
+WORKSPACE_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ANDROID_PROJECT_DIR="${WORKSPACE_ROOT}/songxi-android"
 LOCKED_GRADLEW="${ANDROID_PROJECT_DIR}/scripts/locked_gradlew.sh"
 ANDROID_E2E_DIR="${SCRIPT_DIR}/android/src/test/kotlin/com/songxi/e2e"
@@ -35,14 +35,22 @@ export TEMP="${SCRATCH_TMP}"
 export TZ="Asia/Shanghai"
 export NODE_EXTRA_CA_CERTS="/etc/ssl/certs/ca-certificates.crt"
 
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+if [[ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+elif [[ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]]; then
+  export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+fi
 # -XX:-UsePerfData prevents OpenJDK Hotspot from writing /tmp/hsperfdata_<user>/<pid>
 export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=${SCRATCH_TMP} -XX:-UsePerfData"
 export JDK_JAVA_OPTIONS="-Djava.io.tmpdir=${SCRATCH_TMP} -XX:-UsePerfData"
 export GRADLE_OPTS="-Djava.io.tmpdir=${SCRATCH_TMP} -XX:-UsePerfData"
 
-export ANDROID_HOME="/home/antigravity/.android-sdk"
-export ANDROID_SDK_ROOT="/home/antigravity/.android-sdk"
+if [[ -d "/opt/android-sdk/platforms/android-35" ]]; then
+  export ANDROID_HOME="/opt/android-sdk"
+else
+  export ANDROID_HOME="/home/antigravity/.android-sdk"
+fi
+export ANDROID_SDK_ROOT="${ANDROID_HOME}"
 export ANDROID_USER_HOME="${SCRATCH_ROOT}/android-user"
 export GRADLE_USER_HOME="/home/antigravity/.gradle"
 export PATH="${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/build-tools/35.0.0:${JAVA_HOME}/bin:${PATH}"
@@ -52,7 +60,15 @@ export npm_config_cache="${SCRATCH_ROOT}/npm-cache"
 export DISABLE_V8_COMPILE_CACHE=1
 export NODE_COMPILE_CACHE="${SCRATCH_TMP}/node-compile-cache"
 export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-export CHROMIUM_BIN="/usr/lib/chromium/chromium"
+if [[ -z "${CHROMIUM_BIN:-}" ]]; then
+  for _cand_bin in /usr/lib/chromium/chromium /usr/bin/chromium /usr/bin/chromium-browser /usr/bin/google-chrome /usr/bin/google-chrome-stable; do
+    if [[ -x "${_cand_bin}" ]]; then
+      export CHROMIUM_BIN="${_cand_bin}"
+      break
+    fi
+  done
+fi
+export SONGXI_DOCS_DIR="${WORKSPACE_ROOT}/docs"
 export NODE_PATH="${PW_RUNTIME_DIR}/node_modules"
 
 # ==============================================================================

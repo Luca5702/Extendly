@@ -33,6 +33,8 @@ subprojects {
         systemProperty("jna.tmpdir", xfsTestTmp.absolutePath)
         systemProperty("robolectric.graphicsMode", "NATIVE")
         systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+        systemProperty("robolectric.dependency.repo.id", "gcs-maven-central")
+        systemProperty("robolectric.dependency.repo.url", "https://maven-central.storage-download.googleapis.com/maven2")
         testLogging {
             events("failed")
             exceptionFormat = TestExceptionFormat.FULL

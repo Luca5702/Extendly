@@ -97,6 +97,7 @@ fun HomeScreen(
     ) {
         val isCompact = maxHeight < 560.dp
         val backdropHeight = when {
+            maxHeight < 560.dp && showOnboardingCard -> 68.dp
             maxHeight < 560.dp -> 96.dp
             maxHeight < 820.dp -> 164.dp
             else -> 186.dp

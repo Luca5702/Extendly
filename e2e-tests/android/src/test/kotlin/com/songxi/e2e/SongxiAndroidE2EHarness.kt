@@ -397,8 +397,8 @@ object SongxiAndroidE2EHarness {
         while (remaining > 0L) {
             val step = min(remaining, stepMillis)
             SystemClock.setCurrentTimeMillis(System.currentTimeMillis() + step)
-            ShadowLooper.shadowMainLooper().idleFor(Duration.ofMillis(step))
-            composeRule.mainClock.advanceTimeBy(step)
+            composeRule.mainClock.advanceTimeBy(step, ignoreFrameDuration = true)
+            ShadowLooper.idleMainLooper()
             remaining -= step
         }
         ShadowLooper.idleMainLooper()
@@ -491,55 +491,66 @@ object SongxiAndroidE2EHarness {
                 true
             }.getOrDefault(false)
             if (alreadyShown) return
-            runCatching {
-                findNodeByTag(composeRule, tag).performScrollTo()
-                if (composeRule.mainClock.autoAdvance) composeRule.waitForIdle()
-            }
-            if (runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)) {
-                return
-            }
         }
 
-        val matcher: SemanticsMatcher = hasTestTag(tag)
-        val scrollers = runCatching {
-            composeRule.onAllNodes(hasScrollAction(), useUnmergedTree = false)
-        }.getOrNull()
-        val scrollerCount = runCatching { scrollers?.fetchSemanticsNodes()?.size ?: 0 }.getOrDefault(0)
-        for (i in 0 until scrollerCount) {
-            val scrolled = runCatching {
-                scrollers!![i].performScrollToNode(matcher)
-                if (composeRule.mainClock.autoAdvance) composeRule.waitForIdle()
-                true
-            }.getOrDefault(false)
-            if (scrolled && tagExists(composeRule, tag)) return
+        val prevAutoAdvance = composeRule.mainClock.autoAdvance
+        if (!prevAutoAdvance) {
+            composeRule.mainClock.autoAdvance = true
         }
-
-        for (attempt in 0 until 5) {
-            if (tagExists(composeRule, tag) &&
-                runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)
-            ) {
-                return
-            }
-            if (scrollerCount > 0) {
+        try {
+            if (tagExists(composeRule, tag)) {
                 runCatching {
-                    scrollers!![0].performTouchInput { swipeUp() }
-                    if (composeRule.mainClock.autoAdvance) composeRule.waitForIdle()
+                    findNodeByTag(composeRule, tag).performScrollTo()
+                    composeRule.waitForIdle()
+                }
+                if (runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)) {
+                    return
                 }
             }
-        }
 
-        for (attempt in 0 until 5) {
-            if (tagExists(composeRule, tag) &&
-                runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)
-            ) {
-                return
+            val matcher: SemanticsMatcher = hasTestTag(tag)
+            val scrollers = runCatching {
+                composeRule.onAllNodes(hasScrollAction(), useUnmergedTree = false)
+            }.getOrNull()
+            val scrollerCount = runCatching { scrollers?.fetchSemanticsNodes()?.size ?: 0 }.getOrDefault(0)
+            for (i in 0 until scrollerCount) {
+                val scrolled = runCatching {
+                    scrollers!![i].performScrollToNode(matcher)
+                    composeRule.waitForIdle()
+                    true
+                }.getOrDefault(false)
+                if (scrolled && tagExists(composeRule, tag)) return
             }
-            if (scrollerCount > 0) {
-                runCatching {
-                    scrollers!![0].performTouchInput { swipeDown() }
-                    if (composeRule.mainClock.autoAdvance) composeRule.waitForIdle()
+
+            for (attempt in 0 until 5) {
+                if (tagExists(composeRule, tag) &&
+                    runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)
+                ) {
+                    return
+                }
+                if (scrollerCount > 0) {
+                    runCatching {
+                        scrollers!![0].performTouchInput { swipeUp() }
+                        composeRule.waitForIdle()
+                    }
                 }
             }
+
+            for (attempt in 0 until 5) {
+                if (tagExists(composeRule, tag) &&
+                    runCatching { findNodeByTag(composeRule, tag).assertIsDisplayed(); true }.getOrDefault(false)
+                ) {
+                    return
+                }
+                if (scrollerCount > 0) {
+                    runCatching {
+                        scrollers!![0].performTouchInput { swipeDown() }
+                        composeRule.waitForIdle()
+                    }
+                }
+            }
+        } finally {
+            composeRule.mainClock.autoAdvance = prevAutoAdvance
         }
     }
 
@@ -947,14 +958,15 @@ object SongxiAndroidE2EHarness {
     // ---- APK Binary, Dalvik .dex MUTF-8, Manifest, Signing & Roborazzi Verifiers ----
 
     fun resolveSongxiAndroidRoot(): File {
-        val direct = File("/home/antigravity/songxi-android")
-        if (direct.exists()) return direct
         var cur: File? = File(System.getProperty("user.dir") ?: ".").canonicalFile
         while (cur != null) {
             if (File(cur, "settings.gradle.kts").exists()) return cur
+            if (File(cur, "songxi-android/settings.gradle.kts").exists()) return File(cur, "songxi-android")
             cur = cur.parentFile
         }
-        return direct
+        val repoFallback = File("/home/antigravity/Luca5702/Extendly/songxi-android")
+        if (repoFallback.exists()) return repoFallback
+        return File("/home/antigravity/songxi-android")
     }
 
     fun debugApkFile(androidRoot: File = resolveSongxiAndroidRoot()): File =
@@ -967,10 +979,15 @@ object SongxiAndroidE2EHarness {
         File(androidRoot, "app/build/outputs/apk/release/app-release-unsigned.apk")
 
     fun resolveBuildToolBinary(binaryName: String): File {
+        val defaultSdkPath = if (File("/opt/android-sdk/build-tools").isDirectory) {
+            "/opt/android-sdk"
+        } else {
+            "/home/antigravity/.android-sdk"
+        }
         val sdkRoot = File(
             System.getenv("ANDROID_HOME")
                 ?: System.getenv("ANDROID_SDK_ROOT")
-                ?: "/home/antigravity/.android-sdk"
+                ?: defaultSdkPath
         )
         val preferred = File(sdkRoot, "build-tools/35.0.0/$binaryName")
         if (preferred.canExecute()) return preferred
@@ -1118,7 +1135,10 @@ object SongxiAndroidE2EHarness {
                     out.contains("package: name='com.songxi.app")
                 )
             }
-            assertTrue("Expected minSdk 26 in $label APK badging", out.contains("sdkVersion:'26'"))
+            assertTrue(
+                "Expected minSdk 26 in $label APK badging",
+                out.contains("sdkVersion:'26'") || out.contains("minSdkVersion:'26'")
+            )
             assertTrue("Expected targetSdk 34 in $label APK badging", out.contains("targetSdkVersion:'34'"))
             assertTrue(
                 "Expected launchable MainActivity in $label APK badging",
@@ -1222,12 +1242,14 @@ object SongxiAndroidE2EHarness {
         val matched = LinkedHashMap<String, File>()
         for (skinKey in skinKeys) {
             val compact = skinKey.replace("_", "")
-            val hit = candidates
-                .filter { f ->
-                    val norm = f.nameWithoutExtension.lowercase().replace("-", "_")
-                    norm.contains(skinKey) || norm.replace("_", "").contains(compact)
-                }
-                .maxByOrNull { it.lastModified() }
+            val matchingFiles = candidates.filter { f ->
+                val norm = f.nameWithoutExtension.lowercase().replace("-", "_")
+                norm.contains(skinKey) || norm.replace("_", "").contains(compact)
+            }
+            val exactMatches = matchingFiles.filter { f ->
+                f.nameWithoutExtension.lowercase().replace("-", "_") == skinKey
+            }
+            val hit = (exactMatches.ifEmpty { matchingFiles }).maxByOrNull { it.lastModified() }
             assertNotNull(
                 "Missing Roborazzi PNG capture for skin '$skinKey' under ${androidRoot.absolutePath}",
                 hit

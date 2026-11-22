@@ -28,6 +28,7 @@ class AndroidHarmonicAudioEngine(
 ) : HarmonicAudioEngine {
 
     private val trackGuard = Any()
+    private var generation: Long = 0L
     private var activePlaybackJob: Job? = null
     private var activeTrack: AudioTrack? = null
 
@@ -76,6 +77,7 @@ class AndroidHarmonicAudioEngine(
 
     override fun release() {
         synchronized(trackGuard) {
+            generation++
             activePlaybackJob?.cancel()
             activePlaybackJob = null
             stopAndReleaseActiveTrackGuarded()
@@ -91,7 +93,10 @@ class AndroidHarmonicAudioEngine(
         val effectiveProfile = soundProfile ?: skinId.defaultSoundProfile()
         val effectivelyMuted = muted || effectiveProfile == SoundProfileId.SILENT_HAPTIC_ONLY
 
+        val cueGeneration: Long
         synchronized(trackGuard) {
+            generation++
+            cueGeneration = generation
             activePlaybackJob?.cancel()
             activePlaybackJob = null
             stopAndReleaseActiveTrackGuarded()
@@ -155,6 +160,7 @@ class AndroidHarmonicAudioEngine(
 
             var createdTrack: AudioTrack? = null
             try {
+                ensureActive()
                 val track = runCatching {
                     AudioTrack.Builder()
                         .setAudioAttributes(
@@ -190,13 +196,19 @@ class AndroidHarmonicAudioEngine(
                 }
 
                 createdTrack = track
-                val written = track.write(pcmBytes, 0, pcmBytes.size, AudioTrack.WRITE_BLOCKING)
-                if (written > 0 && track.state == AudioTrack.STATE_INITIALIZED && isActive) {
-                    synchronized(trackGuard) {
-                        stopAndReleaseActiveTrackGuarded()
-                        activeTrack = track
+                var startedPlayback = false
+                synchronized(trackGuard) {
+                    if (isActive && cueGeneration == generation && track.state != AudioTrack.STATE_UNINITIALIZED) {
+                        val written = track.write(pcmBytes, 0, pcmBytes.size, AudioTrack.WRITE_BLOCKING)
+                        if (written > 0 && track.state == AudioTrack.STATE_INITIALIZED && cueGeneration == generation) {
+                            stopAndReleaseActiveTrackGuarded()
+                            activeTrack = track
+                            track.play()
+                            startedPlayback = true
+                        }
                     }
-                    track.play()
+                }
+                if (startedPlayback) {
                     recordEvent(
                         AudioPlaybackEvent(
                             cueType = cueType,
@@ -225,7 +237,7 @@ class AndroidHarmonicAudioEngine(
         }
 
         synchronized(trackGuard) {
-            if (job.isActive) {
+            if (cueGeneration == generation && job.isActive) {
                 activePlaybackJob = job
             }
         }

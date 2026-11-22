@@ -49,15 +49,21 @@ dependencies {
     api(libs.androidx.work.runtime.ktx)
 
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
 
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.junit4)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.activity.compose)
     testImplementation(libs.androidx.work.testing)
     testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.androidx.test.core.ktx)
     testImplementation(libs.androidx.test.ext.junit.ktx)
 }

@@ -14,7 +14,7 @@ SCRATCH_ROOT="/home/antigravity/.gemini/jetski/scratch/teamwork_tmp"
 LOCK_FILE="${SCRATCH_ROOT}/songxi_gradle.lock"
 LAST_TMPDIR_FILE="${SCRATCH_ROOT}/songxi_gradle_last_tmpdir"
 
-mkdir -p "${SCRATCH_ROOT}"
+mkdir -p "${SCRATCH_ROOT}" "/home/antigravity/.gradle/tmp"
 
 # 1. Ensure caller-isolated non-/tmp TMPDIR before sourcing env-setup.sh
 if [ -z "${TMPDIR:-}" ] || [[ "${TMPDIR}" == /tmp ]] || [[ "${TMPDIR}" == /tmp/* ]]; then
@@ -26,8 +26,18 @@ export TEMP="${TMPDIR}"
 export npm_config_tmp="${TMPDIR}"
 
 # 2. Load JDK 17 + Android SDK + synchronized JAVA_TOOL_OPTIONS (tmpdir + trustStore + proxy)
-# shellcheck source=/home/antigravity/env-setup.sh
-source /home/antigravity/env-setup.sh
+REPO_ROOT="$(cd "${PROJECT_ROOT}/.." && pwd)"
+if [ -f "${REPO_ROOT}/env-setup.sh" ]; then
+  # shellcheck disable=SC1091
+  source "${REPO_ROOT}/env-setup.sh"
+elif [ -f "/home/antigravity/env-setup.sh" ]; then
+  # shellcheck disable=SC1091
+  source /home/antigravity/env-setup.sh
+fi
+
+# Move JAVA_TOOL_OPTIONS into GRADLE_OPTS so child KotlinCompileDaemon stdout/stderr is clean
+export GRADLE_OPTS="${GRADLE_OPTS:-} ${JAVA_TOOL_OPTIONS:-}"
+unset JAVA_TOOL_OPTIONS
 
 # 3. Acquire exclusive workspace mutex (`--close` prevents GradleDaemon from inheriting FD)
 cd "${PROJECT_ROOT}"

@@ -10,7 +10,7 @@ const http = require('node:http');
 const https = require('node:https');
 const { chromium } = require('playwright-core');
 
-const DOCS_DIR = '/home/antigravity/docs';
+const DOCS_DIR = process.env.SONGXI_DOCS_DIR || path.resolve(__dirname, '../../docs');
 const PATHS = Object.freeze({
   docsDir: DOCS_DIR,
   prototypeHtml: path.join(DOCS_DIR, 'songxi_interactive_prototype.html'),
@@ -21,7 +21,17 @@ const PATHS = Object.freeze({
 });
 
 const ALLOWED_TAILWIND_CDN = 'https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js';
-const CHROMIUM_EXECUTABLE = process.env.CHROMIUM_BIN || '/usr/lib/chromium/chromium';
+const CHROMIUM_EXECUTABLE = (() => {
+  const candidates = [
+    process.env.CHROMIUM_BIN,
+    '/usr/lib/chromium/chromium',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+  ].filter(Boolean);
+  return candidates.find((p) => fs.existsSync(p)) || '/usr/bin/google-chrome';
+})();
 
 const SKIN_KEYS = Object.freeze(['ink_mist', 'qinglv_celadon', 'dusk_pine', 'spring_blossom']);
 const SKIN_CN_LABELS = Object.freeze({

@@ -6,9 +6,21 @@ set -euo pipefail
 # Safe to BOTH execute (`bash /home/antigravity/env-setup.sh`) and `source`.
 # ==============================================================================
 
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-export ANDROID_HOME="/home/antigravity/.android-sdk"
-export ANDROID_SDK_ROOT="/home/antigravity/.android-sdk"
+if [ ! -d "/usr/lib/jvm/java-17-openjdk-amd64" ] && command -v sudo >/dev/null 2>&1; then
+  sudo apt-get update -qq >/dev/null 2>&1 && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openjdk-17-jdk-headless >/dev/null 2>&1 || true
+fi
+if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+elif [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+fi
+
+if [ -d "/opt/android-sdk/platforms/android-35" ] && [ -d "/opt/android-sdk/platforms/android-34" ] && [ -x "/opt/android-sdk/build-tools/35.0.0/aapt2" ]; then
+  export ANDROID_HOME="/opt/android-sdk"
+else
+  export ANDROID_HOME="/home/antigravity/.android-sdk"
+fi
+export ANDROID_SDK_ROOT="${ANDROID_HOME}"
 export GRADLE_USER_HOME="/home/antigravity/.gradle"
 export GRADLE_DIST_HOME="${GRADLE_USER_HOME}/gradle-dist/gradle-8.10.2"
 
@@ -115,15 +127,23 @@ if grep -qE 'case \$- in|\[ -z "\$PS1" \] && return' "${BASHRC_FILE}" 2>/dev/nul
   sed -i '/case \$- in/,/esac/d; /\[ -z "\$PS1" \] && return/d' "${BASHRC_FILE}" 2>/dev/null || true
 fi
 
-if ! grep -qxF '# songxi-android-env-v3' "${BASHRC_FILE}" 2>/dev/null; then
+if ! grep -qxF '# songxi-android-env-v4' "${BASHRC_FILE}" 2>/dev/null; then
   sed -i '/# >>> songxi-android-env >>>/,/# <<< songxi-android-env <<</d' "${BASHRC_FILE}" 2>/dev/null || true
   cat >> "${BASHRC_FILE}" <<'EOF'
 
 # >>> songxi-android-env >>>
-# songxi-android-env-v3
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
-export ANDROID_HOME="/home/antigravity/.android-sdk"
-export ANDROID_SDK_ROOT="/home/antigravity/.android-sdk"
+# songxi-android-env-v4
+if [ -d "/usr/lib/jvm/java-17-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+elif [ -d "/usr/lib/jvm/java-21-openjdk-amd64" ]; then
+  export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+fi
+if [ -d "/opt/android-sdk/platforms/android-35" ]; then
+  export ANDROID_HOME="/opt/android-sdk"
+else
+  export ANDROID_HOME="/home/antigravity/.android-sdk"
+fi
+export ANDROID_SDK_ROOT="${ANDROID_HOME}"
 export GRADLE_USER_HOME="/home/antigravity/.gradle"
 if [ -z "${TMPDIR:-}" ] || [[ "${TMPDIR}" == /tmp ]] || [[ "${TMPDIR}" == /tmp/* ]]; then
   export TMPDIR="/home/antigravity/.gemini/jetski/scratch/teamwork_tmp/default_env/tmp"
