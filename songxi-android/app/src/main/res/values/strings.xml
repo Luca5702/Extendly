@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">松息</string>
+    <string name="widget_quick_relief_title">今日一息 · 案头叹息松解</string>
+    <string name="widget_quick_relief_subtitle">免开屏直达 90 秒四吸六呼微拉伸</string>
+    <string name="widget_quick_relief_cta">起息</string>
+    <string name="widget_quick_relief_description">松息宣纸微件：点按免开屏直入 90 秒案头轻舒</string>
 </resources>

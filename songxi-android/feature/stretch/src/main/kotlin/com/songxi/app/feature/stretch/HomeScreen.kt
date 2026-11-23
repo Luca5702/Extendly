@@ -36,7 +36,10 @@ import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.EditorialStretchFigureCanvas
 import com.songxi.app.core.designsystem.LocalSongxiSkin
 import com.songxi.app.core.designsystem.ShanShuiBackdropCanvas
+import com.songxi.app.core.designsystem.SongxiTabularNumericStyle
+import com.songxi.app.core.designsystem.songxiGentleStageReveal
 import com.songxi.app.core.model.PostureScene
+import com.songxi.app.core.model.SavedPrescriptionPreset
 import com.songxi.app.core.model.StretchRoutine
 
 @Composable
@@ -67,7 +70,11 @@ fun HomeScreen(
         },
         modifier = modifier,
         showOnboardingCard = !uiState.onboardingSeen,
-        onDismissOnboarding = viewModel::dismissOnboarding
+        onDismissOnboarding = viewModel::dismissOnboarding,
+        savedPresets = uiState.savedPresets,
+        onStartSavedPreset = { preset ->
+            viewModel.startSavedPreset(preset = preset, skinId = skin.id)
+        }
     )
 }
 
@@ -82,7 +89,9 @@ fun HomeScreen(
     onSkinBadgeClick: () -> Unit,
     modifier: Modifier = Modifier,
     showOnboardingCard: Boolean = false,
-    onDismissOnboarding: () -> Unit = {}
+    onDismissOnboarding: () -> Unit = {},
+    savedPresets: List<SavedPrescriptionPreset> = emptyList(),
+    onStartSavedPreset: (SavedPrescriptionPreset) -> Unit = {}
 ) {
     val skin = LocalSongxiSkin.current
     val scrollState = rememberScrollState()
@@ -105,6 +114,7 @@ fun HomeScreen(
         val horizontalPad = if (isCompact) 14.dp else 18.dp
         val verticalPad = if (isCompact) 8.dp else 14.dp
         val sectionGap = if (isCompact) 6.dp else 12.dp
+        val mistPhase = 0.18f + selectedScene.ordinal * 0.14f
 
         Column(
             modifier = Modifier
@@ -232,7 +242,7 @@ fun HomeScreen(
             ) {
                 ShanShuiBackdropCanvas(
                     skin = skin,
-                    driftPhase = 0.18f,
+                    driftPhase = mistPhase,
                     modifier = Modifier.fillMaxSize()
                 )
 
@@ -305,10 +315,11 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(sectionGap))
 
-            // Single context-aware Hero Prescription Card (non-clickable so child button stays distinct)
+            // Single context-aware Hero Prescription Card
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .songxiGentleStageReveal(selectedScene)
                     .clip(cardShape)
                     .background(skin.palette.surfaceCard, cardShape)
                     .border(1.dp, skin.palette.borderHairline, cardShape)
@@ -338,6 +349,7 @@ fun HomeScreen(
                     ) {
                         Text(
                             text = formatRoutineDurationLabel(heroRoutine.totalDurationSeconds),
+                            style = SongxiTabularNumericStyle,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = skin.palette.accentPrimary,
@@ -392,7 +404,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(if (isCompact) 10.dp else 16.dp))
 
-            // 4 Quick Micro-Relief Shortcuts (eager 2x2 grid — never LazyGrid)
+            // 4 Quick Micro-Relief Shortcuts (eager 2x2 grid)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -448,6 +460,76 @@ fun HomeScreen(
                 }
             }
 
+            // Saved Custom Presets ("我的常备方") — surfaced below quick relief when non-empty
+            if (savedPresets.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(if (isCompact) 10.dp else 16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("home_saved_presets_section")
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "我的常备方",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = skin.palette.inkPrimary
+                        )
+                        Text(
+                            text = "一键直达自选三阶处方",
+                            fontSize = 11.sp,
+                            color = skin.palette.inkTertiary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    savedPresets.forEachIndexed { idx, preset ->
+                        SongxiActionSurface(
+                            onClick = { onStartSavedPreset(preset) },
+                            shape = subCardShape,
+                            backgroundColor = skin.palette.surfaceCard,
+                            borderColor = skin.palette.borderHairline,
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 46.dp),
+                            testTag = "home_saved_preset_$idx"
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = preset.title,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = skin.palette.inkPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                                )
+                                Text(
+                                    text = "起息 ›",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = skin.palette.accentPrimary
+                                )
+                            }
+                        }
+                        if (idx < savedPresets.lastIndex) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
         }
     }
@@ -483,6 +565,7 @@ private fun QuickReliefCard(
             ) {
                 Text(
                     text = formatRoutineDurationLabel(routine.totalDurationSeconds),
+                    style = SongxiTabularNumericStyle,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium,
                     color = skin.palette.accentPrimary,
@@ -490,6 +573,7 @@ private fun QuickReliefCard(
                 )
                 Text(
                     text = "${routine.poses.size}式",
+                    style = SongxiTabularNumericStyle,
                     fontSize = 10.sp,
                     color = skin.palette.inkTertiary,
                     maxLines = 1

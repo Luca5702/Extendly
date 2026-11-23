@@ -71,6 +71,22 @@ class AndroidHarmonicAudioEngine(
         triggerCue(HarmonicCueType.POSE_TRANSITION, skinId, soundProfile, muted)
     }
 
+    override fun playHalfwaySwitchCue(
+        skinId: SkinId,
+        soundProfile: SoundProfileId?,
+        muted: Boolean
+    ) {
+        triggerCue(HarmonicCueType.HALFWAY_SWITCH, skinId, soundProfile, muted)
+    }
+
+    override fun playSafeReturnCue(
+        skinId: SkinId,
+        soundProfile: SoundProfileId?,
+        muted: Boolean
+    ) {
+        triggerCue(HarmonicCueType.SAFE_RETURN, skinId, soundProfile, muted)
+    }
+
     override fun playSkinPreviewNote(skinId: SkinId, muted: Boolean) {
         triggerCue(HarmonicCueType.SKIN_PREVIEW, skinId, null, muted)
     }

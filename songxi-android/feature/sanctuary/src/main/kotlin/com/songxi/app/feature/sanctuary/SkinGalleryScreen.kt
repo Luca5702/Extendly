@@ -36,6 +36,7 @@ import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.LocalSongxiSkin
 import com.songxi.app.core.designsystem.ShanShuiBackdropCanvas
 import com.songxi.app.core.designsystem.SongxiSkin
+import com.songxi.app.core.designsystem.SongxiTabularNumericStyle
 import com.songxi.app.core.model.SkinId
 
 @Composable
@@ -117,6 +118,7 @@ fun SkinGalleryScreen(
         ) {
             Text(
                 text = "试听当前画境泛音 · ${activeSkin.sensory.defaultSoundProfile.labelCn} (${activeSkin.sensory.baseFrequencyHz.toInt()}Hz)",
+                style = SongxiTabularNumericStyle,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = activeSkin.palette.accentPrimary,
@@ -142,6 +144,7 @@ fun SkinGalleryScreen(
             val isSelected = candidateSkin.id == selectedSkinId
             SkinGalleryCard(
                 candidateSkin = candidateSkin,
+                cardIndex = index,
                 isSelected = isSelected,
                 cardShape = cardShape,
                 onClick = { onSelectSkin(candidateSkin.id) }
@@ -158,6 +161,7 @@ fun SkinGalleryScreen(
 @Composable
 private fun SkinGalleryCard(
     candidateSkin: SongxiSkin,
+    cardIndex: Int,
     isSelected: Boolean,
     cardShape: RoundedCornerShape,
     onClick: () -> Unit
@@ -191,7 +195,7 @@ private fun SkinGalleryCard(
             ) {
                 ShanShuiBackdropCanvas(
                     skin = candidateSkin,
-                    driftPhase = 0.25f,
+                    driftPhase = 0.18f + cardIndex * 0.15f,
                     modifier = Modifier.fillMaxSize()
                 )
                 ClassicalSealBadge(

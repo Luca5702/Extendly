@@ -1704,7 +1704,31 @@ private fun DrawScope.drawHighlightedRegionWarmth(
 
     for (region in highlightedRegions) {
         when (region) {
-            BodyRegion.EYE_BROW -> drawWarmPoint(kin.glabella)
+            BodyRegion.EYE_BROW -> {
+                drawWarmPoint(kin.glabella)
+                // Bilateral Cuanzhu (攒竹) inner-brow acupoint pearls + orbital mist crescent
+                val cuanzhuOffset = 0.015f * s
+                val acupointRadius = max(1.5.dp.toPx(), 0.0055f * s)
+                drawCircle(
+                    color = skin.palette.sealVermilion.copy(alpha = 0.72f),
+                    radius = acupointRadius,
+                    center = Offset(kin.glabella.x - cuanzhuOffset, kin.glabella.y - 0.004f * s)
+                )
+                drawCircle(
+                    color = skin.palette.sealVermilion.copy(alpha = 0.72f),
+                    radius = acupointRadius,
+                    center = Offset(kin.glabella.x + cuanzhuOffset, kin.glabella.y - 0.004f * s)
+                )
+                drawArc(
+                    color = skin.palette.accentPrimary.copy(alpha = 0.42f),
+                    startAngle = 200f,
+                    sweepAngle = 140f,
+                    useCenter = false,
+                    topLeft = Offset(kin.glabella.x - 0.048f * s, kin.glabella.y - 0.032f * s),
+                    size = Size(0.096f * s, 0.052f * s),
+                    style = Stroke(width = 1.15.dp.toPx(), cap = StrokeCap.Round)
+                )
+            }
             BodyRegion.POSTERIOR_NECK -> drawWarmPoint(kin.neck)
             BodyRegion.TRAPEZIUS_SHOULDER -> {
                 drawWarmPoint(kin.leftShoulder)
@@ -1715,6 +1739,32 @@ private fun DrawScope.drawHighlightedRegionWarmth(
             BodyRegion.MOUSE_WRIST -> {
                 drawWarmPoint(kin.leftArm.hand)
                 drawWarmPoint(kin.rightArm.hand)
+                // Articulated finger brush strokes + forearm median-nerve glide hairlines
+                for (arm in listOf(kin.leftArm, kin.rightArm)) {
+                    drawLine(
+                        color = skin.palette.accentPrimary.copy(alpha = 0.44f),
+                        start = arm.elbow,
+                        end = arm.hand,
+                        strokeWidth = 1.25.dp.toPx(),
+                        cap = StrokeCap.Round,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f)
+                    )
+                    rotate(degrees = arm.wristAngleDeg, pivot = arm.hand) {
+                        val fingerColor = skin.illustration.contourStroke.copy(alpha = 0.78f)
+                        val fingerW = 1.15.dp.toPx()
+                        val palmTipX = arm.hand.x + 0.022f * s
+                        for (fIdx in -1..1) {
+                            val fy = arm.hand.y + fIdx * 0.007f * s
+                            drawLine(
+                                color = fingerColor,
+                                start = Offset(palmTipX, fy),
+                                end = Offset(palmTipX + 0.015f * s, fy + fIdx * 0.003f * s),
+                                strokeWidth = fingerW,
+                                cap = StrokeCap.Round
+                            )
+                        }
+                    }
+                }
             }
         }
     }

@@ -6,21 +6,29 @@ import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PostureScene
 import com.songxi.app.core.model.PracticeSessionRecord
 import com.songxi.app.core.model.ReminderPreferences
+import com.songxi.app.core.model.SavedPrescriptionPreset
 import com.songxi.app.core.model.SkinId
 import com.songxi.app.core.model.StretchPose
 import com.songxi.app.core.model.StretchRoutine
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 interface ThemePreferencesRepository {
     val selectedSkinId: Flow<SkinId>
     val autoNightSkinEnabled: Flow<Boolean>
     val onboardingSeen: Flow<Boolean>
+    val voiceGuidanceEnabled: Flow<Boolean>
+        get() = flowOf(false)
+    val prepBufferEnabled: Flow<Boolean>
+        get() = flowOf(false)
 
     suspend fun setSelectedSkin(skinId: SkinId)
     suspend fun setAutoNightSkin(enabled: Boolean)
     suspend fun markOnboardingSeen(seen: Boolean = true)
+    suspend fun setVoiceGuidanceEnabled(enabled: Boolean) {}
+    suspend fun setPrepBufferEnabled(enabled: Boolean) {}
     suspend fun resetAll()
 }
 
@@ -29,6 +37,8 @@ interface StretchCatalogRepository {
     val quickReliefRoutines: List<StretchRoutine>
     val curatedBooklets: List<BookletSeries>
     val bookletCompletedDays: Flow<Map<String, Set<Int>>>
+    val savedPresets: Flow<List<SavedPrescriptionPreset>>
+        get() = flowOf(emptyList())
 
     fun heroRoutineFor(scene: PostureScene): StretchRoutine
     fun reminderQuickStartRoutine(): StretchRoutine
@@ -39,6 +49,12 @@ interface StretchCatalogRepository {
         asymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED
     ): StretchRoutine
     suspend fun markBookletDayCompleted(bookletId: String, dayIndex: Int)
+    suspend fun saveCustomPreset(preset: SavedPrescriptionPreset) {}
+    suspend fun deleteCustomPreset(presetId: String) {}
+    suspend fun restoreBookletAndPresets(
+        bookletProgress: Map<String, Set<Int>>,
+        presets: List<SavedPrescriptionPreset>
+    ) {}
     suspend fun resetAll()
 }
 
@@ -59,6 +75,9 @@ interface PracticeJournalRepository {
     fun observeMonthRipples(month: YearMonth): Flow<Map<LocalDate, List<PracticeSessionRecord>>>
     fun observeMonthSummary(month: YearMonth): Flow<MonthlyRippleSummary>
     suspend fun recordCompletedSession(record: PracticeSessionRecord)
+    suspend fun restoreSessions(records: List<PracticeSessionRecord>) {
+        records.forEach { recordCompletedSession(it) }
+    }
     suspend fun clearAll()
 }
 

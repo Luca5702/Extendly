@@ -7,7 +7,9 @@ enum class HarmonicCueType(val durationMs: Int) {
     INHALE(1800),
     EXHALE(2200),
     POSE_TRANSITION(1100),
-    SKIN_PREVIEW(1200)
+    SKIN_PREVIEW(1200),
+    HALFWAY_SWITCH(680),
+    SAFE_RETURN(620)
 }
 
 data class AudioPlaybackEvent(
@@ -46,6 +48,18 @@ interface HarmonicAudioEngine {
 
     fun playPoseTransitionChime(skinId: SkinId, muted: Boolean) =
         playPoseTransitionChime(skinId = skinId, soundProfile = null, muted = muted)
+
+    fun playHalfwaySwitchCue(
+        skinId: SkinId,
+        soundProfile: SoundProfileId? = null,
+        muted: Boolean = false
+    ) {}
+
+    fun playSafeReturnCue(
+        skinId: SkinId,
+        soundProfile: SoundProfileId? = null,
+        muted: Boolean = false
+    ) {}
 
     fun playSkinPreviewNote(skinId: SkinId, muted: Boolean = false)
 

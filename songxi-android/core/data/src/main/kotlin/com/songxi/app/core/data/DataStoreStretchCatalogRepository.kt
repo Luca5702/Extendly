@@ -11,6 +11,7 @@ import com.songxi.app.core.model.BreathRhythm
 import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PostureScene
 import com.songxi.app.core.model.PrescriptionPhaseRole
+import com.songxi.app.core.model.SavedPrescriptionPreset
 import com.songxi.app.core.model.StretchPose
 import com.songxi.app.core.model.StretchRoutine
 import java.io.IOException
@@ -42,6 +43,10 @@ class DataStoreStretchCatalogRepository(
 
     override val bookletCompletedDays: Flow<Map<String, Set<Int>>> = safePreferences.map { prefs ->
         decodeBookletProgress(prefs[KEY_BOOKLET_COMPLETED_DAYS_JSON])
+    }
+
+    override val savedPresets: Flow<List<SavedPrescriptionPreset>> = safePreferences.map { prefs ->
+        decodeSavedPresets(prefs[KEY_SAVED_PRESETS_JSON])
     }
 
     override fun heroRoutineFor(scene: PostureScene): StretchRoutine =
@@ -243,10 +248,57 @@ class DataStoreStretchCatalogRepository(
         }
     }
 
+    override suspend fun saveCustomPreset(preset: SavedPrescriptionPreset) {
+        dataStore.edit { prefs ->
+            val current = decodeSavedPresets(prefs[KEY_SAVED_PRESETS_JSON]).toMutableList()
+            current.removeAll { it.id == preset.id }
+            current.add(0, preset)
+            val trimmed = current.take(SavedPrescriptionPreset.MAX_SAVED_PRESETS)
+            prefs[KEY_SAVED_PRESETS_JSON] = SongxiDataJson.encodeToString(trimmed)
+        }
+    }
+
+    override suspend fun deleteCustomPreset(presetId: String) {
+        if (presetId.isBlank()) return
+        dataStore.edit { prefs ->
+            val updated = decodeSavedPresets(prefs[KEY_SAVED_PRESETS_JSON])
+                .filterNot { it.id == presetId }
+            prefs[KEY_SAVED_PRESETS_JSON] = SongxiDataJson.encodeToString(updated)
+        }
+    }
+
+    override suspend fun restoreBookletAndPresets(
+        bookletProgress: Map<String, Set<Int>>,
+        presets: List<SavedPrescriptionPreset>
+    ) {
+        dataStore.edit { prefs ->
+            val mergedBooklets = decodeBookletProgress(prefs[KEY_BOOKLET_COMPLETED_DAYS_JSON]).toMutableMap()
+            for ((bookletId, days) in bookletProgress) {
+                val maxDays = curatedBooklets.firstOrNull { it.id == bookletId }?.totalDays ?: continue
+                val validDays = days.filter { it in 0 until maxDays }.toSet()
+                if (validDays.isNotEmpty()) {
+                    mergedBooklets[bookletId] = (mergedBooklets[bookletId] ?: emptySet()) + validDays
+                }
+            }
+            prefs[KEY_BOOKLET_COMPLETED_DAYS_JSON] = SongxiDataJson.encodeToString(mergedBooklets)
+
+            if (presets.isNotEmpty()) {
+                val mergedPresets = LinkedHashMap<String, SavedPrescriptionPreset>()
+                presets.forEach { mergedPresets[it.id] = it }
+                decodeSavedPresets(prefs[KEY_SAVED_PRESETS_JSON]).forEach {
+                    mergedPresets.putIfAbsent(it.id, it)
+                }
+                val finalPresets = mergedPresets.values.take(SavedPrescriptionPreset.MAX_SAVED_PRESETS)
+                prefs[KEY_SAVED_PRESETS_JSON] = SongxiDataJson.encodeToString(finalPresets)
+            }
+        }
+    }
+
     override suspend fun resetAll() {
         composedRoutineCache.clear()
         dataStore.edit { prefs ->
             prefs.remove(KEY_BOOKLET_COMPLETED_DAYS_JSON)
+            prefs.remove(KEY_SAVED_PRESETS_JSON)
         }
     }
 
@@ -257,8 +309,16 @@ class DataStoreStretchCatalogRepository(
         }.getOrDefault(emptyMap())
     }
 
+    private fun decodeSavedPresets(raw: String?): List<SavedPrescriptionPreset> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return runCatching {
+            SongxiDataJson.decodeFromString<List<SavedPrescriptionPreset>>(raw)
+        }.getOrDefault(emptyList())
+    }
+
     private companion object {
         val CUSTOM_ROUTINE_ID_REGEX = Regex("^custom_([a-z_]+)_(\\d+)m(?:_(left|right))?$")
         val KEY_BOOKLET_COMPLETED_DAYS_JSON = stringPreferencesKey("catalog.booklet_completed_days_json")
+        val KEY_SAVED_PRESETS_JSON = stringPreferencesKey("catalog.saved_presets_json")
     }
 }

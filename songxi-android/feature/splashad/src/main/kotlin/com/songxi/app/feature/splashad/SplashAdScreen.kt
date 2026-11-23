@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.designsystem.SongxiTabularNumericStyle
 import com.songxi.app.core.model.SplashAdCreative
 import kotlinx.coroutines.delay
 
@@ -156,6 +157,7 @@ fun SplashAdScreen(
                             ) {
                                 Text(
                                     text = "跳过 ${displayedSeconds}s",
+                                    style = SongxiTabularNumericStyle,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     color = skin.palette.inkPrimary,

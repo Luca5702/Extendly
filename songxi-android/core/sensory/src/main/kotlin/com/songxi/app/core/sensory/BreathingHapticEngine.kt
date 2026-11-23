@@ -9,5 +9,7 @@ data class HapticWaveformSpec(
 interface BreathingHapticEngine {
     fun pulseInhaleWave(maxAmplitude: Int = 50, enabled: Boolean = true)
     fun pulseExhaleWave(maxAmplitude: Int = 50, enabled: Boolean = true)
+    fun pulseHalfwaySwitchCue(maxAmplitude: Int = 58, enabled: Boolean = true) {}
+    fun pulseSafeReturnCue(maxAmplitude: Int = 44, enabled: Boolean = true) {}
     fun cancel()
 }

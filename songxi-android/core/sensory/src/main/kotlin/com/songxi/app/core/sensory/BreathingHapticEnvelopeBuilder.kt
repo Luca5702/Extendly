@@ -62,4 +62,29 @@ object BreathingHapticEnvelopeBuilder {
             fallbackOffOnTimings = fallbackTimings
         )
     }
+
+    /**
+     * Distinct gentle double-tap cue for Eyes-Free bilateral halfway transitions ("温和换边").
+     */
+    fun buildHalfwaySwitchDoubleTap(maxAmplitude: Int = 58): HapticWaveformSpec {
+        val clamped = maxAmplitude.coerceIn(8, 255)
+        val firstTap = (clamped * 0.82).roundToInt().coerceIn(8, 255)
+        return HapticWaveformSpec(
+            timings = longArrayOf(0L, 42L, 76L, 52L),
+            amplitudes = intArrayOf(0, firstTap, 0, clamped),
+            fallbackOffOnTimings = longArrayOf(0L, 38L, 78L, 46L)
+        )
+    }
+
+    /**
+     * Soft single settling pulse signaling the final 5s safe-return stage ("缓慢回正").
+     */
+    fun buildSafeReturnSoftPulse(maxAmplitude: Int = 44): HapticWaveformSpec {
+        val clamped = maxAmplitude.coerceIn(6, 255)
+        return HapticWaveformSpec(
+            timings = longArrayOf(0L, 64L),
+            amplitudes = intArrayOf(0, clamped),
+            fallbackOffOnTimings = longArrayOf(0L, 48L)
+        )
+    }
 }

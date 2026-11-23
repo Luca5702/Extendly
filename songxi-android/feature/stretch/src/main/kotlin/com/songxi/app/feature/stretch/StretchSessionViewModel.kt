@@ -14,8 +14,10 @@ import com.songxi.app.core.model.BreathRhythm
 import com.songxi.app.core.model.ClockProvider
 import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PoseTimelineGuidance
+import com.songxi.app.core.model.PoseTimelineStage
 import com.songxi.app.core.model.PostureScene
 import com.songxi.app.core.model.PracticeSessionRecord
+import com.songxi.app.core.model.SavedPrescriptionPreset
 import com.songxi.app.core.model.SkinId
 import com.songxi.app.core.model.SomaticFeeling
 import com.songxi.app.core.model.SoundProfileId
@@ -25,6 +27,8 @@ import com.songxi.app.core.model.SystemClockProvider
 import com.songxi.app.core.sensory.BreathingHapticEngine
 import com.songxi.app.core.sensory.FaceDownSensorMonitor
 import com.songxi.app.core.sensory.HarmonicAudioEngine
+import com.songxi.app.core.sensory.NoOpVoiceCueEngine
+import com.songxi.app.core.sensory.VoiceCueEngine
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CoroutineScope
@@ -52,9 +56,11 @@ sealed interface StretchSessionStage {
         val currentPoseIndex: Int = 0,
         val poseElapsedMs: Long = 0L,
         val breathCycleElapsedMs: Long = 0L,
+        val prepRemainingMs: Long = 0L,
         val isManuallyPaused: Boolean = false,
         val isFaceDownPaused: Boolean = false,
         val isEyesFreeMode: Boolean = false,
+        val voiceGuidanceEnabled: Boolean = false,
         val showBiomechanicalGuide: Boolean = true,
         val isClinicalGuideOpen: Boolean = false,
         val soundProfile: SoundProfileId = SoundProfileId.defaultForSkin(skinId),
@@ -62,6 +68,12 @@ sealed interface StretchSessionStage {
     ) : StretchSessionStage {
         val isEffectivelyPaused: Boolean
             get() = isManuallyPaused || isFaceDownPaused || isClinicalGuideOpen
+
+        val isInPrepBuffer: Boolean
+            get() = prepRemainingMs > 0L
+
+        val prepDisplaySeconds: Int
+            get() = (((prepRemainingMs).coerceAtLeast(0L) + 999L) / 1_000L).toInt()
 
         val currentPose: StretchPose
             get() = routine.poses[currentPoseIndex.coerceIn(0, routine.poses.lastIndex)]
@@ -108,6 +120,10 @@ data class StretchUiState(
     val selectedDurationMinutes: Int = 4,
     val selectedAsymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED,
     val bookletCompletedDays: Map<String, Set<Int>> = emptyMap(),
+    val savedPresets: List<SavedPrescriptionPreset> = emptyList(),
+    val inspectedBookletIndex: Int? = null,
+    val voiceGuidanceEnabled: Boolean = false,
+    val prepBufferEnabled: Boolean = false,
     val sessionStage: StretchSessionStage = StretchSessionStage.Idle
 )
 
@@ -120,6 +136,7 @@ class StretchSessionViewModel(
     private val faceDownMonitor: FaceDownSensorMonitor,
     val clockProvider: ClockProvider = SystemClockProvider,
     initialOnboardingSeen: Boolean = false,
+    private val voiceEngine: VoiceCueEngine = NoOpVoiceCueEngine,
     externalScope: CoroutineScope? = null
 ) : ViewModel() {
 
@@ -142,8 +159,28 @@ class StretchSessionViewModel(
             }
         }
         scope.launch {
+            themePreferencesRepository.voiceGuidanceEnabled.collectLatest { voiceOn ->
+                _uiState.update { state ->
+                    val updatedStage = (state.sessionStage as? StretchSessionStage.Playing)
+                        ?.copy(voiceGuidanceEnabled = voiceOn)
+                        ?: state.sessionStage
+                    state.copy(voiceGuidanceEnabled = voiceOn, sessionStage = updatedStage)
+                }
+            }
+        }
+        scope.launch {
+            themePreferencesRepository.prepBufferEnabled.collectLatest { prepOn ->
+                _uiState.update { state -> state.copy(prepBufferEnabled = prepOn) }
+            }
+        }
+        scope.launch {
             catalogRepository.bookletCompletedDays.collectLatest { progress ->
                 _uiState.update { state -> state.copy(bookletCompletedDays = progress) }
+            }
+        }
+        scope.launch {
+            catalogRepository.savedPresets.collectLatest { presets ->
+                _uiState.update { state -> state.copy(savedPresets = presets) }
             }
         }
         scope.launch {
@@ -152,6 +189,7 @@ class StretchSessionViewModel(
                 if (currentStage is StretchSessionStage.Playing) {
                     if (faceDown && !currentStage.isFaceDownPaused) {
                         hapticEngine.cancel()
+                        voiceEngine.stop()
                         _uiState.update { state ->
                             val playing = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
                             state.copy(sessionStage = playing.copy(isFaceDownPaused = true))
@@ -212,6 +250,41 @@ class StretchSessionViewModel(
         _uiState.update { it.copy(selectedAsymmetry = asymmetry) }
     }
 
+    fun saveCurrentCustomPreset() {
+        val state = _uiState.value
+        val regions = state.selectedBodyRegions.toSet().ifEmpty {
+            setOf(BodyRegion.POSTERIOR_NECK, BodyRegion.TRAPEZIUS_SHOULDER)
+        }
+        val duration = state.selectedDurationMinutes
+        val asymmetry = state.selectedAsymmetry
+        val preset = SavedPrescriptionPreset(
+            id = SavedPrescriptionPreset.buildPresetId(regions, duration, asymmetry),
+            title = SavedPrescriptionPreset.buildDisplayTitle(regions, duration, asymmetry),
+            regions = regions,
+            durationMinutes = duration,
+            asymmetry = asymmetry,
+            createdAtEpochMs = clockProvider.nowEpochMillis()
+        )
+        scope.launch {
+            catalogRepository.saveCustomPreset(preset)
+        }
+    }
+
+    fun deleteSavedPreset(presetId: String) {
+        scope.launch {
+            catalogRepository.deleteCustomPreset(presetId)
+        }
+    }
+
+    fun startSavedPreset(preset: SavedPrescriptionPreset, skinId: SkinId) {
+        val routine = catalogRepository.composeCustomRoutine(
+            regions = preset.regions,
+            targetMinutes = preset.durationMinutes,
+            asymmetry = preset.asymmetry
+        )
+        startRoutine(routine = routine, skinId = skinId, bookletContext = null)
+    }
+
     fun composeAndStartCustomRoutine(skinId: SkinId) {
         val state = _uiState.value
         val composed = catalogRepository.composeCustomRoutine(
@@ -222,18 +295,36 @@ class StretchSessionViewModel(
         startRoutine(routine = composed, skinId = skinId, bookletContext = null)
     }
 
+    fun openBookletDetail(bookletIndex: Int) {
+        if (bookletIndex !in catalogRepository.curatedBooklets.indices) return
+        _uiState.update { it.copy(inspectedBookletIndex = bookletIndex) }
+    }
+
+    fun closeBookletDetail() {
+        _uiState.update { it.copy(inspectedBookletIndex = null) }
+    }
+
+    fun startBookletDay(bookletIndex: Int, dayIndex: Int, skinId: SkinId) {
+        val booklets = catalogRepository.curatedBooklets
+        if (bookletIndex !in booklets.indices) return
+        val booklet = booklets[bookletIndex]
+        val clampedDay = dayIndex.coerceIn(0, booklet.totalDays - 1)
+        _uiState.update { it.copy(inspectedBookletIndex = null) }
+        val routine = booklet.routineForDay(clampedDay)
+        startRoutine(
+            routine = routine,
+            skinId = skinId,
+            bookletContext = ActiveBookletContext(bookletId = booklet.id, dayIndex = clampedDay)
+        )
+    }
+
     fun startBooklet(bookletIndex: Int, skinId: SkinId) {
         val booklets = catalogRepository.curatedBooklets
         if (bookletIndex !in booklets.indices) return
         val booklet = booklets[bookletIndex]
         val completed = _uiState.value.bookletCompletedDays[booklet.id].orEmpty()
         val nextDay = (0 until booklet.totalDays).firstOrNull { it !in completed } ?: 0
-        val routine = booklet.routineForDay(nextDay)
-        startRoutine(
-            routine = routine,
-            skinId = skinId,
-            bookletContext = ActiveBookletContext(bookletId = booklet.id, dayIndex = nextDay)
-        )
+        startBookletDay(bookletIndex = bookletIndex, dayIndex = nextDay, skinId = skinId)
     }
 
     fun startReminderQuickStart(skinId: SkinId) {
@@ -247,10 +338,14 @@ class StretchSessionViewModel(
         bookletContext: ActiveBookletContext? = null
     ) {
         if (routine.poses.isEmpty()) return
+        val stateSnapshot = _uiState.value
         val defaultSound = SoundProfileId.defaultForSkin(skinId)
+        val prepMs = if (stateSnapshot.prepBufferEnabled) PREP_BUFFER_DURATION_MS else 0L
+        val voiceOn = stateSnapshot.voiceGuidanceEnabled
         val newSessionId = "sx_${clockProvider.nowEpochMillis()}_${sessionSequence.getAndIncrement()}"
         _uiState.update { state ->
             state.copy(
+                inspectedBookletIndex = null,
                 sessionStage = StretchSessionStage.Playing(
                     sessionId = newSessionId,
                     routine = routine,
@@ -259,9 +354,11 @@ class StretchSessionViewModel(
                     currentPoseIndex = 0,
                     poseElapsedMs = 0L,
                     breathCycleElapsedMs = 0L,
+                    prepRemainingMs = prepMs,
                     isManuallyPaused = false,
                     isFaceDownPaused = false,
                     isEyesFreeMode = false,
+                    voiceGuidanceEnabled = voiceOn,
                     showBiomechanicalGuide = true,
                     isClinicalGuideOpen = false,
                     soundProfile = defaultSound,
@@ -269,7 +366,42 @@ class StretchSessionViewModel(
                 )
             )
         }
-        emitBreathSensoryCue(skinId = skinId, soundProfile = defaultSound, isExhale = false)
+        val muted = defaultSound == SoundProfileId.SILENT_HAPTIC_ONLY
+        if (prepMs > 0L) {
+            voiceEngine.speakCue(
+                text = "入席安顿，放稳手机，自然沉落双肩。",
+                enabled = voiceOn,
+                muted = muted
+            )
+        } else {
+            emitBreathSensoryCue(skinId = skinId, soundProfile = defaultSound, isExhale = false)
+            val firstPose = routine.poses.first()
+            voiceEngine.speakCue(
+                text = "${firstPose.title}。${firstPose.clinical.setupCueCn}",
+                enabled = voiceOn,
+                muted = muted
+            )
+        }
+    }
+
+    fun skipPrepBuffer(activeSkinId: SkinId? = null) {
+        val cur = _uiState.value.sessionStage as? StretchSessionStage.Playing ?: return
+        if (cur.prepRemainingMs <= 0L) return
+        val skinId = activeSkinId ?: cur.skinId
+        val updated = cur.copy(
+            skinId = skinId,
+            prepRemainingMs = 0L,
+            poseElapsedMs = 0L,
+            breathCycleElapsedMs = 0L
+        )
+        _uiState.update { it.copy(sessionStage = updated) }
+        val muted = updated.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
+        emitBreathSensoryCue(skinId = skinId, soundProfile = updated.soundProfile, isExhale = false)
+        voiceEngine.speakCue(
+            text = "${updated.currentPose.title}。${updated.currentPose.clinical.setupCueCn}",
+            enabled = updated.voiceGuidanceEnabled,
+            muted = muted
+        )
     }
 
     fun onPlayerScreenEntered() {
@@ -288,6 +420,27 @@ class StretchSessionViewModel(
         if (currentPlaying.isEffectivelyPaused) return
 
         val effectiveSkin = activeSkinId ?: currentPlaying.skinId
+        if (currentPlaying.prepRemainingMs > 0L) {
+            val nextPrep = (currentPlaying.prepRemainingMs - deltaMs).coerceAtLeast(0L)
+            val updated = currentPlaying.copy(
+                skinId = effectiveSkin,
+                prepRemainingMs = nextPrep,
+                poseElapsedMs = 0L,
+                breathCycleElapsedMs = 0L
+            )
+            _uiState.update { it.copy(sessionStage = updated) }
+            if (nextPrep == 0L) {
+                val muted = updated.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
+                emitBreathSensoryCue(effectiveSkin, updated.soundProfile, isExhale = false)
+                voiceEngine.speakCue(
+                    text = "${updated.currentPose.title}。${updated.currentPose.clinical.setupCueCn}",
+                    enabled = updated.voiceGuidanceEnabled,
+                    muted = muted
+                )
+            }
+            return
+        }
+
         val prevBreathMs = currentPlaying.breathCycleElapsedMs
         val nextBreathMs = prevBreathMs + deltaMs
         val prevPhase = resolveBreathPhase(prevBreathMs)
@@ -295,6 +448,7 @@ class StretchSessionViewModel(
         val prevCycleIndex = prevBreathMs / BreathRhythm.CYCLE_DURATION_MS
         val nextCycleIndex = nextBreathMs / BreathRhythm.CYCLE_DURATION_MS
 
+        val prevGuidance = currentPlaying.timelineGuidance
         val nextPoseElapsed = currentPlaying.poseElapsedMs + deltaMs
         if (nextPoseElapsed >= currentPlaying.poseDurationMs) {
             val nextIndex = currentPlaying.currentPoseIndex + 1
@@ -312,6 +466,11 @@ class StretchSessionViewModel(
                 _uiState.update { it.copy(sessionStage = updated) }
                 val muted = updated.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
                 audioEngine.playPoseTransitionChime(effectiveSkin, updated.soundProfile, muted = muted)
+                voiceEngine.speakCue(
+                    text = "${updated.currentPose.title}。${updated.currentPose.clinical.setupCueCn}",
+                    enabled = updated.voiceGuidanceEnabled,
+                    muted = muted
+                )
                 if (prevPhase.isExhale != nextPhase.isExhale || prevCycleIndex != nextCycleIndex) {
                     emitBreathSensoryCue(effectiveSkin, updated.soundProfile, nextPhase.isExhale)
                 }
@@ -326,7 +485,34 @@ class StretchSessionViewModel(
         )
         _uiState.update { it.copy(sessionStage = updated) }
 
-        if (prevPhase.isExhale != nextPhase.isExhale || prevCycleIndex != nextCycleIndex) {
+        val nextGuidance = updated.timelineGuidance
+        val muted = updated.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
+        val amplitude = BuiltInSkinRegistry.skinFor(effectiveSkin).sensory.hapticAmplitude
+
+        // Blind-operation Cue 1: Exact halfway bilateral switch (double-tap haptic + ascending chime + voice)
+        if (updated.currentPose.bilateralSwitchAtHalfway &&
+            !prevGuidance.isSecondSegment &&
+            nextGuidance.isSecondSegment
+        ) {
+            hapticEngine.pulseHalfwaySwitchCue(maxAmplitude = (amplitude + 8).coerceAtMost(255), enabled = true)
+            audioEngine.playHalfwaySwitchCue(effectiveSkin, updated.soundProfile, muted = muted)
+            voiceEngine.speakCue(
+                text = "温和换边，随呼气舒展另一侧。",
+                enabled = updated.voiceGuidanceEnabled,
+                muted = muted
+            )
+        } else if (prevGuidance.stage != PoseTimelineStage.SAFE_RETURN &&
+            nextGuidance.stage == PoseTimelineStage.SAFE_RETURN
+        ) {
+            // Blind-operation Cue 2: Entering final safe-return window (soft settling pulse + sub-octave bell + voice)
+            hapticEngine.pulseSafeReturnCue(maxAmplitude = amplitude, enabled = true)
+            audioEngine.playSafeReturnCue(effectiveSkin, updated.soundProfile, muted = muted)
+            voiceEngine.speakCue(
+                text = updated.currentPose.clinical.safeReturnCueCn,
+                enabled = updated.voiceGuidanceEnabled,
+                muted = muted
+            )
+        } else if (prevPhase.isExhale != nextPhase.isExhale || prevCycleIndex != nextCycleIndex) {
             emitBreathSensoryCue(
                 skinId = effectiveSkin,
                 soundProfile = updated.soundProfile,
@@ -348,6 +534,7 @@ class StretchSessionViewModel(
         val nextPaused = !playing.isManuallyPaused
         if (nextPaused) {
             hapticEngine.cancel()
+            voiceEngine.stop()
         }
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
@@ -370,6 +557,30 @@ class StretchSessionViewModel(
         }
     }
 
+    fun toggleVoiceGuidance() {
+        val nextVoice = !_uiState.value.voiceGuidanceEnabled
+        _uiState.update { state ->
+            val updatedStage = (state.sessionStage as? StretchSessionStage.Playing)
+                ?.copy(voiceGuidanceEnabled = nextVoice)
+                ?: state.sessionStage
+            state.copy(voiceGuidanceEnabled = nextVoice, sessionStage = updatedStage)
+        }
+        scope.launch {
+            themePreferencesRepository.setVoiceGuidanceEnabled(nextVoice)
+        }
+        val cur = _uiState.value.sessionStage as? StretchSessionStage.Playing
+        if (!nextVoice) {
+            voiceEngine.stop()
+        } else if (cur != null) {
+            val muted = cur.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
+            voiceEngine.speakCue(
+                text = "已开启轻声口令。${cur.currentPose.title}",
+                enabled = true,
+                muted = muted
+            )
+        }
+    }
+
     fun toggleBiomechanicalGuide() {
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
@@ -379,6 +590,7 @@ class StretchSessionViewModel(
 
     fun openClinicalGuide() {
         hapticEngine.cancel()
+        voiceEngine.stop()
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
             state.copy(sessionStage = cur.copy(isClinicalGuideOpen = true))
@@ -418,6 +630,7 @@ class StretchSessionViewModel(
         }
         if (nextSound == SoundProfileId.SILENT_HAPTIC_ONLY) {
             audioEngine.release()
+            voiceEngine.stop()
         }
         _uiState.update { state ->
             val latest = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
@@ -428,17 +641,26 @@ class StretchSessionViewModel(
     }
 
     fun previousPose() {
+        var targetPose: StretchPose? = null
+        var voiceOn = false
+        var muted = false
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
             val clampedIndex = (cur.currentPoseIndex - 1).coerceAtLeast(0)
-            state.copy(
-                sessionStage = cur.copy(
-                    currentPoseIndex = clampedIndex,
-                    poseElapsedMs = 0L,
-                    breathCycleElapsedMs = 0L,
-                    isClinicalGuideOpen = false
-                )
+            val nextStage = cur.copy(
+                currentPoseIndex = clampedIndex,
+                poseElapsedMs = 0L,
+                breathCycleElapsedMs = 0L,
+                prepRemainingMs = 0L,
+                isClinicalGuideOpen = false
             )
+            targetPose = nextStage.currentPose
+            voiceOn = nextStage.voiceGuidanceEnabled
+            muted = nextStage.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
+            state.copy(sessionStage = nextStage)
+        }
+        targetPose?.let { pose ->
+            voiceEngine.speakCue("${pose.title}。${pose.clinical.setupCueCn}", enabled = voiceOn, muted = muted)
         }
     }
 
@@ -449,6 +671,7 @@ class StretchSessionViewModel(
         if (nextIndex >= cur.routine.poses.size) {
             transitionToCompleted(cur, effectiveSkin)
         } else {
+            val nextPoseObj = cur.routine.poses[nextIndex]
             _uiState.update { state ->
                 val latest = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
                 state.copy(
@@ -457,18 +680,25 @@ class StretchSessionViewModel(
                         currentPoseIndex = nextIndex,
                         poseElapsedMs = 0L,
                         breathCycleElapsedMs = 0L,
+                        prepRemainingMs = 0L,
                         isClinicalGuideOpen = false
                     )
                 )
             }
             val muted = cur.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
             audioEngine.playPoseTransitionChime(effectiveSkin, cur.soundProfile, muted = muted)
+            voiceEngine.speakCue(
+                text = "${nextPoseObj.title}。${nextPoseObj.clinical.setupCueCn}",
+                enabled = cur.voiceGuidanceEnabled,
+                muted = muted
+            )
         }
     }
 
     fun closePlayerWithoutCompleting() {
         faceDownMonitor.stopMonitoring()
         hapticEngine.cancel()
+        voiceEngine.stop()
         _uiState.update { state ->
             state.copy(sessionStage = StretchSessionStage.Idle)
         }
@@ -520,6 +750,7 @@ class StretchSessionViewModel(
     fun resetSessionState(onboardingSeen: Boolean = false) {
         faceDownMonitor.stopMonitoring()
         hapticEngine.cancel()
+        voiceEngine.stop()
         committedSessionIds.clear()
         _uiState.value = StretchUiState(onboardingSeen = onboardingSeen)
     }
@@ -529,6 +760,11 @@ class StretchSessionViewModel(
         hapticEngine.cancel()
         val muted = playing.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
         audioEngine.playPoseTransitionChime(effectiveSkin, playing.soundProfile, muted = muted)
+        voiceEngine.speakCue(
+            text = "一息既成，身自舒展。",
+            enabled = playing.voiceGuidanceEnabled,
+            muted = muted
+        )
         _uiState.update { state ->
             state.copy(
                 sessionStage = StretchSessionStage.Completed(
@@ -561,10 +797,13 @@ class StretchSessionViewModel(
     override fun onCleared() {
         faceDownMonitor.stopMonitoring()
         hapticEngine.cancel()
+        voiceEngine.stop()
         super.onCleared()
     }
 
     companion object {
+        const val PREP_BUFFER_DURATION_MS: Long = 3_000L
+
         fun provideFactory(
             catalogRepository: StretchCatalogRepository,
             themePreferencesRepository: ThemePreferencesRepository,
@@ -573,7 +812,8 @@ class StretchSessionViewModel(
             hapticEngine: BreathingHapticEngine,
             faceDownMonitor: FaceDownSensorMonitor,
             clockProvider: ClockProvider = SystemClockProvider,
-            initialOnboardingSeen: Boolean = false
+            initialOnboardingSeen: Boolean = false,
+            voiceEngine: VoiceCueEngine = NoOpVoiceCueEngine
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -585,7 +825,8 @@ class StretchSessionViewModel(
                     hapticEngine = hapticEngine,
                     faceDownMonitor = faceDownMonitor,
                     clockProvider = clockProvider,
-                    initialOnboardingSeen = initialOnboardingSeen
+                    initialOnboardingSeen = initialOnboardingSeen,
+                    voiceEngine = voiceEngine
                 ) as T
             }
         }

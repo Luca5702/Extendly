@@ -1248,4 +1248,106 @@ class Tier1FeatureE2ETest {
             )
         }
     }
+
+    // =========================================================================
+    // Commercial Refinement E2E Coverage (F9 / F11 / F14)
+    // =========================================================================
+
+    @Test
+    fun t1_f09_04_saved_presets_and_booklet_chapter_picker_launch_targeted_sessions() {
+        activeScenario = SongxiAndroidE2EHarness.launchToHome(composeRule = composeRule)
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_bodymap")
+
+        // 1. Save current custom prescription as a favorite ("存常备方") and verify on BodyMap & Home
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "bodymap_duration_2")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "bodymap_save_preset_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "bodymap_saved_presets_row")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "bodymap_preset_chip_0")
+
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_home")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "home_saved_presets_section")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "home_saved_preset_0")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_screen")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_close_button")
+
+        // 2. Open《四时雅集》chapter directory sheet and launch Day 3 ("三息") directly
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_bodymap")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "booklet_chapters_button_0")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "booklet_detail_sheet")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "booklet_day_item_2")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_screen")
+        val playerHeader = SongxiAndroidE2EHarness.readNodeText(composeRule, "player_screen")
+        assertTrue(
+            "Expected Day 3 chapter routine to be active in player_screen, got '$playerHeader'",
+            playerHeader.contains("第三日") || playerHeader.contains("三息")
+        )
+    }
+
+    @Test
+    fun t1_f11_05_voice_guidance_toggle_and_prep_buffer_banner_skip_cleanly() {
+        activeScenario = SongxiAndroidE2EHarness.launchToHome(composeRule = composeRule)
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_settings")
+
+        // Enable offline voice cues + 3s settle-in prep buffer
+        SongxiAndroidE2EHarness.toggleSwitchByTag(composeRule, "settings_voice_guide_switch")
+        SongxiAndroidE2EHarness.toggleSwitchByTag(composeRule, "settings_prep_buffer_switch")
+        assertTrue(SongxiAndroidE2EHarness.isSwitchOrChipActive(composeRule, "settings_voice_guide_switch"))
+        assertTrue(SongxiAndroidE2EHarness.isSwitchOrChipActive(composeRule, "settings_prep_buffer_switch"))
+
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_home")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "home_quick_routine_0")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_screen")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_prep_buffer_banner")
+        assertTrue(SongxiAndroidE2EHarness.isSwitchOrChipActive(composeRule, "player_voice_cue_toggle"))
+
+        // Skip prep buffer immediately ("立即入式") and toggle voice cue in player
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_skip_prep_button")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_voice_cue_toggle")
+        assertFalse(SongxiAndroidE2EHarness.isSwitchOrChipActive(composeRule, "player_voice_cue_toggle"))
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_close_button")
+    }
+
+    @Test
+    fun t1_f14_05_cross_month_journal_day_inspection_png_poster_and_json_backup_restore() {
+        val nov18Ms = SongxiAndroidE2EHarness.epochAtLocal(2026, 11, 18, 10, 0)
+        activeScenario = SongxiAndroidE2EHarness.launchToHome(
+            composeRule = composeRule,
+            simulatedEpochMs = nov18Ms
+        )
+
+        // Complete 1 session on Nov 18 so Journal has a recorded water-ripple
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "home_quick_routine_0")
+        SongxiAndroidE2EHarness.advanceRoutineToCompletion(composeRule)
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "completion_feeling_calm")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "completion_finish_button")
+
+        // 1. Cross-month navigation & clickable day inspection + dynamic dekad title
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_journal")
+        val initialTitle = SongxiAndroidE2EHarness.readNodeText(composeRule, "journal_notes_section_title")
+        assertTrue("Expected dynamic middle-dekad title on Nov 18, got '$initialTitle'", initialTitle.contains("本月中旬"))
+
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_day_cell_18")
+        val dayTitle = SongxiAndroidE2EHarness.readNodeText(composeRule, "journal_notes_section_title")
+        assertTrue("Expected 11月18日 filter title, got '$dayTitle'", dayTitle.contains("11月18日"))
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_clear_day_filter")
+
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_prev_month_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "journal_current_month_button")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_current_month_button")
+
+        // 2. High-DPI Xuan-paper PNG poster preview + local gallery save
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_share_card_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "journal_share_poster_preview")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "journal_save_poster_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "journal_poster_save_feedback")
+
+        // 3. Offline JSON sanctuary backup export & restore in Settings
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_settings")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "settings_export_backup_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "settings_backup_dialog")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "settings_backup_confirm_restore_button")
+        val statusMsg = SongxiAndroidE2EHarness.readNodeText(composeRule, "settings_backup_status_text")
+        assertTrue("Expected backup restore confirmation message, got '$statusMsg'", statusMsg.contains("恢复") || statusMsg.contains("1"))
+    }
 }
+

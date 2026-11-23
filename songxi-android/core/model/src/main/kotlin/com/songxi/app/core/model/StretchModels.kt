@@ -245,3 +245,52 @@ data class BookletSeries(
     fun routineForDay(dayIndex: Int): StretchRoutine =
         routines[dayIndex.coerceIn(0, routines.lastIndex)]
 }
+
+/**
+ * User-saved custom BodyMap prescription ("我的常备方") for 1-tap quick launch on Home & BodyMap.
+ */
+@Serializable
+data class SavedPrescriptionPreset(
+    val id: String,
+    val title: String,
+    val regions: Set<BodyRegion>,
+    val durationMinutes: Int,
+    val asymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED,
+    val createdAtEpochMs: Long = 0L
+) {
+    init {
+        require(id.isNotBlank()) { "SavedPrescriptionPreset.id must not be blank" }
+        require(regions.isNotEmpty()) { "SavedPrescriptionPreset.regions must not be empty" }
+        require(durationMinutes in 1..15) { "SavedPrescriptionPreset.durationMinutes must be in 1..15" }
+    }
+
+    companion object {
+        const val MAX_SAVED_PRESETS: Int = 4
+
+        fun buildPresetId(
+            regions: Set<BodyRegion>,
+            durationMinutes: Int,
+            asymmetry: LateralAsymmetry
+        ): String {
+            val ordered = BodyRegion.entries.filter { it in regions }.ifEmpty {
+                listOf(BodyRegion.POSTERIOR_NECK, BodyRegion.TRAPEZIUS_SHOULDER)
+            }
+            val regionSlug = ordered.joinToString("_") { it.key }
+            return "preset_${regionSlug}_${durationMinutes}m_${asymmetry.key}"
+        }
+
+        fun buildDisplayTitle(
+            regions: Set<BodyRegion>,
+            durationMinutes: Int,
+            asymmetry: LateralAsymmetry
+        ): String {
+            val ordered = BodyRegion.entries.filter { it in regions }.ifEmpty {
+                listOf(BodyRegion.POSTERIOR_NECK, BodyRegion.TRAPEZIUS_SHOULDER)
+            }
+            val regionText = ordered.joinToString("·") { it.shortLabelCn }
+            val asymSuffix = if (asymmetry == LateralAsymmetry.BALANCED) "" else " (${asymmetry.ratioBadgeCn})"
+            return "$regionText · ${durationMinutes}分钟$asymSuffix"
+        }
+    }
+}
+

@@ -274,6 +274,13 @@
       50% { transform: translateX(8px); }
     }
     .sx-cloud-drift { animation: sxCloudDrift 18s ease-in-out infinite; }
+    .tabular-nums, .font-mono { font-variant-numeric: tabular-nums; }
+    .songxi-app-shell button:active { transform: scale(0.974); }
+    @keyframes sxStageReveal {
+      from { opacity: 0.86; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .sx-stage-reveal { animation: sxStageReveal 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); }
   </style>
 </head>
 <body class="bg-[var(--background,#EDE8DE)] text-[var(--foreground,#262B28)] font-sans-cn antialiased min-h-screen m-0 p-0 sm:py-5 sm:px-4 flex items-center justify-center overflow-x-hidden">
@@ -468,13 +475,16 @@
               </button>
             </div>
           </div>
+
+          <!-- Saved Custom Presets ("我的常备方") -->
+          <div id="el-home-saved-presets" data-testid="home_saved_presets_section" class="hidden space-y-1.5"></div>
         </section>
 
         <!-- TAB 2: BODY MAP & CURATED BOOKLETS ("寻音雅集") -->
         <section
           id="view-bodymap"
           data-testid="bodymap_screen"
-          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5 relative"
         >
           <div>
             <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">点选 1–3 处紧绷部位 · 无限次免费组方</p>
@@ -504,11 +514,11 @@
 
             <!-- Duration Selector (2 / 4 / 6 min) -->
             <div class="flex items-center justify-between gap-2">
-              <span id="bodymap-selection-hint" class="text-[11px]" style="color:var(--sx-ink-sec);">已选 2 处 · 精准配平呼吸周期</span>
+              <span id="bodymap-selection-hint" class="text-[11px] tabular-nums" style="color:var(--sx-ink-sec);">已选 2 处 · 精准配平呼吸周期</span>
               <div class="flex items-center gap-1.5 shrink-0">
-                <button id="dur-btn-2" data-testid="bodymap_duration_2" data-mins="2" type="button" aria-pressed="false" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">2分钟</button>
-                <button id="dur-btn-4" data-testid="bodymap_duration_4" data-mins="4" type="button" aria-pressed="true" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">4分钟</button>
-                <button id="dur-btn-6" data-testid="bodymap_duration_6" data-mins="6" type="button" aria-pressed="false" class="dur-pill whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">6分钟</button>
+                <button id="dur-btn-2" data-testid="bodymap_duration_2" data-mins="2" type="button" aria-pressed="false" class="dur-pill tabular-nums whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">2分钟</button>
+                <button id="dur-btn-4" data-testid="bodymap_duration_4" data-mins="4" type="button" aria-pressed="true" class="dur-pill tabular-nums whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">4分钟</button>
+                <button id="dur-btn-6" data-testid="bodymap_duration_6" data-mins="6" type="button" aria-pressed="false" class="dur-pill tabular-nums whitespace-nowrap min-h-[32px] px-2.5 rounded-lg text-xs border transition">6分钟</button>
               </div>
             </div>
 
@@ -516,9 +526,9 @@
             <div class="space-y-1">
               <p class="text-[11px]" style="color:var(--sx-ink-sec);">左右偏侧时长配比（惯用鼠标或单肩背包偏紧调配）</p>
               <div class="grid grid-cols-3 gap-1.5">
-                <button id="asym-btn-balanced" data-testid="bodymap_asymmetry_balanced" data-asym="balanced" type="button" aria-pressed="true" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">双侧均衡 5:5</button>
-                <button id="asym-btn-left" data-testid="bodymap_asymmetry_left" data-asym="left" type="button" aria-pressed="false" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">左侧偏紧 左6:右4</button>
-                <button id="asym-btn-right" data-testid="bodymap_asymmetry_right" data-asym="right" type="button" aria-pressed="false" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">右侧偏紧 右6:左4</button>
+                <button id="asym-btn-balanced" data-testid="bodymap_asymmetry_balanced" data-asym="balanced" type="button" aria-pressed="true" class="asym-pill tabular-nums min-h-[30px] px-2 rounded-lg text-[11px] border transition">双侧均衡 5:5</button>
+                <button id="asym-btn-left" data-testid="bodymap_asymmetry_left" data-asym="left" type="button" aria-pressed="false" class="asym-pill tabular-nums min-h-[30px] px-2 rounded-lg text-[11px] border transition">左侧偏紧 左6:右4</button>
+                <button id="asym-btn-right" data-testid="bodymap_asymmetry_right" data-asym="right" type="button" aria-pressed="false" class="asym-pill tabular-nums min-h-[30px] px-2 rounded-lg text-[11px] border transition">右侧偏紧 右6:左4</button>
               </div>
             </div>
 
@@ -526,31 +536,77 @@
             <div
               id="el-bodymap-prescription-preview"
               data-testid="bodymap_prescription_preview"
-              class="p-2.5 rounded-xl border space-y-0.5 text-[11px]"
+              class="p-2.5 rounded-xl border space-y-0.5 text-[11px] tabular-nums"
               style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);"
             ></div>
 
-            <button
-              id="btn-bodymap-compose"
-              data-testid="bodymap_compose_start_button"
-              type="button"
-              class="w-full min-h-[42px] rounded-2xl text-xs font-serif-cn font-semibold tracking-wider transition hover:opacity-95"
-              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
-            >
-              一秒成方 · 开始专属舒展
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                id="btn-bodymap-compose"
+                data-testid="bodymap_compose_start_button"
+                type="button"
+                class="flex-1 min-h-[42px] rounded-2xl text-xs font-serif-cn font-semibold tracking-wider transition hover:opacity-95"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                一秒成方 · 开始专属舒展
+              </button>
+              <button
+                id="btn-bodymap-save-preset"
+                data-testid="bodymap_save_preset_button"
+                type="button"
+                class="min-h-[42px] px-3 rounded-2xl text-xs font-medium border transition whitespace-nowrap"
+                style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-accent);"
+              >
+                存常备方
+              </button>
+            </div>
+
+            <div id="el-bodymap-saved-presets" data-testid="bodymap_saved_presets_row" class="hidden space-y-1.5"></div>
           </div>
 
           <!-- 4 Permanently Free Curated Booklets ("四时雅集") -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <h3 class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">四时雅集（四册全开放 · 随时暂歇续练亦无妨）</h3>
+              <h3 class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">四时雅集（四册全开放 · 可自选章节预习）</h3>
             </div>
             <div id="booklets-list" class="grid grid-cols-1 gap-2">
-              <button id="el-booklet-0" data-testid="booklet_card_0" data-booklet-idx="0" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
-              <button id="el-booklet-1" data-testid="booklet_card_1" data-booklet-idx="1" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
-              <button id="el-booklet-2" data-testid="booklet_card_2" data-booklet-idx="2" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
-              <button id="el-booklet-3" data-testid="booklet_card_3" data-booklet-idx="3" type="button" class="sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+              <div class="space-y-1">
+                <button id="el-booklet-0" data-testid="booklet_card_0" data-booklet-idx="0" type="button" class="w-full sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+                <div class="flex justify-end"><button id="btn-booklet-chap-0" data-testid="booklet_chapters_button_0" data-chap-idx="0" type="button" class="booklet-chap-btn min-h-[28px] px-2.5 rounded-full text-[11px] border" style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-accent);">选节目录 · 动作预习 ›</button></div>
+              </div>
+              <div class="space-y-1">
+                <button id="el-booklet-1" data-testid="booklet_card_1" data-booklet-idx="1" type="button" class="w-full sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+                <div class="flex justify-end"><button id="btn-booklet-chap-1" data-testid="booklet_chapters_button_1" data-chap-idx="1" type="button" class="booklet-chap-btn min-h-[28px] px-2.5 rounded-full text-[11px] border" style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-accent);">选节目录 · 动作预习 ›</button></div>
+              </div>
+              <div class="space-y-1">
+                <button id="el-booklet-2" data-testid="booklet_card_2" data-booklet-idx="2" type="button" class="w-full sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+                <div class="flex justify-end"><button id="btn-booklet-chap-2" data-testid="booklet_chapters_button_2" data-chap-idx="2" type="button" class="booklet-chap-btn min-h-[28px] px-2.5 rounded-full text-[11px] border" style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-accent);">选节目录 · 动作预习 ›</button></div>
+              </div>
+              <div class="space-y-1">
+                <button id="el-booklet-3" data-testid="booklet_card_3" data-booklet-idx="3" type="button" class="w-full sx-card p-3 text-left flex items-center justify-between gap-2 hover:opacity-95 transition"></button>
+                <div class="flex justify-end"><button id="btn-booklet-chap-3" data-testid="booklet_chapters_button_3" data-chap-idx="3" type="button" class="booklet-chap-btn min-h-[28px] px-2.5 rounded-full text-[11px] border" style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-accent);">选节目录 · 动作预习 ›</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Booklet Chapter & Pose Preview Sheet ("雅集选节目录") -->
+          <div
+            id="el-booklet-detail-sheet"
+            data-testid="booklet_detail_sheet"
+            class="hidden absolute inset-0 z-30 p-4 flex items-center justify-center"
+            style="background-color:var(--sx-overlay);"
+          >
+            <div class="sx-card w-full max-h-full overflow-y-auto sx-scroll p-4 space-y-2.5 shadow-lg">
+              <div id="booklet-detail-content" class="space-y-2"></div>
+              <button
+                id="btn-booklet-detail-close"
+                data-testid="booklet_detail_close"
+                type="button"
+                class="w-full min-h-[40px] rounded-full text-xs font-serif-cn font-semibold border"
+                style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-ink);"
+              >
+                收起目录
+              </button>
             </div>
           </div>
         </section>
@@ -607,28 +663,24 @@
         <section
           id="view-journal"
           data-testid="journal_screen"
-          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3.5"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3"
         >
           <div class="flex items-center justify-between gap-2">
-            <div>
-              <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">留白亦是休息 · 无压力水纹月历</p>
+            <div class="min-w-0">
+              <p id="journal-month-subtitle" class="text-[11px] tracking-wider tabular-nums" style="color:var(--sx-ink-sec);">留白亦是休息 · 无压力水纹月历</p>
               <h2 class="font-serif-cn text-xl font-semibold tracking-[0.06em]" style="color:var(--sx-ink);">松息手札</h2>
             </div>
-            <button
-              id="btn-journal-share"
-              data-testid="journal_share_card_button"
-              type="button"
-              class="min-h-[36px] px-3.5 rounded-full text-xs font-medium transition"
-              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
-            >
-              生成松息日笺
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <button id="btn-journal-prev-month" data-testid="journal_prev_month_button" type="button" class="min-h-[32px] px-2.5 rounded-full text-[11px] border sx-card">‹ 上月</button>
+              <button id="btn-journal-cur-month" data-testid="journal_current_month_button" type="button" class="hidden min-h-[32px] px-2.5 rounded-full text-[11px] font-medium border" style="background-color:var(--sx-accent-soft);border-color:var(--sx-accent);color:var(--sx-accent);">今月</button>
+              <button id="btn-journal-next-month" data-testid="journal_next_month_button" type="button" class="min-h-[32px] px-2.5 rounded-full text-[11px] border sx-card">下月 ›</button>
+            </div>
           </div>
 
           <div
             id="el-journal-summary"
             data-testid="journal_monthly_summary"
-            class="sx-card p-3.5 space-y-1"
+            class="sx-card p-3.5 space-y-1 tabular-nums"
           ></div>
 
           <div class="sx-card p-3.5 space-y-2.5">
@@ -642,11 +694,26 @@
             ></div>
           </div>
 
+          <button
+            id="btn-journal-share"
+            data-testid="journal_share_card_button"
+            type="button"
+            class="w-full min-h-[42px] px-3.5 rounded-full text-xs font-semibold transition"
+            style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+          >
+            生成松息日笺 · 宣纸水纹画笺分享
+          </button>
+
           <div
             id="el-journal-relief-atlas"
             data-testid="journal_body_relief_atlas"
             class="sx-card p-3.5 space-y-2"
           ></div>
+
+          <div class="flex items-center justify-between gap-2">
+            <h3 id="el-journal-notes-title" data-testid="journal_notes_section_title" class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">本月下旬 · 身息小记</h3>
+            <button id="btn-journal-clear-day" data-testid="journal_clear_day_filter" type="button" class="hidden min-h-[28px] px-2.5 rounded-full text-[11px] border" style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);color:var(--sx-accent);">查看全月</button>
+          </div>
 
           <div id="journal-recent-notes" class="space-y-1.5"></div>
         </section>
@@ -655,7 +722,7 @@
         <section
           id="view-settings"
           data-testid="settings_screen"
-          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3"
+          class="hidden flex-1 overflow-y-auto sx-scroll px-4 pb-4 space-y-3 relative"
         >
           <div>
             <p class="text-[11px] tracking-wider" style="color:var(--sx-ink-sec);">久坐微风轻语 · 开屏雅鉴透明守护</p>
@@ -674,10 +741,10 @@
             <div class="space-y-1.5">
               <p class="text-[11px]" style="color:var(--sx-ink-sec);">久坐间隔（分钟）</p>
               <div class="grid grid-cols-4 gap-1.5">
-                <button id="iv-btn-45" data-testid="reminder_interval_45" data-iv="45" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">45分</button>
-                <button id="iv-btn-60" data-testid="reminder_interval_60" data-iv="60" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">60分</button>
-                <button id="iv-btn-90" data-testid="reminder_interval_90" data-iv="90" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">90分</button>
-                <button id="iv-btn-120" data-testid="reminder_interval_120" data-iv="120" type="button" class="iv-pill min-h-[32px] rounded-xl text-xs border transition">120分</button>
+                <button id="iv-btn-45" data-testid="reminder_interval_45" data-iv="45" type="button" class="iv-pill tabular-nums min-h-[32px] rounded-xl text-xs border transition">45分</button>
+                <button id="iv-btn-60" data-testid="reminder_interval_60" data-iv="60" type="button" class="iv-pill tabular-nums min-h-[32px] rounded-xl text-xs border transition">60分</button>
+                <button id="iv-btn-90" data-testid="reminder_interval_90" data-iv="90" type="button" class="iv-pill tabular-nums min-h-[32px] rounded-xl text-xs border transition">90分</button>
+                <button id="iv-btn-120" data-testid="reminder_interval_120" data-iv="120" type="button" class="iv-pill tabular-nums min-h-[32px] rounded-xl text-xs border transition">120分</button>
               </div>
             </div>
 
@@ -715,7 +782,7 @@
           <div class="sx-card p-3.5 space-y-2.5">
             <div>
               <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">「开屏雅鉴」纯净守护与隐私控制</p>
-              <p id="splash-ledger-readout" class="text-[11px] mt-0.5" style="color:var(--sx-ink-sec);">单日上限 ≤3 次 · 间隔 ≥4 小时 · 硬件级禁用摇一摇</p>
+              <p id="splash-ledger-readout" class="text-[11px] mt-0.5 tabular-nums" style="color:var(--sx-ink-sec);">单日上限 ≤3 次 · 间隔 ≥4 小时 · 硬件级禁用摇一摇</p>
             </div>
             <div class="flex items-center justify-between text-xs">
               <span>个性化器物画心推荐（默认关闭）</span>
@@ -730,6 +797,64 @@
             >
               预览 3 秒「开屏雅鉴」扉页
             </button>
+          </div>
+
+          <!-- Blind-Operation Voice Coaching & 3s Settle-In Prep Buffer -->
+          <div class="sx-card p-3.5 space-y-2.5">
+            <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">跟练感官微调</p>
+            <div class="flex items-center justify-between text-xs gap-2">
+              <div>
+                <p style="color:var(--sx-ink);">轻声语音口令导引（离线）</p>
+                <p class="text-[11px]" style="color:var(--sx-ink-sec);">换式、半程换边与缓慢回正时以慢语速轻声提示</p>
+              </div>
+              <button id="sw-voice-guide" data-testid="settings_voice_guide_switch" type="button" role="switch" aria-checked="false" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition shrink-0">关闭</button>
+            </div>
+            <div class="flex items-center justify-between text-xs gap-2 pt-1 border-t" style="border-color:var(--sx-border);">
+              <div>
+                <p style="color:var(--sx-ink);">入席 3 秒安顿缓冲</p>
+                <p class="text-[11px]" style="color:var(--sx-ink-sec);">开始后预留 3 秒放稳手机、沉落双肩再起息</p>
+              </div>
+              <button id="sw-prep-buffer" data-testid="settings_prep_buffer_switch" type="button" role="switch" aria-checked="false" class="min-w-[48px] min-h-[28px] px-2 rounded-full text-[11px] border transition shrink-0">关闭</button>
+            </div>
+          </div>
+
+          <!-- Offline Sanctuary JSON Backup & Restore Card -->
+          <div data-testid="settings_backup_card" class="sx-card p-3.5 space-y-2.5">
+            <div>
+              <p class="font-serif-cn text-xs font-semibold" style="color:var(--sx-ink);">本地手札归档与恢复</p>
+              <p class="text-[11px] mt-0.5" style="color:var(--sx-ink-sec);">全量练习水纹、常备处方与画境偏好均纯离线存储，可导出 JSON 归档迁移设备。</p>
+              <p id="el-backup-status" data-testid="settings_backup_status_text" class="hidden text-[11px] font-medium mt-1" style="color:var(--sx-accent);"></p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btn-export-backup" data-testid="settings_export_backup_button" type="button" class="min-h-[38px] rounded-full text-xs font-semibold border" style="background-color:var(--sx-accent-soft);border-color:var(--sx-accent);color:var(--sx-accent);">导出本地归档</button>
+              <button id="btn-import-backup" data-testid="settings_import_backup_button" type="button" class="min-h-[38px] rounded-full text-xs font-medium border" style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-ink);">恢复本地归档</button>
+            </div>
+          </div>
+
+          <!-- Backup Archive Modal Dialog -->
+          <div
+            id="el-backup-dialog"
+            data-testid="settings_backup_dialog"
+            class="hidden absolute inset-0 z-30 p-4 flex items-center justify-center"
+            style="background-color:var(--sx-overlay);"
+          >
+            <div class="sx-card w-full p-4 space-y-3 shadow-lg">
+              <div>
+                <h3 class="font-serif-cn text-sm font-semibold" style="color:var(--sx-ink);">松息本地手札归档 (JSON)</h3>
+                <p class="text-[11px] mt-0.5" style="color:var(--sx-ink-sec);">可复制保存以下归档文本，或粘贴已有归档内容点击「确认恢复」。</p>
+              </div>
+              <textarea
+                id="input-backup-json"
+                data-testid="settings_backup_json_input"
+                rows="6"
+                class="w-full p-2.5 rounded-xl border font-mono text-[11px]"
+                style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-ink);"
+              ></textarea>
+              <div class="flex items-center gap-2">
+                <button id="btn-backup-close" data-testid="settings_backup_close_button" type="button" class="min-h-[38px] px-3.5 rounded-full text-xs border sx-card-subtle">关闭</button>
+                <button id="btn-backup-confirm-restore" data-testid="settings_backup_confirm_restore_button" type="button" class="flex-1 min-h-[38px] rounded-full text-xs font-semibold" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">确认恢复</button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -752,7 +877,7 @@
             </button>
             <div class="text-center sx-eyes-dim min-w-0 flex-1">
               <p id="player-routine-title" class="text-[11px] truncate" style="color:var(--sx-ink-sec);">午后伏案 · 沉肩松颈帖</p>
-              <p id="player-pose-counter" class="text-xs font-mono truncate" style="color:var(--sx-ink);">第 1 / 3 式 · 剩余 01:00</p>
+              <p id="player-pose-counter" class="text-xs font-mono tabular-nums truncate" style="color:var(--sx-ink);">第 1 / 3 式 · 剩余 01:00</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
               <button
@@ -785,6 +910,25 @@
                 余光
               </button>
             </div>
+          </div>
+
+          <!-- Optional 3s Settle-In Prep Buffer Banner -->
+          <div
+            id="el-prep-buffer-banner"
+            data-testid="player_prep_buffer_banner"
+            class="hidden px-3 py-1.5 rounded-2xl text-xs flex items-center justify-between gap-2 border"
+            style="background-color:var(--sx-accent-soft);border-color:var(--sx-accent);color:var(--sx-accent);"
+          >
+            <span id="el-prep-buffer-text" class="tabular-nums font-medium truncate">入席安顿 3s · 放稳手机沉落双肩</span>
+            <button
+              id="btn-skip-prep"
+              data-testid="player_skip_prep_button"
+              type="button"
+              class="min-h-[28px] px-2.5 rounded-full text-[10px] font-semibold shrink-0"
+              style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+            >
+              立即入式
+            </button>
           </div>
 
           <!-- Flip-to-Pause Banner -->
@@ -838,24 +982,35 @@
             <p id="player-pose-cue" class="text-xs leading-relaxed" style="color:var(--sx-ink-sec);">左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。</p>
           </div>
 
-          <!-- Soundscape Selector + Flip Simulator + Transport Controls -->
+          <!-- Soundscape Selector + Voice Cue + Flip Simulator + Transport Controls -->
           <div class="space-y-2.5">
-            <div class="flex items-center justify-between gap-1.5">
+            <div class="flex items-center justify-between gap-1">
               <div id="el-sound-selector" data-testid="player_sound_selector" class="flex items-center gap-1 flex-wrap">
-                <button type="button" data-sound="bowl" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">颂钵</button>
-                <button type="button" data-sound="bamboo" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">竹磬</button>
-                <button type="button" data-sound="guqin" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">古琴</button>
-                <button type="button" data-sound="rain" class="sound-pill min-h-[30px] px-2.5 rounded-full text-[11px] border">细雨</button>
+                <button type="button" data-sound="bowl" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">颂钵</button>
+                <button type="button" data-sound="bamboo" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">竹磬</button>
+                <button type="button" data-sound="guqin" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">古琴</button>
+                <button type="button" data-sound="rain" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">细雨</button>
               </div>
-              <button
-                id="btn-sound-silent"
-                data-testid="player_sound_silent"
-                type="button"
-                aria-pressed="false"
-                class="min-h-[30px] px-2.5 rounded-full text-[11px] border"
-              >
-                静默仅微震
-              </button>
+              <div class="flex items-center gap-1 shrink-0">
+                <button
+                  id="btn-player-voice"
+                  data-testid="player_voice_cue_toggle"
+                  type="button"
+                  aria-pressed="false"
+                  class="min-h-[30px] px-2 rounded-full text-[11px] border whitespace-nowrap"
+                >
+                  轻口令
+                </button>
+                <button
+                  id="btn-sound-silent"
+                  data-testid="player_sound_silent"
+                  type="button"
+                  aria-pressed="false"
+                  class="min-h-[30px] px-2 rounded-full text-[11px] border whitespace-nowrap"
+                >
+                  静默仅微震
+                </button>
+              </div>
             </div>
 
             <div class="grid grid-cols-4 gap-1.5">
@@ -909,7 +1064,7 @@
             <p id="completion-verse-text" class="font-serif-cn text-sm tracking-wider text-center" style="color:var(--sx-ink);">
               一息墨韵散，肩头万事轻。
             </p>
-            <p id="completion-routine-meta" class="text-xs" style="color:var(--sx-ink-sec);">已完成 3 分钟舒展</p>
+            <p id="completion-routine-meta" class="text-xs tabular-nums" style="color:var(--sx-ink-sec);">已完成 3 分钟舒展</p>
           </div>
 
           <div class="space-y-3">
@@ -931,33 +1086,44 @@
           </div>
         </section>
 
-        <!-- MODAL OVERLAY C: SHAREABLE SONGXI DAILY NOTE ("松息日笺") -->
+        <!-- MODAL OVERLAY C: SHAREABLE SONGXI DAILY NOTE ("松息日笺" High-DPI Poster) -->
         <div
           id="el-share-dialog"
           data-testid="journal_share_preview_dialog"
-          class="hidden absolute inset-0 z-30 p-5 flex items-center justify-center"
+          class="hidden absolute inset-0 z-30 p-4 flex items-center justify-center"
           style="background-color:var(--sx-overlay);"
         >
-          <div class="sx-card w-full p-5 space-y-4 shadow-lg">
+          <div class="sx-card w-full p-4 space-y-2.5 shadow-lg">
             <div class="flex items-start justify-between">
               <div>
-                <p class="text-[11px] tracking-widest" style="color:var(--sx-accent);">松息日笺 · 原生系统分享卡片</p>
-                <h3 id="share-card-title" class="font-serif-cn text-lg font-semibold mt-0.5" style="color:var(--sx-ink);">今日留白一息</h3>
+                <p class="text-[11px] tracking-widest" style="color:var(--sx-accent);">松息日笺 · 宣纸水纹海报直出</p>
+                <h3 id="share-card-title" class="font-serif-cn text-base font-semibold mt-0.5" style="color:var(--sx-ink);">今日留白一息</h3>
               </div>
               <div id="share-card-seal"></div>
             </div>
-            <div id="share-card-art" class="h-32 rounded-2xl overflow-hidden border" style="border-color:var(--sx-border);"></div>
+            <div class="flex justify-center">
+              <canvas
+                id="share-poster-canvas"
+                data-testid="journal_share_poster_preview"
+                width="720"
+                height="1040"
+                style="height:224px;width:auto;border-color:var(--sx-border);"
+                class="rounded-xl border block"
+              ></canvas>
+            </div>
             <p id="share-card-verse" class="font-serif-cn text-xs tracking-wider text-center" style="color:var(--sx-ink);"></p>
-            <p id="share-card-stats" class="text-[11px] text-center" style="color:var(--sx-ink-sec);"></p>
-            <div class="flex items-center gap-2">
-              <button id="btn-share-system" type="button" class="flex-1 min-h-[38px] rounded-xl text-xs font-medium" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">调用系统分享</button>
-              <button id="btn-share-close" type="button" class="min-h-[38px] px-4 rounded-xl text-xs border sx-card-subtle">收起</button>
+            <p id="share-card-stats" class="text-[11px] text-center tabular-nums" style="color:var(--sx-ink-sec);"></p>
+            <p id="el-poster-save-feedback" data-testid="journal_poster_save_feedback" class="hidden text-[11px] text-center font-medium" style="color:var(--sx-accent);"></p>
+            <div class="flex items-center gap-1.5">
+              <button id="btn-share-close" type="button" class="min-h-[38px] px-3 rounded-full text-xs border sx-card-subtle">关闭</button>
+              <button id="btn-share-save-poster" data-testid="journal_save_poster_button" type="button" class="min-h-[38px] px-3 rounded-full text-xs font-medium border" style="background-color:var(--sx-bg);border-color:var(--sx-border);color:var(--sx-accent);">存至画册</button>
+              <button id="btn-share-system" data-testid="journal_share_confirm_button" type="button" class="flex-1 min-h-[38px] rounded-full text-xs font-semibold" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">分享画笺</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Persistent 5-Tab Bottom Navigation Bar -->
+      <!-- Persistent 5-Tab Bottom Navigation Bar with Custom Song-Dynasty Hairline Glyphs -->
       <nav
         id="el-bottom-nav"
         data-testid="bottom_nav_bar"
@@ -966,18 +1132,23 @@
         style="background-color:var(--sx-card);border-color:var(--sx-border);"
       >
         <button id="tab-btn-home" data-testid="nav_tab_home" data-tab="home" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M15.8 7.2 A6.8 6.8 0 1 1 13.6 4.1"/><circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/></svg>
           <span class="font-serif-cn font-semibold">今日一息</span>
         </button>
         <button id="tab-btn-bodymap" data-testid="nav_tab_bodymap" data-tab="bodymap" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="4.2" r="2.2"/><path d="M5.2 9.4 Q10 7.6 14.8 9.4"/><line x1="10" y1="7.2" x2="10" y2="16.4"/><circle cx="10" cy="12.2" r="1.3" fill="currentColor" stroke="none"/></svg>
           <span class="font-serif-cn font-semibold">寻音雅集</span>
         </button>
         <button id="tab-btn-skins" data-testid="nav_tab_skins" data-tab="skins" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.2" width="14" height="11.6" rx="2"/><path d="M4.5 13 L8.2 8.8 L11.2 11.4 L13.8 8.2 L16.2 13"/></svg>
           <span class="font-serif-cn font-semibold">山居画境</span>
         </button>
         <button id="tab-btn-journal" data-testid="nav_tab_journal" data-tab="journal" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="6.8"/><circle cx="10" cy="10" r="3.8" stroke-dasharray="15 4"/><circle cx="10" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>
           <span class="font-serif-cn font-semibold">松息手札</span>
         </button>
         <button id="tab-btn-settings" data-testid="nav_tab_settings" data-tab="settings" type="button" class="nav-tab-btn h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11px] transition">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 7.2 Q8.5 5.2 14.5 7.2"/><path d="M5.2 11 Q10.2 9 16.5 11"/><path d="M4.2 14.8 Q9.2 13.2 13.2 14.8"/></svg>
           <span class="font-serif-cn font-semibold">微风设置</span>
         </button>
       </nav>
@@ -1714,7 +1885,77 @@
         } catch (_) {}
       }
 
-      return { playProfile, stopAll, isPlaying: () => isPlaying };
+      function playHalfwaySwitchCue(profile) {
+        try { if (navigator.vibrate) navigator.vibrate([36, 90, 56]); } catch (_) {}
+        if (profile === 'silent') return;
+        try {
+          const ac = ensureCtx();
+          if (!ac) return;
+          const now = ac.currentTime;
+          [528, 660].forEach((freq, i) => {
+            const osc = ac.createOscillator();
+            const g = ac.createGain();
+            osc.type = 'sine';
+            const t0 = now + i * 0.14;
+            osc.frequency.setValueAtTime(freq, t0);
+            g.gain.setValueAtTime(0.0001, t0);
+            g.gain.exponentialRampToValueAtTime(0.036, t0 + 0.025);
+            g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.36);
+            osc.connect(g); g.connect(ac.destination);
+            osc.start(t0); osc.stop(t0 + 0.4);
+            activeNodes.push(osc, g);
+          });
+        } catch (_) {}
+      }
+
+      function playSafeReturnCue(profile) {
+        try { if (navigator.vibrate) navigator.vibrate([44]); } catch (_) {}
+        if (profile === 'silent') return;
+        try {
+          const ac = ensureCtx();
+          if (!ac) return;
+          const now = ac.currentTime;
+          const osc = ac.createOscillator();
+          const g = ac.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(288, now);
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.exponentialRampToValueAtTime(0.032, now + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+          osc.connect(g); g.connect(ac.destination);
+          osc.start(now); osc.stop(now + 0.7);
+          activeNodes.push(osc, g);
+        } catch (_) {}
+      }
+
+      return { playProfile, playHalfwaySwitchCue, playSafeReturnCue, stopAll, isPlaying: () => isPlaying };
+    })();
+
+    const SongxiVoiceEngine = (() => {
+      const spokenCues = [];
+      function speak(text) {
+        if (!text) return;
+        spokenCues.push(text);
+        try {
+          if (window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function') {
+            window.speechSynthesis.cancel();
+            const utt = new window.SpeechSynthesisUtterance(text);
+            utt.lang = 'zh-CN';
+            utt.rate = 0.88;
+            utt.pitch = 0.96;
+            utt.volume = 0.85;
+            window.speechSynthesis.speak(utt);
+          }
+        } catch (_) {}
+      }
+      function stop() {
+        try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      return {
+        speak,
+        stop,
+        getSpokenCues: () => spokenCues.slice()
+      };
     })();
 
     function lerp(a, b, t) {
@@ -1929,6 +2170,13 @@
         </g>
       ` : '';
 
+      const microAnatomySvg = arch === 'wrist'
+        ? `<g data-micro-detail="wrist">
+            <path d="M${rElX - 2} ${rElY - 2} Q${(rElX + rHaX) * 0.5} ${(rElY + rHaY) * 0.5} ${rHaX} ${rHaY}" fill="none" stroke="${s.accentPrimary}" stroke-width="1.3" stroke-dasharray="3 2" stroke-opacity="0.7" />
+            <path d="M${rHaX + 3} ${rHaY - 1} L${rHaX + 8} ${rHaY - 5 - k.wristFlexRatio * 3} M${rHaX + 3.5} ${rHaY} L${rHaX + 9.5} ${rHaY - 2 - k.wristFlexRatio * 3} M${rHaX + 3} ${rHaY + 1.5} L${rHaX + 8.5} ${rHaY + 2 - k.wristFlexRatio * 2}" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+          </g>`
+        : '';
+
       return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title}">
         <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
         ${haloSvg}
@@ -1945,6 +2193,7 @@
         <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.garmentFill}" stroke-width="13" stroke-linecap="round" />
         <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
         <circle cx="${rHaX}" cy="${rHaY}" r="4.8" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
+        ${microAnatomySvg}
 
         <rect x="${cx - 5.5}" y="${baseY - 32}" width="11" height="13" rx="4.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.1" />
         <g transform="translate(${headX}, ${headY}) rotate(${k.headTiltDeg.toFixed(2)})">
@@ -1957,6 +2206,7 @@
             : `<path d="M-8 -17 Q-4.6 -14.8 -1.6 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />
                <path d="M1.6 -17 Q4.6 -14.8 8 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />`
           }
+          ${arch === 'eye' ? `<circle cx="-2.4" cy="-19.5" r="1.3" fill="${s.accentPrimary}" fill-opacity="0.82" /><circle cx="2.4" cy="-19.5" r="1.3" fill="${s.accentPrimary}" fill-opacity="0.82" /><path d="M-10 -20.5 Q0 -23.5 10 -20.5" fill="none" stroke="${s.accentPrimary}" stroke-width="0.95" stroke-dasharray="2 2" stroke-opacity="0.58" />` : ''}
           <path d="M-2.8 -10 Q0 -8.2 2.8 -10" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
         </g>
         ${coronalGuideSvg}
@@ -2153,10 +2403,13 @@
         onboardingSeen: false,
         selectedSkinId: 'ink_mist',
         autoNightDuskPine: false,
+        voiceGuidanceEnabled: false,
+        prepBufferEnabled: false,
         selectedScene: 'desk',
         selectedZones: ['neck', 'shoulder'],
         customMinutes: 4,
         customAsymmetry: 'balanced',
+        savedPresets: [],
         bookletCompletedDays: {},
         records: [],
         reminder: {
@@ -2204,6 +2457,46 @@
       return out;
     }
 
+    function buildSavedPresetObject(zones, durationMinutes, asymmetry) {
+      const validZones = ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'];
+      const ordered = validZones.filter(z => Array.isArray(zones) && zones.includes(z)).slice(0, 3);
+      const effZones = ordered.length > 0 ? ordered : ['neck', 'shoulder'];
+      const mins = [2, 4, 6].includes(Number(durationMinutes)) ? Number(durationMinutes) : 4;
+      const asym = ['balanced', 'left', 'right'].includes(asymmetry) ? asymmetry : 'balanced';
+      const id = `preset_${effZones.join('_')}_${mins}m_${asym}`;
+      const regionTitle = effZones.map(z => ZONE_LABELS[z].short).join('·');
+      const asymSuffix = asym === 'balanced' ? '' : (asym === 'left' ? ' · 左6:右4' : ' · 右6:左4');
+      return {
+        id,
+        title: `${regionTitle} · ${mins}分钟${asymSuffix}`,
+        zones: effZones,
+        durationMinutes: mins,
+        asymmetry: asym
+      };
+    }
+
+    function sanitizePresetsList(rawList) {
+      if (!Array.isArray(rawList)) return [];
+      const REGION_ENUM_MAP = {
+        POSTERIOR_NECK: 'neck', TRAPEZIUS_SHOULDER: 'shoulder', THORACIC_UPPER_BACK: 'thoracic',
+        LUMBAR_LOWER_BACK: 'lumbar', MOUSE_WRIST: 'wrist', EYE_BROW: 'eye'
+      };
+      const ASYM_ENUM_MAP = { BALANCED: 'balanced', LEFT_TIGHTER: 'left', RIGHT_TIGHTER: 'right' };
+      const seen = new Set();
+      const out = [];
+      rawList.forEach(item => {
+        if (!item || typeof item !== 'object') return;
+        const rawZones = Array.isArray(item.zones) ? item.zones : (Array.isArray(item.regions) ? item.regions.map(r => REGION_ENUM_MAP[r] || String(r).toLowerCase()) : []);
+        const rawAsym = ASYM_ENUM_MAP[item.asymmetry] || item.asymmetry || 'balanced';
+        const built = buildSavedPresetObject(rawZones, item.durationMinutes, rawAsym);
+        if (!seen.has(built.id) && out.length < 4) {
+          seen.add(built.id);
+          out.push(built);
+        }
+      });
+      return out;
+    }
+
     function loadStore() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -2232,10 +2525,13 @@
           onboardingSeen: typeof parsed.onboardingSeen === 'boolean' ? parsed.onboardingSeen : base.onboardingSeen,
           selectedSkinId: typeof parsed.selectedSkinId === 'string' && SONGXI_SKINS[parsed.selectedSkinId] ? parsed.selectedSkinId : base.selectedSkinId,
           autoNightDuskPine: typeof parsed.autoNightDuskPine === 'boolean' ? parsed.autoNightDuskPine : base.autoNightDuskPine,
+          voiceGuidanceEnabled: typeof parsed.voiceGuidanceEnabled === 'boolean' ? parsed.voiceGuidanceEnabled : false,
+          prepBufferEnabled: typeof parsed.prepBufferEnabled === 'boolean' ? parsed.prepBufferEnabled : false,
           selectedScene: typeof parsed.selectedScene === 'string' && HERO_ROUTINES[parsed.selectedScene] ? parsed.selectedScene : base.selectedScene,
           selectedZones: rawZones,
           customMinutes: [2, 4, 6].includes(Number(parsed.customMinutes)) ? Number(parsed.customMinutes) : base.customMinutes,
           customAsymmetry: ['balanced', 'left', 'right'].includes(parsed.customAsymmetry) ? parsed.customAsymmetry : 'balanced',
+          savedPresets: sanitizePresetsList(parsed.savedPresets),
           bookletCompletedDays: cleanBooklets,
           records: rawRecords,
           reminder: {
@@ -2268,6 +2564,77 @@
 
     function saveStore() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (_) {}
+    }
+
+    function encodeBackupSnapshotJson() {
+      return JSON.stringify({
+        appIdentifier: 'com.songxi.app.backup',
+        schemaVersion: 1,
+        exportedAtIso: new Date(nowEpochMs()).toISOString(),
+        selectedSkinId: store.selectedSkinId,
+        autoNightSkinEnabled: Boolean(store.autoNightDuskPine),
+        voiceGuidanceEnabled: Boolean(store.voiceGuidanceEnabled),
+        prepBufferEnabled: Boolean(store.prepBufferEnabled),
+        savedPresets: store.savedPresets || [],
+        bookletCompletedDays: store.bookletCompletedDays || {},
+        journalRecords: store.records || []
+      }, null, 2);
+    }
+
+    function restoreBackupSnapshotJson(rawJson) {
+      if (!rawJson || !rawJson.trim()) throw new Error('EMPTY');
+      const snap = JSON.parse(rawJson.trim());
+      const validId = snap && (snap.appIdentifier === 'com.songxi.app.backup' || snap.appId === 'com.songxi.app');
+      if (!validId || ![1].includes(Number(snap.schemaVersion))) {
+        throw new Error('INVALID_SCHEMA');
+      }
+      const SKIN_ENUM_MAP = {
+        INK_MIST: 'ink_mist', QINGLV_CELADON: 'qinglv_celadon',
+        DUSK_PINE: 'dusk_pine', SPRING_BLOSSOM: 'spring_blossom'
+      };
+      const resolvedSkin = SKIN_ENUM_MAP[snap.selectedSkinId] || snap.selectedSkinId;
+      if (resolvedSkin && SONGXI_SKINS[resolvedSkin]) store.selectedSkinId = resolvedSkin;
+      if (typeof snap.autoNightSkinEnabled === 'boolean') store.autoNightDuskPine = snap.autoNightSkinEnabled;
+      else if (typeof snap.autoNightDuskPine === 'boolean') store.autoNightDuskPine = snap.autoNightDuskPine;
+      if (typeof snap.voiceGuidanceEnabled === 'boolean') store.voiceGuidanceEnabled = snap.voiceGuidanceEnabled;
+      if (typeof snap.prepBufferEnabled === 'boolean') store.prepBufferEnabled = snap.prepBufferEnabled;
+      store.savedPresets = sanitizePresetsList(snap.savedPresets);
+      const cleanBk = {};
+      const inBk = sanitizePlainMap(snap.bookletCompletedDays);
+      Object.keys(inBk).forEach(k => {
+        if (Array.isArray(inBk[k])) cleanBk[k] = inBk[k].filter(n => Number.isInteger(n) && n >= 0);
+      });
+      store.bookletCompletedDays = cleanBk;
+      const inSessions = Array.isArray(snap.journalRecords) ? snap.journalRecords : (Array.isArray(snap.sessions) ? snap.sessions : (Array.isArray(snap.records) ? snap.records : []));
+      const FEEL_ENUM = { LIGHT_NECK_SHOULDER: 'light', LIGHT_SHOULDERS: 'light', WARM_OPEN: 'warm', WARM_RELAXED: 'warm', CALM_PEACEFUL: 'calm', CALM_MIND: 'calm' };
+      const REGION_ENUM = {
+        POSTERIOR_NECK: 'neck', TRAPEZIUS_SHOULDER: 'shoulder', THORACIC_UPPER_BACK: 'thoracic',
+        LUMBAR_LOWER_BACK: 'lumbar', MOUSE_WRIST: 'wrist', EYE_BROW: 'eye'
+      };
+      const existingIds = new Set(store.records.map(r => r.id));
+      inSessions.forEach((s, i) => {
+        if (!s || typeof s !== 'object') return;
+        const recId = s.id || `restored_${nowEpochMs()}_${i}`;
+        if (existingIds.has(recId)) return;
+        existingIds.add(recId);
+        const epochMs = Number(s.completedAtEpochMillis || s.completedAtEpochMs || s.epochMillis || nowEpochMs());
+        const dateIso = s.localDateIso || s.dateIso || formatIsoDate(epochMs);
+        store.records.push({
+          id: recId,
+          completedAtEpochMs: epochMs,
+          epochMillis: epochMs,
+          dateIso,
+          routineId: s.routineId || 'hero_desk_seated',
+          routineTitle: s.routineTitle || '松息舒展',
+          durationSeconds: Math.max(10, Number(s.durationSeconds) || 120),
+          feeling: FEEL_ENUM[s.feeling] || s.feeling || null,
+          targetRegions: Array.isArray(s.targetRegions) ? s.targetRegions.map(r => REGION_ENUM[r] || r) : ['neck', 'shoulder'],
+          asymmetry: s.asymmetry || 'balanced',
+          skinId: SKIN_ENUM_MAP[s.skinIdUsed] || s.skinId || store.selectedSkinId
+        });
+      });
+      saveStore();
+      return { sessionCount: inSessions.length, presetCount: store.savedPresets.length };
     }
 
     function resolveEffectiveSkinId() {
@@ -2378,7 +2745,10 @@
       callerTab: 'home',
       homeBreathStartMs: Date.now(),
       hiddenAtEpochMs: null,
+      inspectedBookletIndex: null,
+      journalMonthOffset: 0,
       journalSelectedDateIso: null,
+      backupStatusMessage: '',
       splash: {
         visible: false,
         pausedForSheet: false,
@@ -2394,6 +2764,10 @@
         eyesFree: false,
         showBiomechanics: true,
         clinicalGuideOpen: false,
+        voiceGuidanceEnabled: false,
+        prepRemainingMs: 0,
+        halfwayCueFiredForPoseIdx: -1,
+        safeReturnCueFiredForPoseIdx: -1,
         soundProfile: 'bowl',
         routine: null,
         bookletId: null,
@@ -2516,6 +2890,7 @@
 
     function showSplashScreen(creative) {
       SongxiAudioEngine.stopAll(); // Splash ad is strictly muted!
+      SongxiVoiceEngine.stop();
       runtime.splash.creative = creative;
       runtime.splash.visible = true;
       runtime.splash.pausedForSheet = false;
@@ -2592,8 +2967,10 @@
     function startRoutineInPlayer(routine, bookletId = null, bookletDayIdx = null) {
       const skin = SONGXI_SKINS[resolveEffectiveSkinId()];
       runtime.callerTab = runtime.activeTab;
+      runtime.inspectedBookletIndex = null;
       runtime.completion.visible = false;
       document.getElementById('view-completion').classList.add('hidden');
+      document.getElementById('el-booklet-detail-sheet')?.classList.add('hidden');
 
       runtime.player.active = true;
       runtime.player.paused = false;
@@ -2601,6 +2978,10 @@
       runtime.player.eyesFree = false;
       runtime.player.showBiomechanics = true;
       runtime.player.clinicalGuideOpen = false;
+      runtime.player.voiceGuidanceEnabled = Boolean(store.voiceGuidanceEnabled);
+      runtime.player.prepRemainingMs = store.prepBufferEnabled ? 3000 : 0;
+      runtime.player.halfwayCueFiredForPoseIdx = -1;
+      runtime.player.safeReturnCueFiredForPoseIdx = -1;
       runtime.player.soundProfile = skin.soundProfile;
       runtime.player.routine = routine;
       runtime.player.bookletId = bookletId;
@@ -2625,6 +3006,10 @@
       document.getElementById('view-player').classList.remove('hidden');
 
       SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
+      if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent' && routine && routine.poses[0]) {
+        const p0 = routine.poses[0];
+        SongxiVoiceEngine.speak(`第 1 式，${p0.title}。${p0.clinical.setup}`);
+      }
       renderPlayerFrame();
       syncHeartbeatTimer();
       refreshDiagnostics();
@@ -2632,10 +3017,12 @@
 
     function stopAndClosePlayer() {
       SongxiAudioEngine.stopAll();
+      SongxiVoiceEngine.stop();
       runtime.player.active = false;
       runtime.player.paused = false;
       runtime.player.pausedByFlip = false;
       runtime.player.clinicalGuideOpen = false;
+      runtime.player.prepRemainingMs = 0;
       runtime.player.sensorListenersCount = 0; // Immediately unregistered!
       document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
       document.getElementById('status-keep-awake').textContent = '本地私密';
@@ -2648,6 +3035,9 @@
 
     function enterCompletionScreen() {
       SongxiAudioEngine.stopAll();
+      if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent') {
+        SongxiVoiceEngine.speak('一息圆满，身自舒展。');
+      }
       const finishedRoutine = runtime.player.routine;
       const finishedBookletId = runtime.player.bookletId;
       const finishedBookletDayIdx = runtime.player.bookletDayIdx;
@@ -2657,6 +3047,7 @@
 
       runtime.player.active = false;
       runtime.player.clinicalGuideOpen = false;
+      runtime.player.prepRemainingMs = 0;
       runtime.player.sensorListenersCount = 0;
       syncHeartbeatTimer();
       document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
@@ -2798,6 +3189,17 @@
       const mirrorBilateral = guidance.mirrorBilateral;
       const modMeta = MODALITY_META[(pose.clinical && pose.clinical.modality) || 'fascial'] || MODALITY_META.fascial;
 
+      const prepBanner = document.getElementById('el-prep-buffer-banner');
+      if (prepBanner) {
+        const inPrep = runtime.player.prepRemainingMs > 0;
+        prepBanner.classList.toggle('hidden', !inPrep);
+        if (inPrep) {
+          const prepSec = Math.max(1, Math.ceil(runtime.player.prepRemainingMs / 1000));
+          const prepTxt = document.getElementById('el-prep-buffer-text');
+          if (prepTxt) prepTxt.textContent = `入席安顿 ${prepSec}s · 放稳手机沉落双肩`;
+        }
+      }
+
       const bm = computePlayerBreath(runtime.player.breathElapsedMs);
       document.getElementById('view-player').setAttribute('data-pose-id', pose.id);
       document.getElementById('player-routine-title').textContent = runtime.player.routine.title;
@@ -2821,6 +3223,16 @@
         biomechBtn.style.backgroundColor = runtime.player.showBiomechanics ? skin.accentPrimarySoft : skin.surfaceCard;
         biomechBtn.style.color = runtime.player.showBiomechanics ? skin.accentPrimary : skin.inkSecondary;
         biomechBtn.style.borderColor = runtime.player.showBiomechanics ? skin.accentPrimary : skin.borderHairline;
+      }
+
+      const voiceBtn = document.getElementById('btn-player-voice');
+      if (voiceBtn) {
+        const vOn = Boolean(runtime.player.voiceGuidanceEnabled);
+        voiceBtn.setAttribute('aria-pressed', String(vOn));
+        voiceBtn.textContent = vOn ? '口令开' : '轻口令';
+        voiceBtn.style.backgroundColor = vOn ? skin.accentPrimary : skin.surfaceCard;
+        voiceBtn.style.color = vOn ? skin.onAccent : skin.inkPrimary;
+        voiceBtn.style.borderColor = vOn ? skin.accentPrimary : skin.borderHairline;
       }
 
       const haloBox = document.getElementById('el-player-halo');
@@ -2873,10 +3285,12 @@
     function switchTab(tabName) {
       if (runtime.player.active) {
         SongxiAudioEngine.stopAll();
+        SongxiVoiceEngine.stop();
         runtime.player.active = false;
         runtime.player.paused = false;
         runtime.player.pausedByFlip = false;
         runtime.player.clinicalGuideOpen = false;
+        runtime.player.prepRemainingMs = 0;
         runtime.player.sensorListenersCount = 0;
         document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
         document.getElementById('status-keep-awake').textContent = '本地私密';
@@ -2888,6 +3302,9 @@
         runtime.completion.visible = false;
         document.getElementById('view-completion').classList.add('hidden');
       }
+      runtime.inspectedBookletIndex = null;
+      document.getElementById('el-booklet-detail-sheet')?.classList.add('hidden');
+      document.getElementById('el-backup-dialog')?.classList.add('hidden');
       document.getElementById('el-share-dialog').classList.add('hidden');
 
       runtime.activeTab = tabName;
@@ -2907,6 +3324,12 @@
         btn.style.color = on ? skin.onAccent : skin.inkPrimary;
         btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
       });
+    }
+
+    function startSavedPresetInPlayer(preset) {
+      if (!preset) return;
+      const composed = composeCustomRoutine(preset.zones, preset.durationMinutes, preset.asymmetry);
+      startRoutineInPlayer(composed, null);
     }
 
     function renderHomeTab() {
@@ -2938,6 +3361,36 @@
       const bm = computePlayerBreath(homeElapsed);
       document.getElementById('el-home-backdrop').innerHTML =
         renderHomeShanShuiSVG(skinId, hero.poses[0], bm.breathT);
+
+      const savedBox = document.getElementById('el-home-saved-presets');
+      if (savedBox) {
+        const presets = Array.isArray(store.savedPresets) ? store.savedPresets : [];
+        savedBox.classList.toggle('hidden', presets.length === 0);
+        if (presets.length > 0) {
+          savedBox.innerHTML = `
+            <div class="flex items-center justify-between">
+              <h3 class="font-serif-cn text-xs font-semibold" style="color:${skin.inkPrimary};">我的常备方</h3>
+              <span class="text-[11px]" style="color:${skin.inkTertiary};">一键直达自选三阶处方</span>
+            </div>
+            <div class="space-y-1.5">
+              ${presets.map((p, idx) => `
+                <button data-testid="home_saved_preset_${idx}" data-home-preset-idx="${idx}" type="button" class="w-full sx-card p-2.5 flex items-center justify-between text-xs hover:opacity-95 transition">
+                  <span class="font-medium truncate pr-2" style="color:${skin.inkPrimary};">${p.title}</span>
+                  <span class="shrink-0 font-semibold" style="color:${skin.accentPrimary};">起息 ›</span>
+                </button>
+              `).join('')}
+            </div>
+          `;
+          savedBox.querySelectorAll('[data-home-preset-idx]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const p = presets[Number(btn.getAttribute('data-home-preset-idx'))];
+              startSavedPresetInPlayer(p);
+            });
+          });
+        } else {
+          savedBox.innerHTML = '';
+        }
+      }
     }
 
     function renderBodyMapTab() {
@@ -2973,6 +3426,11 @@
         btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
       });
 
+      const composeBtn = document.getElementById('btn-bodymap-compose');
+      if (composeBtn) {
+        composeBtn.textContent = `一秒成方 · 开始 ${store.customMinutes} 分钟`;
+      }
+
       const previewRoutine = composeCustomRoutine(store.selectedZones, store.customMinutes, store.customAsymmetry);
       const previewEl = document.getElementById('el-bodymap-prescription-preview');
       if (previewEl) {
@@ -2985,6 +3443,40 @@
           <p class="font-semibold" style="color:${skin.accentPrimary};">三阶处方序 · 滑液解绑 → 靶向松解 → 归位沉降</p>
           ${rows}
         `;
+      }
+
+      const bmPresetsBox = document.getElementById('el-bodymap-saved-presets');
+      if (bmPresetsBox) {
+        const presets = Array.isArray(store.savedPresets) ? store.savedPresets : [];
+        bmPresetsBox.classList.toggle('hidden', presets.length === 0);
+        if (presets.length > 0) {
+          bmPresetsBox.innerHTML = `
+            <p class="text-[11px]" style="color:${skin.inkTertiary};">我的常备方（点击即练）</p>
+            ${presets.map((p, idx) => `
+              <div class="flex items-center gap-1.5">
+                <button data-testid="bodymap_preset_chip_${idx}" data-bm-preset-idx="${idx}" type="button" class="flex-1 min-h-[34px] px-3 rounded-full text-[11px] font-medium text-left truncate border" style="background-color:${skin.surfaceCardSubtle};border-color:${skin.borderHairline};color:${skin.inkPrimary};">常备｜${p.title}</button>
+                <button data-testid="bodymap_preset_delete_${idx}" data-bm-preset-del="${p.id}" type="button" class="min-h-[34px] px-2.5 rounded-full text-[10px] border shrink-0" style="background-color:${skin.canvasPrimary};border-color:${skin.borderHairline};color:${skin.inkSecondary};">移除</button>
+              </div>
+            `).join('')}
+          `;
+          bmPresetsBox.querySelectorAll('[data-bm-preset-idx]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const p = presets[Number(btn.getAttribute('data-bm-preset-idx'))];
+              startSavedPresetInPlayer(p);
+            });
+          });
+          bmPresetsBox.querySelectorAll('[data-bm-preset-del]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const delId = btn.getAttribute('data-bm-preset-del');
+              store.savedPresets = (store.savedPresets || []).filter(p => p.id !== delId);
+              saveStore();
+              renderHomeTab();
+              renderBodyMapTab();
+            });
+          });
+        } else {
+          bmPresetsBox.innerHTML = '';
+        }
       }
 
       const count = store.selectedZones.length;
@@ -3004,12 +3496,61 @@
             </div>
             <p class="text-[11px] mt-0.5 truncate" style="color:var(--sx-ink-sec);">${bk.subtitle}</p>
           </div>
-          <div class="text-right shrink-0">
+          <div class="text-right shrink-0 tabular-nums">
             <p class="text-xs font-mono" style="color:var(--sx-accent);">${doneCount}/${bk.totalDays} 息</p>
             <p class="text-[10px]" style="color:var(--sx-ink-soft);">每日${bk.dailyMinutes}分</p>
           </div>
         `;
       });
+
+      const bkSheet = document.getElementById('el-booklet-detail-sheet');
+      const bkBox = document.getElementById('booklet-detail-content');
+      if (bkSheet && bkBox) {
+        const bIdx = runtime.inspectedBookletIndex;
+        const hasSheet = bIdx !== null && bIdx >= 0 && bIdx < CURATED_BOOKLETS.length;
+        bkSheet.classList.toggle('hidden', !hasSheet);
+        if (hasSheet) {
+          const bk = CURATED_BOOKLETS[bIdx];
+          const doneDays = Array.isArray(store.bookletCompletedDays[bk.id]) ? store.bookletCompletedDays[bk.id] : [];
+          bkBox.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <p class="text-[11px] font-medium" style="color:${skin.accentPrimary};">四时雅集 · 章节目录与动作预习</p>
+                <h3 class="font-serif-cn text-base font-semibold" style="color:${skin.inkPrimary};">${bk.title}</h3>
+              </div>
+              ${renderSealSVG(skinId, 0.8)}
+            </div>
+            <p class="text-xs" style="color:${skin.inkSecondary};">任选一节即可起息复练，无解锁门槛，亦不计连续打卡。</p>
+            <div class="space-y-1.5">
+              ${bk.routines.map((rt, dIdx) => {
+                const isDone = doneDays.includes(dIdx);
+                return `
+                  <button data-testid="booklet_day_item_${dIdx}" data-pick-day-idx="${dIdx}" type="button" class="w-full p-2.5 rounded-xl border text-left transition hover:opacity-95" style="background-color:${skin.surfaceCardSubtle};border-color:${isDone ? skin.accentPrimary : skin.borderHairline};">
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                      <span class="font-serif-cn font-semibold truncate" style="color:${skin.inkPrimary};">${rt.title}</span>
+                      <span class="text-[11px] font-medium shrink-0" style="color:${skin.accentPrimary};">${isDone ? '已习 · 复练 ›' : '起息 ›'}</span>
+                    </div>
+                    <p class="text-[11px] mt-0.5 truncate" style="color:${skin.inkSecondary};">${rt.poses.map(p => p.title).join(' → ')}</p>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+          bkBox.querySelectorAll('[data-pick-day-idx]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const dIdx = Number(btn.getAttribute('data-pick-day-idx'));
+              const dayRoutine = bk.routines[dIdx];
+              if (dayRoutine) {
+                startRoutineInPlayer(
+                  { id: dayRoutine.id, title: `${bk.title} · ${dayRoutine.title}`, poses: dayRoutine.poses },
+                  bk.id,
+                  dIdx
+                );
+              }
+            });
+          });
+        }
+      }
     }
 
     function renderSkinsTab() {
@@ -3073,15 +3614,127 @@
       return ['neck', 'shoulder'];
     }
 
+    function getDisplayedJournalYearMonth() {
+      const today = new Date(nowEpochMs());
+      const disp = new Date(today.getFullYear(), today.getMonth() + (runtime.journalMonthOffset || 0), 1);
+      return { today, year: disp.getFullYear(), month: disp.getMonth() };
+    }
+
+    function renderSharePosterCanvas(skinId, year, monthZeroBased, monthRecords) {
+      const canvas = document.getElementById('share-poster-canvas');
+      if (!canvas || !canvas.getContext) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const sk = SONGXI_SKINS[skinId];
+      const W = 720, H = 1040;
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+      skyGrad.addColorStop(0, sk.canvasSkyWashTop);
+      skyGrad.addColorStop(0.45, sk.canvasPrimary);
+      skyGrad.addColorStop(1, sk.surfaceCard);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Xuan border frame
+      ctx.strokeStyle = sk.borderHairline;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(28, 28, W - 56, H - 56);
+
+      //Shan-Shui header hills
+      ctx.fillStyle = sk.farRidge;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.moveTo(48, 270);
+      ctx.quadraticCurveTo(210, 175, 370, 225);
+      ctx.quadraticCurveTo(530, 265, 672, 190);
+      ctx.lineTo(672, 310); ctx.lineTo(48, 310); ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = sk.midRidge;
+      ctx.globalAlpha = 0.72;
+      ctx.beginPath();
+      ctx.moveTo(48, 292);
+      ctx.quadraticCurveTo(230, 225, 420, 268);
+      ctx.quadraticCurveTo(560, 295, 672, 240);
+      ctx.lineTo(672, 310); ctx.lineTo(48, 310); ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Title & Vermilion Seal
+      ctx.fillStyle = sk.accentPrimary;
+      ctx.font = '500 21px sans-serif';
+      ctx.fillText(`松息日笺 · ${sk.titleCn}`, 58, 86);
+      ctx.fillStyle = sk.inkPrimary;
+      ctx.font = '600 38px serif';
+      ctx.fillText(`${year}年${monthZeroBased + 1}月 · 留白水纹`, 58, 138);
+
+      ctx.strokeStyle = sk.sealVermilion;
+      ctx.lineWidth = 3;
+      ctx.strokeRect(600, 62, 62, 62);
+      ctx.fillStyle = sk.sealVermilion;
+      ctx.font = '700 22px serif';
+      ctx.fillText('松', 620, 90);
+      ctx.fillText('息', 620, 116);
+
+      // Summary card
+      const totalSessions = monthRecords.length;
+      const totalSec = monthRecords.reduce((a, r) => a + (Number(r.durationSeconds) || 0), 0);
+      const totalMins = totalSessions === 0 ? 0 : Math.max(1, Math.round(totalSec / 60));
+      ctx.fillStyle = sk.surfaceCardSubtle;
+      ctx.fillRect(56, 332, W - 112, 86);
+      ctx.fillStyle = sk.inkPrimary;
+      ctx.font = '600 26px serif';
+      ctx.fillText(`本月舒展 ${totalSessions} 息 · 共 ${totalMins} 分钟`, 80, 384);
+
+      // Mini concentric water-ripple calendar
+      const daysInMonth = new Date(year, monthZeroBased + 1, 0).getDate();
+      const firstDow = (new Date(year, monthZeroBased, 1).getDay() + 6) % 7;
+      const monthPrefix = `${year}-${String(monthZeroBased + 1).padStart(2, '0')}`;
+      const cellW = 84, startX = 66, startY = 468;
+      for (let day = 1; day <= daysInMonth; day++) {
+        const slot = firstDow + day - 1;
+        const col = slot % 7;
+        const row = Math.floor(slot / 7);
+        const cx = startX + col * cellW + 32;
+        const cy = startY + row * 68;
+        const iso = `${monthPrefix}-${String(day).padStart(2, '0')}`;
+        const cnt = monthRecords.filter(r => r.dateIso === iso).length;
+        if (cnt > 0) {
+          ctx.fillStyle = sk.accentPrimarySoft;
+          ctx.beginPath(); ctx.arc(cx, cy, 24, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = sk.accentPrimary;
+          ctx.lineWidth = 2;
+          for (let ring = 1; ring <= Math.min(3, cnt); ring++) {
+            ctx.beginPath(); ctx.arc(cx, cy, 10 + ring * 5, 0, Math.PI * 2); ctx.stroke();
+          }
+          ctx.fillStyle = sk.accentPrimary;
+        } else {
+          ctx.fillStyle = sk.inkSecondary;
+        }
+        ctx.font = '500 18px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(day), cx, cy + 6);
+      }
+      ctx.textAlign = 'center';
+      ctx.fillStyle = sk.inkPrimary;
+      ctx.font = '600 26px serif';
+      ctx.fillText(`“${sk.completionVerse}”`, W / 2, 932);
+      ctx.fillStyle = sk.inkSecondary;
+      ctx.font = '400 18px sans-serif';
+      ctx.fillText('松息 Sōngxī · 一松一息，身自舒展（纯离线静心栖居）', W / 2, 976);
+      ctx.textAlign = 'start';
+    }
+
     function renderJournalTab() {
-      const now = nowEpochMs();
-      const d = new Date(now);
-      const year = d.getFullYear();
-      const month = d.getMonth();
+      const { today, year, month } = getDisplayedJournalYearMonth();
       const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
       const skinId = resolveEffectiveSkinId();
       const skin = SONGXI_SKINS[skinId];
       const feelingText = { light: '肩颈轻快', warm: '温热舒展', calm: '心神安宁' };
+
+      const subEl = document.getElementById('journal-month-subtitle');
+      if (subEl) subEl.textContent = `${year}年${month + 1}月 · 留白亦是休息`;
+      const curMonthBtn = document.getElementById('btn-journal-cur-month');
+      if (curMonthBtn) curMonthBtn.classList.toggle('hidden', (runtime.journalMonthOffset || 0) === 0);
 
       const monthRecords = store.records.filter(r => (r.dateIso || '').startsWith(monthPrefix));
       const totalSessions = monthRecords.length;
@@ -3114,6 +3767,7 @@
           : `${dateIso} · 留白休息`;
         cells.push(`
           <div
+            data-testid="journal_day_cell_${day}"
             data-date="${dateIso}"
             data-date-iso="${dateIso}"
             data-ripples="${rippleCount}"
@@ -3121,7 +3775,7 @@
             data-practiced="${rippleCount > 0}"
             title="${cellLabel}"
             aria-label="${cellLabel}"
-            class="h-10 rounded-xl flex items-center justify-center relative border text-xs ${rippleCount > 0 ? 'cursor-pointer' : ''}"
+            class="h-10 rounded-xl flex items-center justify-center relative border text-xs cursor-pointer"
             style="background-color:${rippleCount > 0 ? skin.accentPrimary : skin.surfaceCardSubtle};border-color:${isPickedDay ? skin.sealVermilion : (rippleCount > 0 ? skin.accentPrimary : skin.borderHairline)};color:${rippleCount > 0 ? skin.onAccent : skin.inkSecondary};"
           >
             ${rippleCount > 0 ? `
@@ -3131,13 +3785,13 @@
                 ${rippleCount >= 3 ? `<circle cx="18" cy="18" r="6.2" fill="none" stroke="${skin.onAccent}" stroke-width="1.0" stroke-opacity="0.88" />` : ''}
               </svg>
             ` : ''}
-            <span class="relative z-10 font-mono text-[11px]">${day}</span>
+            <span class="relative z-10 font-mono tabular-nums text-[11px]">${day}</span>
           </div>
         `);
       }
       const gridEl = document.getElementById('el-journal-grid');
       gridEl.innerHTML = cells.join('');
-      gridEl.querySelectorAll('[data-practiced="true"]').forEach(cell => {
+      gridEl.querySelectorAll('[data-date-iso]').forEach(cell => {
         cell.addEventListener('click', () => {
           const iso = cell.getAttribute('data-date-iso');
           runtime.journalSelectedDateIso = runtime.journalSelectedDateIso === iso ? null : iso;
@@ -3170,7 +3824,7 @@
               <div class="flex-1 h-2 rounded-full overflow-hidden" style="background-color:${skin.surfaceCardSubtle};">
                 <div class="h-full rounded-full" style="width:${pct}%;background-color:${cnt > 0 ? skin.accentPrimary : skin.borderHairline};"></div>
               </div>
-              <span class="w-7 text-right font-mono shrink-0" style="color:${cnt > 0 ? skin.accentPrimary : skin.inkTertiary};">${cnt}息</span>
+              <span class="w-7 text-right font-mono tabular-nums shrink-0" style="color:${cnt > 0 ? skin.accentPrimary : skin.inkTertiary};">${cnt}息</span>
             </div>
           `;
         }).join('');
@@ -3180,7 +3834,7 @@
             <p class="text-[11px]" style="color:${skin.inkSecondary};">${atlasSub}</p>
           </div>
           <div class="space-y-1">${barsHtml}</div>
-          <div class="px-2.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]" style="background-color:${skin.surfaceCardSubtle};color:${skin.inkSecondary};">
+          <div class="px-2.5 py-1.5 rounded-xl flex items-center justify-between text-[11px] tabular-nums" style="background-color:${skin.surfaceCardSubtle};color:${skin.inkSecondary};">
             <span>肩颈轻快 ${fCounts.light}</span>
             <span>温热舒展 ${fCounts.warm}</span>
             <span>心神安宁 ${fCounts.calm}</span>
@@ -3188,18 +3842,37 @@
         `;
       }
 
+      const notesTitleEl = document.getElementById('el-journal-notes-title');
+      const clearDayBtn = document.getElementById('btn-journal-clear-day');
+      if (notesTitleEl) {
+        if (runtime.journalSelectedDateIso) {
+          const parts = runtime.journalSelectedDateIso.split('-');
+          notesTitleEl.textContent = `${Number(parts[1])}月${Number(parts[2])}日 · 当日身息小记`;
+          clearDayBtn?.classList.remove('hidden');
+        } else {
+          clearDayBtn?.classList.add('hidden');
+          if ((runtime.journalMonthOffset || 0) === 0) {
+            const dom = today.getDate();
+            const dekad = dom <= 10 ? '上旬' : (dom <= 20 ? '中旬' : '下旬');
+            notesTitleEl.textContent = `本月${dekad} · 身息小记`;
+          } else {
+            notesTitleEl.textContent = `${year}年${month + 1}月 · 身息小记`;
+          }
+        }
+      }
+
       const recentBox = document.getElementById('journal-recent-notes');
-      if (store.records.length === 0) {
-        recentBox.innerHTML = `<p class="text-xs text-center py-2" style="color:var(--sx-ink-soft);">尚无水纹小记 · 完成任意一息即可落墨入册</p>`;
+      const filtered = runtime.journalSelectedDateIso
+        ? monthRecords.filter(r => r.dateIso === runtime.journalSelectedDateIso).slice().reverse()
+        : monthRecords.slice(-6).reverse();
+      if (filtered.length === 0) {
+        recentBox.innerHTML = `<p class="text-xs text-center py-2" style="color:var(--sx-ink-soft);">${runtime.journalSelectedDateIso ? '是日留白小憩 · 未记拉伸水纹' : '本月素宣留白 · 完成任意一息即可落墨入册'}</p>`;
       } else {
-        const filtered = runtime.journalSelectedDateIso
-          ? store.records.filter(r => r.dateIso === runtime.journalSelectedDateIso).slice().reverse()
-          : store.records.slice(-6).reverse();
         recentBox.innerHTML = filtered.map(rec => `
           <div class="sx-card p-2.5 flex items-center justify-between text-xs" data-record-date="${rec.dateIso}">
             <div class="min-w-0 pr-2">
               <span class="font-serif-cn font-semibold" style="color:var(--sx-ink);">${rec.routineTitle}</span>
-              <span class="ml-1.5 text-[11px]" style="color:var(--sx-ink-sec);">${rec.dateIso}</span>
+              <span class="ml-1.5 text-[11px] tabular-nums" style="color:var(--sx-ink-sec);">${rec.dateIso}</span>
             </div>
             <span class="text-[11px] shrink-0" style="color:var(--sx-accent);">${rec.feeling ? feelingText[rec.feeling] : '静默落墨'}</span>
           </div>
@@ -3215,6 +3888,7 @@
 
       function styleSwitch(id, checked) {
         const el = document.getElementById(id);
+        if (!el) return;
         el.setAttribute('aria-checked', String(checked));
         el.textContent = checked ? '开启' : '关闭';
         el.style.backgroundColor = checked ? skin.accentPrimary : skin.surfaceCardSubtle;
@@ -3228,6 +3902,15 @@
       styleSwitch('sw-weekend-quiet', rem.weekendQuietEnabled);
       styleSwitch('sw-mute-today', mutedToday);
       styleSwitch('sw-splash-personalized', store.splash.personalizedEnabled);
+      styleSwitch('sw-voice-guide', Boolean(store.voiceGuidanceEnabled));
+      styleSwitch('sw-prep-buffer', Boolean(store.prepBufferEnabled));
+
+      const backupStatusEl = document.getElementById('el-backup-status');
+      if (backupStatusEl) {
+        const hasMsg = Boolean(runtime.backupStatusMessage);
+        backupStatusEl.classList.toggle('hidden', !hasMsg);
+        backupStatusEl.textContent = runtime.backupStatusMessage || '';
+      }
 
       document.querySelectorAll('.iv-pill').forEach(btn => {
         const active = Number(btn.dataset.iv) === rem.intervalMinutes;
@@ -3336,7 +4019,7 @@
         });
       });
 
-      // Body Map & Booklets Actions
+      // Body Map, Saved Presets & Booklets Actions
       document.querySelectorAll('.zone-pill').forEach(btn => {
         btn.addEventListener('click', () => toggleBodyZone(btn.dataset.zone));
       });
@@ -3358,6 +4041,14 @@
         const custom = composeCustomRoutine(store.selectedZones, store.customMinutes, store.customAsymmetry);
         startRoutineInPlayer(custom, null);
       });
+      document.getElementById('btn-bodymap-save-preset')?.addEventListener('click', () => {
+        const built = buildSavedPresetObject(store.selectedZones, store.customMinutes, store.customAsymmetry);
+        const filtered = (store.savedPresets || []).filter(p => p.id !== built.id);
+        store.savedPresets = [built].concat(filtered).slice(0, 4);
+        saveStore();
+        renderHomeTab();
+        renderBodyMapTab();
+      });
       CURATED_BOOKLETS.forEach((bk, idx) => {
         document.getElementById('el-booklet-' + idx).addEventListener('click', () => {
           const doneDays = Array.isArray(store.bookletCompletedDays[bk.id]) ? store.bookletCompletedDays[bk.id] : [];
@@ -3369,6 +4060,22 @@
             dayIdx
           );
         });
+      });
+      document.querySelectorAll('.booklet-chap-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          runtime.inspectedBookletIndex = Number(btn.dataset.chapIdx);
+          renderBodyMapTab();
+        });
+      });
+      document.getElementById('btn-booklet-detail-close')?.addEventListener('click', () => {
+        runtime.inspectedBookletIndex = null;
+        renderBodyMapTab();
+      });
+      document.getElementById('el-booklet-detail-sheet')?.addEventListener('click', e => {
+        if (e.target.id === 'el-booklet-detail-sheet') {
+          runtime.inspectedBookletIndex = null;
+          renderBodyMapTab();
+        }
       });
 
       // Skin Gallery Actions
@@ -3392,28 +4099,75 @@
         applySkinAndRefreshUI();
       });
 
-      // Journal Share Card Modal
+      // Cross-Month Journal Navigation & Day Filter
+      document.getElementById('btn-journal-prev-month')?.addEventListener('click', () => {
+        runtime.journalMonthOffset = Math.max(-36, (runtime.journalMonthOffset || 0) - 1);
+        runtime.journalSelectedDateIso = null;
+        renderJournalTab();
+      });
+      document.getElementById('btn-journal-next-month')?.addEventListener('click', () => {
+        runtime.journalMonthOffset = Math.min(12, (runtime.journalMonthOffset || 0) + 1);
+        runtime.journalSelectedDateIso = null;
+        renderJournalTab();
+      });
+      document.getElementById('btn-journal-cur-month')?.addEventListener('click', () => {
+        runtime.journalMonthOffset = 0;
+        runtime.journalSelectedDateIso = null;
+        renderJournalTab();
+      });
+      document.getElementById('btn-journal-clear-day')?.addEventListener('click', () => {
+        runtime.journalSelectedDateIso = null;
+        renderJournalTab();
+      });
+
+      // Journal Share Card Modal + High-DPI PNG Poster Rendering
       document.getElementById('btn-journal-share').addEventListener('click', () => {
         const skinId = resolveEffectiveSkinId();
         const sk = SONGXI_SKINS[skinId];
+        const { year, month } = getDisplayedJournalYearMonth();
+        const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+        const monthRecords = store.records.filter(r => (r.dateIso || '').startsWith(monthPrefix));
         document.getElementById('share-card-seal').innerHTML = renderSealSVG(skinId, 0.9);
-        document.getElementById('share-card-art').innerHTML = renderHomeShanShuiSVG(skinId, HERO_ROUTINES.desk.poses[0], 0.65);
+        renderSharePosterCanvas(skinId, year, month, monthRecords);
         document.getElementById('share-card-verse').textContent = `“${sk.completionVerse}”`;
         document.getElementById('share-card-stats').textContent =
-          `松息 Sōngxī · 已静心舒展 ${store.records.length} 息 · 全程免登录本地珍藏`;
+          `${year}年${month + 1}月 · 舒展 ${monthRecords.length} 息 · 全程免登录本地珍藏`;
+        const fb = document.getElementById('el-poster-save-feedback');
+        if (fb) { fb.classList.add('hidden'); fb.textContent = ''; }
         document.getElementById('el-share-dialog').classList.remove('hidden');
       });
       document.getElementById('btn-share-close').addEventListener('click', () => {
         document.getElementById('el-share-dialog').classList.add('hidden');
       });
+      document.getElementById('btn-share-save-poster')?.addEventListener('click', () => {
+        const canvas = document.getElementById('share-poster-canvas');
+        const { year, month } = getDisplayedJournalYearMonth();
+        try {
+          if (canvas && canvas.toDataURL) {
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `songxi_rijian_${year}_${month + 1}.png`;
+            a.click();
+          }
+        } catch (_) {}
+        const fb = document.getElementById('el-poster-save-feedback');
+        if (fb) {
+          fb.textContent = `已存至本地画册 · 松息日笺 (${year}-${String(month + 1).padStart(2, '0')})`;
+          fb.classList.remove('hidden');
+        }
+      });
       document.getElementById('btn-share-system').addEventListener('click', () => {
+        const skinId = resolveEffectiveSkinId();
+        const sk = SONGXI_SKINS[skinId];
+        const shareText = `【松息日笺 · ${sk.titleCn}】\n${sk.completionVerse}\n一松一息，身自舒展。`;
         if (navigator.share) {
-          navigator.share({ title: '松息日笺', text: '一松一息，身自舒展。' }).catch(() => {});
+          navigator.share({ title: '松息日笺', text: shareText }).catch(() => {});
         }
         document.getElementById('el-share-dialog').classList.add('hidden');
       });
 
-      // Settings & Reminders Actions
+      // Settings, Coaching & Backup Actions
       document.getElementById('sw-reminder-enable').addEventListener('click', () => {
         store.reminder.enabled = !store.reminder.enabled;
         saveStore();
@@ -3470,6 +4224,46 @@
       document.getElementById('btn-splash-preview').addEventListener('click', () => {
         evaluateSplashLaunch({ forcePreview: true });
       });
+      document.getElementById('sw-voice-guide')?.addEventListener('click', () => {
+        store.voiceGuidanceEnabled = !store.voiceGuidanceEnabled;
+        saveStore();
+        renderSettingsTab();
+      });
+      document.getElementById('sw-prep-buffer')?.addEventListener('click', () => {
+        store.prepBufferEnabled = !store.prepBufferEnabled;
+        saveStore();
+        renderSettingsTab();
+      });
+      document.getElementById('btn-export-backup')?.addEventListener('click', () => {
+        const json = encodeBackupSnapshotJson();
+        const inp = document.getElementById('input-backup-json');
+        if (inp) inp.value = json;
+        runtime.backupStatusMessage = `已生成本地手札归档（含 ${store.records.length} 息记录）`;
+        renderSettingsTab();
+        document.getElementById('el-backup-dialog')?.classList.remove('hidden');
+      });
+      document.getElementById('btn-import-backup')?.addEventListener('click', () => {
+        const inp = document.getElementById('input-backup-json');
+        if (inp) inp.value = '';
+        runtime.backupStatusMessage = '';
+        renderSettingsTab();
+        document.getElementById('el-backup-dialog')?.classList.remove('hidden');
+      });
+      document.getElementById('btn-backup-close')?.addEventListener('click', () => {
+        document.getElementById('el-backup-dialog')?.classList.add('hidden');
+      });
+      document.getElementById('btn-backup-confirm-restore')?.addEventListener('click', () => {
+        const raw = document.getElementById('input-backup-json')?.value || '';
+        try {
+          const res = restoreBackupSnapshotJson(raw);
+          runtime.backupStatusMessage = `已成功恢复 ${res.sessionCount} 息记录与 ${res.presetCount} 道常备方`;
+          document.getElementById('el-backup-dialog')?.classList.add('hidden');
+          applySkinAndRefreshUI();
+        } catch (_) {
+          runtime.backupStatusMessage = '归档格式无法识别，请确认粘贴完整松息 JSON 归档';
+          renderSettingsTab();
+        }
+      });
 
       // Splash Ad Overlay Controls (Backdrop is strictly inert!)
       document.getElementById('btn-splash-skip').addEventListener('click', e => {
@@ -3494,6 +4288,11 @@
 
       // Player Controls
       document.getElementById('btn-player-close').addEventListener('click', stopAndClosePlayer);
+      document.getElementById('btn-skip-prep')?.addEventListener('click', () => {
+        runtime.player.prepRemainingMs = 0;
+        runtime.player.lastTickWallMs = Date.now();
+        renderPlayerFrame();
+      });
       document.getElementById('btn-player-biomech')?.addEventListener('click', () => {
         runtime.player.showBiomechanics = !runtime.player.showBiomechanics;
         renderPlayerFrame();
@@ -3501,6 +4300,7 @@
       document.getElementById('btn-player-clinical')?.addEventListener('click', () => {
         runtime.player.clinicalGuideOpen = true;
         SongxiAudioEngine.stopAll();
+        SongxiVoiceEngine.stop();
         renderPlayerFrame();
       });
       document.getElementById('btn-clinical-guide-close')?.addEventListener('click', e => {
@@ -3520,6 +4320,20 @@
         runtime.player.eyesFree = !runtime.player.eyesFree;
         document.getElementById('btn-player-eyes-free').setAttribute('aria-pressed', String(runtime.player.eyesFree));
         document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', String(runtime.player.eyesFree));
+      });
+      document.getElementById('btn-player-voice')?.addEventListener('click', () => {
+        const nextV = !runtime.player.voiceGuidanceEnabled;
+        runtime.player.voiceGuidanceEnabled = nextV;
+        store.voiceGuidanceEnabled = nextV;
+        saveStore();
+        if (!nextV) {
+          SongxiVoiceEngine.stop();
+        } else if (runtime.player.soundProfile !== 'silent' && runtime.player.routine) {
+          const curP = runtime.player.routine.poses[runtime.player.poseIndex];
+          if (curP) SongxiVoiceEngine.speak(`${curP.title}。${curP.gentleCue}`);
+        }
+        renderPlayerFrame();
+        renderSettingsTab();
       });
       const AUDIBLE_SOUNDS = ['bowl', 'bamboo', 'guqin', 'rain'];
       const elSoundSelector = document.getElementById('el-sound-selector');
@@ -3555,6 +4369,7 @@
       document.getElementById('btn-sound-silent').addEventListener('click', () => {
         runtime.player.soundProfile = 'silent';
         SongxiAudioEngine.stopAll();
+        SongxiVoiceEngine.stop();
         renderPlayerFrame();
       });
       document.getElementById('btn-player-pause').addEventListener('click', () => {
@@ -3566,13 +4381,19 @@
           runtime.player.paused = !runtime.player.paused;
         }
         runtime.player.clinicalGuideOpen = false;
-        if (runtime.player.paused) SongxiAudioEngine.stopAll();
+        if (runtime.player.paused) {
+          SongxiAudioEngine.stopAll();
+          SongxiVoiceEngine.stop();
+        }
         runtime.player.lastTickWallMs = Date.now();
         renderPlayerFrame();
       });
       document.getElementById('btn-player-prev').addEventListener('click', () => {
         runtime.player.poseIndex = Math.max(0, runtime.player.poseIndex - 1);
         runtime.player.poseElapsedMs = 0;
+        runtime.player.prepRemainingMs = 0;
+        runtime.player.halfwayCueFiredForPoseIdx = -1;
+        runtime.player.safeReturnCueFiredForPoseIdx = -1;
         runtime.player.clinicalGuideOpen = false;
         runtime.player.lastTickWallMs = Date.now();
         renderPlayerFrame();
@@ -3580,12 +4401,19 @@
       document.getElementById('btn-player-next').addEventListener('click', () => {
         if (!runtime.player.routine) return;
         runtime.player.clinicalGuideOpen = false;
+        runtime.player.prepRemainingMs = 0;
+        runtime.player.halfwayCueFiredForPoseIdx = -1;
+        runtime.player.safeReturnCueFiredForPoseIdx = -1;
         if (runtime.player.poseIndex + 1 >= runtime.player.routine.poses.length) {
           enterCompletionScreen();
         } else {
           runtime.player.poseIndex += 1;
           runtime.player.poseElapsedMs = 0;
           runtime.player.lastTickWallMs = Date.now();
+          if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent') {
+            const np = runtime.player.routine.poses[runtime.player.poseIndex];
+            if (np) SongxiVoiceEngine.speak(`下一式，${np.title}。${np.clinical.setup}`);
+          }
           renderPlayerFrame();
         }
       });
@@ -3595,6 +4423,7 @@
         document.getElementById('el-flip-banner').classList.toggle('hidden', !runtime.player.pausedByFlip);
         if (runtime.player.pausedByFlip) {
           SongxiAudioEngine.stopAll();
+          SongxiVoiceEngine.stop();
         } else {
           runtime.player.lastTickWallMs = Date.now();
           if (!runtime.player.paused && !runtime.player.clinicalGuideOpen) {
@@ -3644,7 +4473,10 @@
       document.getElementById('director-reset-all')?.addEventListener('click', () => {
         try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
         store = defaultStore();
+        runtime.journalMonthOffset = 0;
         runtime.journalSelectedDateIso = null;
+        runtime.inspectedBookletIndex = null;
+        runtime.backupStatusMessage = '';
         hideSplashScreen();
         if (runtime.player.active) stopAndClosePlayer();
         scheduleNextReminderTick();
@@ -3660,6 +4492,7 @@
           runtime.player.lastTickWallMs = Date.now();
           runtime.splash.lastTickWallMs = Date.now();
           SongxiAudioEngine.stopAll();
+          SongxiVoiceEngine.stop();
         } else if (runtime.hiddenAtEpochMs !== null) {
           const warmBgMs = Math.max(0, nowEpochMs() - runtime.hiddenAtEpochMs);
           runtime.hiddenAtEpochMs = null;
@@ -3681,6 +4514,16 @@
           runtime.player.clinicalGuideOpen = false;
           runtime.player.lastTickWallMs = Date.now();
           renderPlayerFrame();
+          return;
+        }
+        if (runtime.inspectedBookletIndex !== null) {
+          runtime.inspectedBookletIndex = null;
+          renderBodyMapTab();
+          return;
+        }
+        const backupDlg = document.getElementById('el-backup-dialog');
+        if (backupDlg && !backupDlg.classList.contains('hidden')) {
+          backupDlg.classList.add('hidden');
           return;
         }
         const shareDlg = document.getElementById('el-share-dialog');
@@ -3736,6 +4579,13 @@
         const rawPlayerDt = nowWall - runtime.player.lastTickWallMs;
         const dt = rawPlayerDt > 0 ? rawPlayerDt : 50;
         runtime.player.lastTickWallMs = nowWall;
+
+        if (runtime.player.prepRemainingMs > 0) {
+          runtime.player.prepRemainingMs = Math.max(0, runtime.player.prepRemainingMs - dt);
+          renderPlayerFrame();
+          return;
+        }
+
         runtime.player.poseElapsedMs += dt;
         runtime.player.breathElapsedMs += dt;
 
@@ -3748,13 +4598,36 @@
         while (runtime.player.routine && runtime.player.poseIndex < runtime.player.routine.poses.length) {
           const currentPose = runtime.player.routine.poses[runtime.player.poseIndex];
           const targetMs = (currentPose ? currentPose.durationSeconds : 45) * 1000;
-          if (runtime.player.poseElapsedMs < targetMs) break;
+          if (runtime.player.poseElapsedMs < targetMs) {
+            const g = resolvePoseTimelineGuidance(currentPose, runtime.player.poseElapsedMs, runtime.player.routine.asymmetry || 'balanced');
+            if (currentPose.bilateralSwitchAtHalfway && g.isSecondSegment && runtime.player.halfwayCueFiredForPoseIdx !== runtime.player.poseIndex) {
+              runtime.player.halfwayCueFiredForPoseIdx = runtime.player.poseIndex;
+              SongxiAudioEngine.playHalfwaySwitchCue(runtime.player.soundProfile);
+              if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent') {
+                SongxiVoiceEngine.speak('半程已至，请随吸气缓慢回正，呼气换向另一侧。');
+              }
+            }
+            if (g.stageLabel === '缓慢回正' && runtime.player.safeReturnCueFiredForPoseIdx !== runtime.player.poseIndex) {
+              runtime.player.safeReturnCueFiredForPoseIdx = runtime.player.poseIndex;
+              SongxiAudioEngine.playSafeReturnCue(runtime.player.soundProfile);
+              if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent') {
+                SongxiVoiceEngine.speak('即将圆成，随吸气缓慢回正中立。');
+              }
+            }
+            break;
+          }
           runtime.player.poseElapsedMs -= targetMs;
+          runtime.player.halfwayCueFiredForPoseIdx = -1;
+          runtime.player.safeReturnCueFiredForPoseIdx = -1;
           if (runtime.player.poseIndex + 1 >= runtime.player.routine.poses.length) {
             enterCompletionScreen();
             return;
           }
           runtime.player.poseIndex += 1;
+          if (runtime.player.voiceGuidanceEnabled && runtime.player.soundProfile !== 'silent') {
+            const np = runtime.player.routine.poses[runtime.player.poseIndex];
+            if (np) SongxiVoiceEngine.speak(`下一式，${np.title}。${np.clinical.setup}`);
+          }
         }
         renderPlayerFrame();
       }
@@ -3797,6 +4670,9 @@
       simulateWarmResume: ms => evaluateSplashLaunch({ warmBackgroundDurationMs: ms }),
       setProviderDelayMs: ms => { runtime.splash.simulatedProviderDelayMs = ms; },
       isAudioPlaying: () => SongxiAudioEngine.isPlaying(),
+      getSpokenVoiceCues: () => SongxiVoiceEngine.getSpokenCues(),
+      encodeBackupSnapshotJson,
+      restoreBackupSnapshotJson,
       getSensorListenerCount: () => runtime.player.sensorListenersCount,
       getStateSnapshot: () => JSON.parse(JSON.stringify({ store, effectiveSkinId: resolveEffectiveSkinId() }))
     };

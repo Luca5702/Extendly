@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.songxi.app.core.designsystem.songxiTactilePress
 import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.SoundProfileId
 
@@ -136,6 +137,7 @@ internal fun SongxiActionSurface(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
+            .songxiTactilePress(interactionSource = interactionSource, enabled = enabled)
             .clip(shape)
             .background(backgroundColor, shape)
             .then(
@@ -177,6 +179,7 @@ internal fun SongxiTogglePill(
     val borderColor = if (isActive) activeBorderColor else inactiveBorderColor
     Box(
         modifier = modifier
+            .songxiTactilePress(interactionSource = interactionSource, enabled = enabled)
             .clip(shape)
             .background(backgroundColor, shape)
             .border(1.dp, borderColor, shape)

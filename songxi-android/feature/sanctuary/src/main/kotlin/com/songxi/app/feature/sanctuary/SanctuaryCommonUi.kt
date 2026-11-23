@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.designsystem.songxiTactilePress
 
 @Composable
 internal fun SanctuarySurfaceButton(
@@ -52,6 +53,7 @@ internal fun SanctuarySurfaceButton(
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = modifier
+            .songxiTactilePress(interactionSource = interactionSource)
             .clip(shape)
             .background(backgroundColor, shape)
             .then(
@@ -93,16 +95,20 @@ internal fun SanctuarySwitchRow(
 ) {
     val skin = LocalSongxiSkin.current
     val shape = RoundedCornerShape((skin.palette.cardCornerRadiusDp - 6).coerceIn(12, 22).dp)
+    val interactionSource = remember { MutableInteractionSource() }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 56.dp)
+            .songxiTactilePress(interactionSource = interactionSource, pressedScale = 0.985f)
             .clip(shape)
             .background(skin.palette.surfaceCard, shape)
             .border(1.dp, skin.palette.borderHairline, shape)
             .toggleable(
                 value = checked,
+                interactionSource = interactionSource,
+                indication = null,
                 role = Role.Switch,
                 onValueChange = onCheckedChange
             )

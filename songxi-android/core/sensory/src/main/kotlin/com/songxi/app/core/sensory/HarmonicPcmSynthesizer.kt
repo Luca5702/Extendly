@@ -75,6 +75,8 @@ object HarmonicPcmSynthesizer {
             HarmonicCueType.EXHALE -> voice.baseAttackMs
             HarmonicCueType.POSE_TRANSITION -> min(120, voice.baseAttackMs)
             HarmonicCueType.SKIN_PREVIEW -> voice.baseAttackMs
+            HarmonicCueType.HALFWAY_SWITCH -> min(65, voice.baseAttackMs)
+            HarmonicCueType.SAFE_RETURN -> min(95, voice.baseAttackMs)
         }
         val attackSamples = ((globalAttackMs * sampleRateHz) / 1000).coerceIn(1, totalSamples / 2)
         val releaseSamples = ((120 * sampleRateHz) / 1000).coerceIn(1, totalSamples / 2)
@@ -156,6 +158,23 @@ object HarmonicPcmSynthesizer {
                 HarmonicCueType.SKIN_PREVIEW -> {
                     val previewFifth = 0.28 * exp(-t / 1.10) * sin(TWO_PI * (1.5 * f0) * t)
                     sample += previewFifth / weightNorm
+                }
+                HarmonicCueType.HALFWAY_SWITCH -> {
+                    // Gentle double wood-chime tap: second ascending fourth note at +0.18s
+                    if (t > 0.18) {
+                        val dtTap2 = t - 0.18
+                        val tap2Env = raisedCosineOnset(dtTap2, 0.045) * exp(-dtTap2 / 0.36)
+                        val tap2 = 0.78 * tap2Env * (
+                            sin(TWO_PI * (1.333 * f0) * dtTap2) +
+                                0.25 * sin(TWO_PI * (2.666 * f0) * dtTap2)
+                            )
+                        sample += tap2 / weightNorm
+                    }
+                }
+                HarmonicCueType.SAFE_RETURN -> {
+                    // Warm settling sub-octave bell signaling calm return to neutral
+                    val settleBell = 0.42 * exp(-t / 0.55) * sin(TWO_PI * (0.5 * f0) * t)
+                    sample += settleBell / weightNorm
                 }
             }
 

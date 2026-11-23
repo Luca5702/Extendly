@@ -43,7 +43,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.songxi.app.core.designsystem.BuiltInSkinRegistry
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.designsystem.SongxiNavGlyph
+import com.songxi.app.core.designsystem.SongxiNavIconCanvas
 import com.songxi.app.core.designsystem.SongxiTheme
+import com.songxi.app.core.designsystem.songxiGentleStageReveal
+import com.songxi.app.core.designsystem.songxiTactilePress
 import com.songxi.app.feature.sanctuary.PracticeJournalScreen
 import com.songxi.app.feature.sanctuary.ReminderSettingsScreen
 import com.songxi.app.feature.sanctuary.SanctuaryViewModel
@@ -59,12 +63,16 @@ import com.songxi.app.feature.stretch.StretchSessionViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
-enum class SongxiNavTab(val tag: String, val labelCn: String) {
-    HOME("nav_tab_home", "一息"),
-    BODYMAP("nav_tab_bodymap", "寻音"),
-    SKINS("nav_tab_skins", "画境"),
-    JOURNAL("nav_tab_journal", "手札"),
-    SETTINGS("nav_tab_settings", "微风")
+enum class SongxiNavTab(
+    val tag: String,
+    val labelCn: String,
+    val glyph: SongxiNavGlyph
+) {
+    HOME("nav_tab_home", "一息", SongxiNavGlyph.HOME_ENSO),
+    BODYMAP("nav_tab_bodymap", "寻音", SongxiNavGlyph.BODYMAP_MERIDIAN),
+    SKINS("nav_tab_skins", "画境", SongxiNavGlyph.SKINS_SCROLL),
+    JOURNAL("nav_tab_journal", "手札", SongxiNavGlyph.JOURNAL_RIPPLE),
+    SETTINGS("nav_tab_settings", "微风", SongxiNavGlyph.SETTINGS_CHIME)
 }
 
 class MainActivity : ComponentActivity() {
@@ -84,7 +92,8 @@ class MainActivity : ComponentActivity() {
             clockProvider = container.clockProvider,
             initialOnboardingSeen = runBlocking {
                 container.themePreferencesRepository.onboardingSeen.first()
-            }
+            },
+            voiceEngine = container.voiceEngine
         )
     }
 
@@ -198,6 +207,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f)
+                                    .songxiGentleStageReveal(activeTab)
                             ) {
                                 when (activeTab) {
                                     SongxiNavTab.HOME -> HomeScreen(
@@ -379,7 +389,7 @@ private fun SongxiBottomNavigationBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(54.dp)
                 .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
@@ -391,6 +401,7 @@ private fun SongxiBottomNavigationBar(
                     modifier = Modifier
                         .weight(1f)
                         .defaultMinSize(minHeight = 48.dp)
+                        .songxiTactilePress(interactionSource = interactionSource, pressedScale = 0.94f)
                         .clip(CircleShape)
                         .clickable(
                             interactionSource = interactionSource,
@@ -403,16 +414,13 @@ private fun SongxiBottomNavigationBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(if (isSelected) 6.dp else 4.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (isSelected) skin.palette.accentPrimary else skin.palette.borderHairline,
-                                CircleShape
-                            )
+                    SongxiNavIconCanvas(
+                        glyph = tab.glyph,
+                        selected = isSelected,
+                        skin = skin,
+                        modifier = Modifier.size(19.dp)
                     )
-                    Spacer(modifier = Modifier.height(3.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = tab.labelCn,
                         fontSize = 11.sp,

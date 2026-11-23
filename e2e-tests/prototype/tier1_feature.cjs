@@ -991,6 +991,118 @@ const tests = [
       });
     },
   },
+  {
+    id: 'P-T1-36',
+    tier: 1,
+    feature: 'F9',
+    name: 'Saved custom presets (我的常备方) &《四时雅集》chapter directory sheet launch targeted routines',
+    fn: async ({ session }) => {
+      await session.withPage(async ({ page, prototypeUrl }) => {
+        await openPrototypeReadyAtHome(page, prototypeUrl);
+        await clickTestId(page, TAGS.nav_tab_bodymap);
+
+        await clickTestId(page, TAGS.bodymap_duration_2);
+        await clickTestId(page, 'bodymap_save_preset_button');
+        assert.equal(await isVisible(page, 'bodymap_saved_presets_row'), true);
+        assert.equal(await isVisible(page, 'bodymap_preset_chip_0'), true);
+
+        await clickTestId(page, TAGS.nav_tab_home);
+        assert.equal(await isVisible(page, 'home_saved_presets_section'), true);
+        await clickTestId(page, 'home_saved_preset_0');
+        assert.equal(await isVisible(page, TAGS.player_screen), true);
+        await clickTestId(page, TAGS.player_close_button);
+
+        await clickTestId(page, TAGS.nav_tab_bodymap);
+        await clickTestId(page, 'booklet_chapters_button_0');
+        assert.equal(await isVisible(page, 'booklet_detail_sheet'), true);
+        await clickTestId(page, 'booklet_day_item_2');
+        assert.equal(await isVisible(page, TAGS.player_screen), true);
+        const pTxt = await readTestIdText(page, TAGS.player_screen);
+        assert.ok(pTxt.includes('三息'), `Expected Day 3 chapter routine in player, got '${pTxt}'`);
+      });
+    },
+  },
+  {
+    id: 'P-T1-37',
+    tier: 1,
+    feature: 'F11',
+    name: 'Offline voice coaching cue toggle & 3s settle-in prep buffer banner operate cleanly in player',
+    fn: async ({ session }) => {
+      await session.withPage(async ({ page, prototypeUrl }) => {
+        await openPrototypeReadyAtHome(page, prototypeUrl);
+        await clickTestId(page, TAGS.nav_tab_settings);
+
+        await clickTestId(page, 'settings_voice_guide_switch');
+        await clickTestId(page, 'settings_prep_buffer_switch');
+        assert.equal(await isToggleOrChipActive(page, 'settings_voice_guide_switch'), true);
+        assert.equal(await isToggleOrChipActive(page, 'settings_prep_buffer_switch'), true);
+
+        await clickTestId(page, TAGS.nav_tab_home);
+        await clickTestId(page, TAGS.home_quick_routine_0);
+        assert.equal(await isVisible(page, TAGS.player_screen), true);
+        assert.equal(await isVisible(page, 'player_prep_buffer_banner'), true);
+        assert.equal(await isToggleOrChipActive(page, 'player_voice_cue_toggle'), true);
+
+        const spoken = await page.evaluate(() => window.__SONGXI_BRIDGE__.getSpokenVoiceCues());
+        assert.ok(Array.isArray(spoken) && spoken.length >= 1, 'Voice engine must speak setup cue when enabled');
+
+        await clickTestId(page, 'player_skip_prep_button');
+        assert.equal(await isVisible(page, 'player_prep_buffer_banner'), false);
+        await clickTestId(page, 'player_voice_cue_toggle');
+        assert.equal(await isToggleOrChipActive(page, 'player_voice_cue_toggle'), false);
+      });
+    },
+  },
+  {
+    id: 'P-T1-38',
+    tier: 1,
+    feature: 'F14',
+    name: 'Cross-month journal navigation, clickable day filter, 720x1040 PNG poster canvas & JSON backup/restore work end-to-end',
+    fn: async ({ session }) => {
+      await session.withPage(async ({ page, prototypeUrl }) => {
+        const nov18Ms = localEpochMs(2026, 11, 18, 10, 0);
+        await openPrototypeReadyAtHome(page, `${prototypeUrl}?SIMULATED_EPOCH_MS=${nov18Ms}`);
+        await clickTestId(page, TAGS.home_quick_routine_0);
+        await advanceRoutineToCompletionOnPage(page);
+        await clickTestId(page, TAGS.completion_feeling_calm);
+        await clickTestId(page, TAGS.completion_finish_button);
+
+        await clickTestId(page, TAGS.nav_tab_journal);
+        const initNotesTitle = await readTestIdText(page, 'journal_notes_section_title');
+        assert.ok(initNotesTitle.includes('本月中旬'), `Expected middle-dekad title on Nov 18, got '${initNotesTitle}'`);
+
+        await clickTestId(page, 'journal_day_cell_18');
+        const dayTitle = await readTestIdText(page, 'journal_notes_section_title');
+        assert.ok(dayTitle.includes('11月18日'), `Expected 11月18日 filter title, got '${dayTitle}'`);
+        await clickTestId(page, 'journal_clear_day_filter');
+
+        await clickTestId(page, 'journal_prev_month_button');
+        assert.equal(await isVisible(page, 'journal_current_month_button'), true);
+        await clickTestId(page, 'journal_current_month_button');
+        assert.equal(await isVisible(page, 'journal_current_month_button'), false);
+
+        await clickTestId(page, TAGS.journal_share_card_button);
+        assert.equal(await isVisible(page, 'journal_share_poster_preview'), true);
+        const posterDims = await page.evaluate(() => {
+          const c = document.querySelector('[data-testid="journal_share_poster_preview"]');
+          return { w: c.width, h: c.height, urlPrefix: c.toDataURL('image/png').slice(0, 22) };
+        });
+        assert.equal(posterDims.w, 720);
+        assert.equal(posterDims.h, 1040);
+        assert.equal(posterDims.urlPrefix, 'data:image/png;base64,');
+
+        await clickTestId(page, 'journal_save_poster_button');
+        assert.equal(await isVisible(page, 'journal_poster_save_feedback'), true);
+
+        await clickTestId(page, TAGS.nav_tab_settings);
+        await clickTestId(page, 'settings_export_backup_button');
+        assert.equal(await isVisible(page, 'settings_backup_dialog'), true);
+        await clickTestId(page, 'settings_backup_confirm_restore_button');
+        const statusTxt = await readTestIdText(page, 'settings_backup_status_text');
+        assert.ok(statusTxt.includes('恢复'), `Expected backup restore status, got '${statusTxt}'`);
+      });
+    },
+  },
 ];
 
 module.exports = tests;

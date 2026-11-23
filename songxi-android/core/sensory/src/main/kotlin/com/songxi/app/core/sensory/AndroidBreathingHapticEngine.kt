@@ -30,6 +30,16 @@ class AndroidBreathingHapticEngine(context: Context) : BreathingHapticEngine {
         emitWaveform(BreathingHapticEnvelopeBuilder.buildExhaleWave(maxAmplitude))
     }
 
+    override fun pulseHalfwaySwitchCue(maxAmplitude: Int, enabled: Boolean) {
+        if (!enabled) return
+        emitWaveform(BreathingHapticEnvelopeBuilder.buildHalfwaySwitchDoubleTap(maxAmplitude))
+    }
+
+    override fun pulseSafeReturnCue(maxAmplitude: Int, enabled: Boolean) {
+        if (!enabled) return
+        emitWaveform(BreathingHapticEnvelopeBuilder.buildSafeReturnSoftPulse(maxAmplitude))
+    }
+
     override fun cancel() {
         runCatching { vibrator?.cancel() }
     }

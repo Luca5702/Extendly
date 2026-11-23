@@ -50,6 +50,8 @@ import com.songxi.app.core.designsystem.BreathingHaloCanvas
 import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.EditorialStretchFigureCanvas
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.designsystem.SongxiTabularNumericStyle
+import com.songxi.app.core.designsystem.songxiGentleStageReveal
 import com.songxi.app.core.model.SomaticFeeling
 import com.songxi.app.core.model.SoundProfileId
 import com.songxi.app.core.model.StretchPose
@@ -76,6 +78,8 @@ fun StretchPlayerOverlayHost(
                 onTogglePause = viewModel::togglePause,
                 onResumeFromFlip = viewModel::resumeFromFlipBanner,
                 onToggleEyesFree = viewModel::toggleEyesFreeMode,
+                onToggleVoiceGuidance = viewModel::toggleVoiceGuidance,
+                onSkipPrepBuffer = { viewModel.skipPrepBuffer(skin.id) },
                 onToggleBiomechanicalGuide = viewModel::toggleBiomechanicalGuide,
                 onOpenClinicalGuide = viewModel::openClinicalGuide,
                 onCloseClinicalGuide = viewModel::closeClinicalGuide,
@@ -114,6 +118,8 @@ fun StretchPlayerScreen(
     onPreviousPose: () -> Unit,
     onNextPose: () -> Unit,
     onClose: () -> Unit,
+    onToggleVoiceGuidance: () -> Unit = {},
+    onSkipPrepBuffer: () -> Unit = {},
     onToggleBiomechanicalGuide: () -> Unit = {},
     onOpenClinicalGuide: () -> Unit = {},
     onCloseClinicalGuide: () -> Unit = {},
@@ -191,12 +197,13 @@ fun StretchPlayerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .songxiGentleStageReveal(playing.sessionId)
                 .verticalScroll(scrollState)
                 .padding(horizontal = if (isCompact) 12.dp else 18.dp, vertical = verticalPad)
                 .testTag("player_screen"),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header row: routine progress + countdown + biomechanics toggle + clinical guide + close
+            // Header row: routine progress + tabular countdown + biomechanics toggle + clinical guide + close
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -205,6 +212,7 @@ fun StretchPlayerScreen(
                 Column(modifier = Modifier.weight(1f).padding(end = 6.dp)) {
                     Text(
                         text = "${playing.routine.title} · 第 ${playing.currentPoseIndex + 1}/${playing.routine.poses.size} 式",
+                        style = SongxiTabularNumericStyle,
                         fontSize = if (isCompact) 11.sp else 12.sp,
                         color = secondaryTextColor,
                         maxLines = 1,
@@ -216,6 +224,7 @@ fun StretchPlayerScreen(
                     ) {
                         Text(
                             text = formatPoseSecondsClock(playing.remainingPoseSeconds),
+                            style = SongxiTabularNumericStyle,
                             fontSize = if (isCompact) 15.sp else 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = primaryTextColor
@@ -293,6 +302,48 @@ fun StretchPlayerScreen(
                             color = skin.palette.inkPrimary,
                             modifier = Modifier.padding(horizontal = if (isCompact) 8.dp else 12.dp),
                             maxLines = 1
+                        )
+                    }
+                }
+            }
+
+            // Optional 3s Settle-In Prep Buffer Banner ("入席安顿缓冲")
+            if (playing.isInPrepBuffer) {
+                Spacer(modifier = Modifier.height(sectionGap))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(cardShape)
+                        .background(skin.palette.accentPrimarySoft, cardShape)
+                        .border(1.dp, skin.palette.accentPrimary, cardShape)
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .testTag("player_prep_buffer_banner"),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "入席安顿 ${playing.prepDisplaySeconds}s · 放稳手机沉落双肩",
+                        style = SongxiTabularNumericStyle,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = skin.palette.accentPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                    )
+                    SongxiActionSurface(
+                        onClick = onSkipPrepBuffer,
+                        shape = CircleShape,
+                        backgroundColor = skin.palette.accentPrimary,
+                        modifier = Modifier.defaultMinSize(minHeight = 30.dp),
+                        testTag = "player_skip_prep_button"
+                    ) {
+                        Text(
+                            text = "立即入式",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = skin.palette.onAccent,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
                 }
@@ -416,10 +467,10 @@ fun StretchPlayerScreen(
 
             Spacer(modifier = Modifier.height(if (isCompact) 6.dp else 14.dp))
 
-            // Eyes-Free, Soundscape & Office-Silent Controls
+            // Eyes-Free, Voice Cue, Soundscape & Office-Silent Controls
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 SongxiTogglePill(
                     isActive = playing.isEyesFreeMode,
@@ -443,13 +494,35 @@ fun StretchPlayerScreen(
                     )
                 }
 
+                SongxiTogglePill(
+                    isActive = playing.voiceGuidanceEnabled,
+                    onClick = onToggleVoiceGuidance,
+                    shape = CircleShape,
+                    activeBackgroundColor = skin.palette.accentPrimary,
+                    inactiveBackgroundColor = skin.palette.surfaceCard,
+                    activeBorderColor = skin.palette.accentPrimary,
+                    inactiveBorderColor = skin.palette.borderHairline,
+                    modifier = Modifier
+                        .weight(0.82f)
+                        .defaultMinSize(minHeight = controlMinHeight),
+                    testTag = "player_voice_cue_toggle"
+                ) {
+                    Text(
+                        text = if (playing.voiceGuidanceEnabled) "口令开" else "轻口令",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = if (playing.voiceGuidanceEnabled) skin.palette.onAccent else skin.palette.inkPrimary,
+                        maxLines = 1
+                    )
+                }
+
                 SongxiActionSurface(
                     onClick = onCycleSound,
                     shape = CircleShape,
                     backgroundColor = skin.palette.surfaceCard,
                     borderColor = skin.palette.borderHairline,
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.05f)
                         .defaultMinSize(minHeight = controlMinHeight),
                     testTag = "player_sound_selector"
                 ) {
@@ -472,7 +545,7 @@ fun StretchPlayerScreen(
                     activeBorderColor = skin.palette.accentPrimary,
                     inactiveBorderColor = skin.palette.borderHairline,
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(0.95f)
                         .defaultMinSize(minHeight = controlMinHeight),
                     testTag = "player_sound_silent"
                 ) {
@@ -590,6 +663,7 @@ private fun ClinicalPoseGuideOverlay(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .songxiGentleStageReveal(pose.id)
                 .clip(cardShape)
                 .background(skin.palette.surfaceCard, cardShape)
                 .border(1.dp, skin.palette.borderHairline, cardShape)
@@ -752,6 +826,7 @@ fun CompletionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .songxiGentleStageReveal(completed.sessionId)
                 .verticalScroll(scrollState)
                 .padding(
                     horizontal = if (isCompact) 14.dp else 20.dp,
@@ -807,6 +882,7 @@ fun CompletionScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${completed.routine.title} · 舒展 ${formatCompletionMinutesLabel(completed.routine.totalDurationSeconds)}",
+                    style = SongxiTabularNumericStyle,
                     fontSize = 11.sp,
                     color = skin.palette.inkSecondary,
                     textAlign = TextAlign.Center

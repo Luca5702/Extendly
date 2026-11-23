@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.songxi.app.core.data.MonthlyRippleSummary
 import com.songxi.app.core.data.PracticeJournalRepository
 import com.songxi.app.core.data.ReminderPreferencesRepository
+import com.songxi.app.core.data.SongxiBackupCodec
+import com.songxi.app.core.data.SongxiSanctuaryBackupSnapshot
 import com.songxi.app.core.data.SplashAdLedgerRepository
 import com.songxi.app.core.data.StretchCatalogRepository
 import com.songxi.app.core.data.ThemePreferencesRepository
@@ -21,6 +23,7 @@ import com.songxi.app.core.model.SomaticFeeling
 import com.songxi.app.core.model.SystemClockProvider
 import com.songxi.app.core.sensory.BreathingHapticEngine
 import com.songxi.app.core.sensory.HarmonicAudioEngine
+import java.io.File
 import java.time.LocalDate
 import java.time.YearMonth
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -89,7 +93,10 @@ internal fun computeMonthlyBodyReliefAtlas(
 data class SanctuaryUiState(
     val selectedSkinId: SkinId = SkinId.INK_MIST,
     val autoNightSkinEnabled: Boolean = true,
+    val voiceGuidanceEnabled: Boolean = false,
+    val prepBufferEnabled: Boolean = false,
     val displayedMonth: YearMonth = YearMonth.now(),
+    val selectedJournalDate: LocalDate? = null,
     val monthRipples: Map<LocalDate, List<PracticeSessionRecord>> = emptyMap(),
     val monthSummary: MonthlyRippleSummary = MonthlyRippleSummary(
         month = YearMonth.now(),
@@ -101,7 +108,10 @@ data class SanctuaryUiState(
     val reminderPreferences: ReminderPreferences = ReminderPreferences(),
     val personalizedSplashEnabled: Boolean = false,
     val showSharePreviewDialog: Boolean = false,
-    val showReminderInAppBanner: Boolean = false
+    val showReminderInAppBanner: Boolean = false,
+    val showBackupDialog: Boolean = false,
+    val latestBackupJson: String = "",
+    val backupStatusMessage: String? = null
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -119,14 +129,14 @@ class SanctuaryViewModel(
 ) : ViewModel() {
 
     private val scope: CoroutineScope = externalScope ?: viewModelScope
-    private val initialMonth = YearMonth.from(clockProvider.currentLocalDate())
-    private val _selectedMonth = MutableStateFlow(initialMonth)
+    private var lastObservedClockMonth: YearMonth = YearMonth.from(clockProvider.currentLocalDate())
+    private val _selectedMonth = MutableStateFlow(lastObservedClockMonth)
 
     private val _uiState = MutableStateFlow(
         SanctuaryUiState(
-            displayedMonth = initialMonth,
+            displayedMonth = lastObservedClockMonth,
             monthSummary = MonthlyRippleSummary(
-                month = initialMonth,
+                month = lastObservedClockMonth,
                 totalSessions = 0,
                 totalDurationSeconds = 0,
                 practicedDaysCount = 0
@@ -158,6 +168,22 @@ class SanctuaryViewModel(
         }
 
         scope.launch {
+            combine(
+                themePreferencesRepository.voiceGuidanceEnabled,
+                themePreferencesRepository.prepBufferEnabled
+            ) { voiceOn, prepOn ->
+                voiceOn to prepOn
+            }.collectLatest { (voiceOn, prepOn) ->
+                _uiState.update { state ->
+                    state.copy(
+                        voiceGuidanceEnabled = voiceOn,
+                        prepBufferEnabled = prepOn
+                    )
+                }
+            }
+        }
+
+        scope.launch {
             _selectedMonth.flatMapLatest { month ->
                 combine(
                     journalRepository.observeMonthRipples(month),
@@ -168,8 +194,10 @@ class SanctuaryViewModel(
             }.collectLatest { (month, ripples, summary) ->
                 val atlas = computeMonthlyBodyReliefAtlas(ripples, catalogRepository)
                 _uiState.update { state ->
+                    val keptDate = state.selectedJournalDate?.takeIf { YearMonth.from(it) == month }
                     state.copy(
                         displayedMonth = month,
+                        selectedJournalDate = keptDate,
                         monthRipples = ripples,
                         monthSummary = summary,
                         reliefAtlas = atlas
@@ -179,11 +207,41 @@ class SanctuaryViewModel(
         }
     }
 
+    /**
+     * Syncs displayed month when the wall/simulated clock advances into a new month,
+     * without clobbering manual previous/next month browsing within the same clock month.
+     */
     fun refreshCurrentClockMonth() {
         val currentMonth = YearMonth.from(clockProvider.currentLocalDate())
-        if (_selectedMonth.value != currentMonth) {
+        if (currentMonth != lastObservedClockMonth) {
+            lastObservedClockMonth = currentMonth
             _selectedMonth.value = currentMonth
         }
+    }
+
+    fun navigateJournalMonth(deltaMonths: Long) {
+        if (deltaMonths == 0L) return
+        val next = _selectedMonth.value.plusMonths(deltaMonths)
+        _selectedMonth.value = next
+        _uiState.update { it.copy(selectedJournalDate = null) }
+    }
+
+    fun returnJournalToCurrentMonth() {
+        val currentMonth = YearMonth.from(clockProvider.currentLocalDate())
+        lastObservedClockMonth = currentMonth
+        _selectedMonth.value = currentMonth
+        _uiState.update { it.copy(selectedJournalDate = null) }
+    }
+
+    fun toggleSelectedJournalDate(date: LocalDate) {
+        _uiState.update { state ->
+            val next = if (state.selectedJournalDate == date) null else date
+            state.copy(selectedJournalDate = next)
+        }
+    }
+
+    fun clearSelectedJournalDate() {
+        _uiState.update { it.copy(selectedJournalDate = null) }
     }
 
     fun selectSkin(skinId: SkinId) {
@@ -203,6 +261,20 @@ class SanctuaryViewModel(
         _uiState.update { it.copy(autoNightSkinEnabled = enabled) }
         scope.launch {
             themePreferencesRepository.setAutoNightSkin(enabled)
+        }
+    }
+
+    fun setVoiceGuidanceEnabled(enabled: Boolean) {
+        _uiState.update { it.copy(voiceGuidanceEnabled = enabled) }
+        scope.launch {
+            themePreferencesRepository.setVoiceGuidanceEnabled(enabled)
+        }
+    }
+
+    fun setPrepBufferEnabled(enabled: Boolean) {
+        _uiState.update { it.copy(prepBufferEnabled = enabled) }
+        scope.launch {
+            themePreferencesRepository.setPrepBufferEnabled(enabled)
         }
     }
 
@@ -258,14 +330,103 @@ class SanctuaryViewModel(
         }
     }
 
+    fun exportSanctuaryBackup() {
+        scope.launch {
+            val records = journalRepository.allRecords.first()
+            val bookletDays = catalogRepository?.bookletCompletedDays?.first().orEmpty()
+            val presets = catalogRepository?.savedPresets?.first().orEmpty()
+            val cur = _uiState.value
+            val snapshot = SongxiSanctuaryBackupSnapshot(
+                exportedAtIso = clockProvider.currentDateIso(),
+                selectedSkinId = cur.selectedSkinId,
+                autoNightSkinEnabled = cur.autoNightSkinEnabled,
+                voiceGuidanceEnabled = cur.voiceGuidanceEnabled,
+                prepBufferEnabled = cur.prepBufferEnabled,
+                reminderPreferences = cur.reminderPreferences,
+                bookletCompletedDays = bookletDays,
+                savedPresets = presets,
+                journalRecords = records
+            )
+            val json = SongxiBackupCodec.encodeSnapshot(snapshot)
+            runCatching {
+                val backupDir = File(appContext.filesDir, "backups").apply { mkdirs() }
+                File(backupDir, "songxi_backup_latest.json").writeText(json, Charsets.UTF_8)
+            }
+            _uiState.update {
+                it.copy(
+                    latestBackupJson = json,
+                    showBackupDialog = true,
+                    backupStatusMessage = "已生成本地归档（含 ${records.size} 息手札与 ${presets.size} 道常备方）"
+                )
+            }
+        }
+    }
+
+    fun openRestoreBackupDialog() {
+        scope.launch {
+            val cachedJson = runCatching {
+                val file = File(appContext.filesDir, "backups/songxi_backup_latest.json")
+                if (file.isFile) file.readText(Charsets.UTF_8) else ""
+            }.getOrDefault("")
+            _uiState.update {
+                it.copy(
+                    latestBackupJson = it.latestBackupJson.ifBlank { cachedJson },
+                    showBackupDialog = true
+                )
+            }
+        }
+    }
+
+    fun dismissBackupDialog() {
+        _uiState.update { it.copy(showBackupDialog = false) }
+    }
+
+    fun restoreSanctuaryFromJson(rawJson: String) {
+        val decoded = SongxiBackupCodec.decodeSnapshot(rawJson)
+        decoded.fold(
+            onSuccess = { snapshot ->
+                scope.launch {
+                    journalRepository.restoreSessions(snapshot.journalRecords)
+                    catalogRepository?.restoreBookletAndPresets(
+                        bookletProgress = snapshot.bookletCompletedDays,
+                        presets = snapshot.savedPresets
+                    )
+                    themePreferencesRepository.setSelectedSkin(snapshot.selectedSkinId)
+                    themePreferencesRepository.setAutoNightSkin(snapshot.autoNightSkinEnabled)
+                    themePreferencesRepository.setVoiceGuidanceEnabled(snapshot.voiceGuidanceEnabled)
+                    themePreferencesRepository.setPrepBufferEnabled(snapshot.prepBufferEnabled)
+                    reminderPreferencesRepository.updatePreferences(snapshot.reminderPreferences)
+                    SedentaryReminderScheduler.syncSchedule(appContext, snapshot.reminderPreferences)
+                    _uiState.update {
+                        it.copy(
+                            showBackupDialog = false,
+                            backupStatusMessage = "已恢复 ${snapshot.journalRecords.size} 息手札记录与画境偏好"
+                        )
+                    }
+                }
+            },
+            onFailure = { err ->
+                _uiState.update {
+                    it.copy(
+                        backupStatusMessage = err.message ?: "归档内容无法解析，请核对格式。"
+                    )
+                }
+            }
+        )
+    }
+
     fun resetTransientDialogs() {
         val currentMonth = YearMonth.from(clockProvider.currentLocalDate())
+        lastObservedClockMonth = currentMonth
         _selectedMonth.value = currentMonth
         _uiState.update {
             it.copy(
                 displayedMonth = currentMonth,
+                selectedJournalDate = null,
                 showSharePreviewDialog = false,
-                showReminderInAppBanner = false
+                showReminderInAppBanner = false,
+                showBackupDialog = false,
+                backupStatusMessage = null
             )
         }
     }

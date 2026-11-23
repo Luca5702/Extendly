@@ -70,6 +70,16 @@ class DataStorePracticeJournalRepository(
         }
     }
 
+    override suspend fun restoreSessions(records: List<PracticeSessionRecord>) {
+        if (records.isEmpty()) return
+        dataStore.edit { prefs ->
+            val merged = LinkedHashMap<String, PracticeSessionRecord>()
+            decodeRecords(prefs[KEY_RECORDS_JSON]).forEach { merged[it.id] = it }
+            records.forEach { merged[it.id] = it }
+            prefs[KEY_RECORDS_JSON] = SongxiDataJson.encodeToString(merged.values.toList())
+        }
+    }
+
     override suspend fun clearAll() {
         dataStore.edit { prefs ->
             prefs.remove(KEY_RECORDS_JSON)
