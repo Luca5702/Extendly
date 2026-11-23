@@ -512,6 +512,24 @@
               </div>
             </div>
 
+            <!-- Bilateral Asymmetry Selector (5:5 / Left 6:4 / Right 6:4) -->
+            <div class="space-y-1">
+              <p class="text-[11px]" style="color:var(--sx-ink-sec);">左右偏侧时长配比（惯用鼠标或单肩背包偏紧调配）</p>
+              <div class="grid grid-cols-3 gap-1.5">
+                <button id="asym-btn-balanced" data-testid="bodymap_asymmetry_balanced" data-asym="balanced" type="button" aria-pressed="true" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">双侧均衡 5:5</button>
+                <button id="asym-btn-left" data-testid="bodymap_asymmetry_left" data-asym="left" type="button" aria-pressed="false" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">左侧偏紧 左6:右4</button>
+                <button id="asym-btn-right" data-testid="bodymap_asymmetry_right" data-asym="right" type="button" aria-pressed="false" class="asym-pill min-h-[30px] px-2 rounded-lg text-[11px] border transition">右侧偏紧 右6:左4</button>
+              </div>
+            </div>
+
+            <!-- Live 3-Stage Clinical Prescription Preview -->
+            <div
+              id="el-bodymap-prescription-preview"
+              data-testid="bodymap_prescription_preview"
+              class="p-2.5 rounded-xl border space-y-0.5 text-[11px]"
+              style="background-color:var(--sx-card-subtle);border-color:var(--sx-border);"
+            ></div>
+
             <button
               id="btn-bodymap-compose"
               data-testid="bodymap_compose_start_button"
@@ -624,6 +642,12 @@
             ></div>
           </div>
 
+          <div
+            id="el-journal-relief-atlas"
+            data-testid="journal_body_relief_atlas"
+            class="sx-card p-3.5 space-y-2"
+          ></div>
+
           <div id="journal-recent-notes" class="space-y-1.5"></div>
         </section>
 
@@ -716,7 +740,7 @@
           class="hidden absolute inset-0 z-20 flex flex-col justify-between px-4 py-3 overflow-y-auto sx-scroll"
           style="background-color:var(--sx-bg);"
         >
-          <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center justify-between gap-1.5">
             <button
               id="btn-player-close"
               data-testid="player_close_button"
@@ -724,22 +748,43 @@
               class="min-h-[36px] px-2.5 rounded-full text-xs border whitespace-nowrap shrink-0"
               style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
             >
-              ← 收起暂歇
+              ← 收起
             </button>
             <div class="text-center sx-eyes-dim min-w-0 flex-1">
               <p id="player-routine-title" class="text-[11px] truncate" style="color:var(--sx-ink-sec);">午后伏案 · 沉肩松颈帖</p>
               <p id="player-pose-counter" class="text-xs font-mono truncate" style="color:var(--sx-ink);">第 1 / 3 式 · 剩余 01:00</p>
             </div>
-            <button
-              id="btn-player-eyes-free"
-              data-testid="player_eyes_free_toggle"
-              type="button"
-              aria-pressed="false"
-              class="min-h-[36px] px-2.5 rounded-full text-xs border transition whitespace-nowrap shrink-0"
-              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
-            >
-              闭眼余光态
-            </button>
+            <div class="flex items-center gap-1 shrink-0">
+              <button
+                id="btn-player-biomech"
+                data-testid="player_biomechanics_toggle"
+                type="button"
+                aria-pressed="true"
+                class="min-h-[34px] px-2 rounded-full text-[11px] border transition whitespace-nowrap"
+                style="background-color:var(--sx-accent-soft);border-color:var(--sx-accent);color:var(--sx-accent);"
+              >
+                导引线
+              </button>
+              <button
+                id="btn-player-clinical"
+                data-testid="player_clinical_guide_button"
+                type="button"
+                class="min-h-[34px] px-2 rounded-full text-[11px] border transition whitespace-nowrap"
+                style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+              >
+                精要
+              </button>
+              <button
+                id="btn-player-eyes-free"
+                data-testid="player_eyes_free_toggle"
+                type="button"
+                aria-pressed="false"
+                class="min-h-[34px] px-2 rounded-full text-[11px] border transition whitespace-nowrap"
+                style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-ink);"
+              >
+                余光
+              </button>
+            </div>
           </div>
 
           <!-- Flip-to-Pause Banner -->
@@ -767,13 +812,23 @@
             </div>
 
             <!-- Breath Phase Label (Always Visible even in Eyes-Free Mode!) -->
-            <div
-              id="el-breath-phase-label"
-              data-testid="player_breath_phase_label"
-              class="mt-2 px-4 py-1 rounded-full font-serif-cn text-sm font-semibold tracking-widest border"
-              style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-accent);"
-            >
-              吸气 · 轻展
+            <div class="mt-2 flex items-center gap-1.5">
+              <div
+                id="el-breath-phase-label"
+                data-testid="player_breath_phase_label"
+                class="px-4 py-1 rounded-full font-serif-cn text-sm font-semibold tracking-widest border"
+                style="background-color:var(--sx-card);border-color:var(--sx-border);color:var(--sx-accent);"
+              >
+                吸气 · 轻展
+              </div>
+              <span
+                id="el-player-stage-badge"
+                data-testid="player_timeline_stage_badge"
+                class="sx-eyes-dim px-2.5 py-1 rounded-full text-[11px] font-medium border"
+                style="background-color:var(--sx-accent-soft);border-color:var(--sx-border);color:var(--sx-accent);"
+              >
+                筋膜延展 · 入式摆位
+              </span>
             </div>
           </div>
 
@@ -808,6 +863,27 @@
               <button id="btn-player-pause" data-testid="player_pause_resume_button" type="button" aria-pressed="false" class="min-h-[40px] rounded-xl text-xs font-medium" style="background-color:var(--sx-accent);color:var(--sx-on-accent);">暂歇</button>
               <button id="btn-player-next" data-testid="player_next_pose_button" type="button" class="min-h-[40px] rounded-xl text-xs border sx-card">下一式</button>
               <button id="btn-player-flip" data-testid="player_simulate_flip_button" type="button" aria-pressed="false" class="min-h-[40px] rounded-xl text-[11px] border sx-card">扣放暂存</button>
+            </div>
+          </div>
+
+          <!-- ON-DEMAND CLINICAL POSE GUIDE SHEET ("式法精要") -->
+          <div
+            id="el-clinical-guide-sheet"
+            data-testid="player_clinical_guide_sheet"
+            class="hidden absolute inset-0 z-30 p-4 flex items-center justify-center"
+            style="background-color:var(--sx-overlay);"
+          >
+            <div class="sx-card w-full max-h-full overflow-y-auto sx-scroll p-4 space-y-2.5 shadow-lg">
+              <div id="clinical-guide-content" class="space-y-2"></div>
+              <button
+                id="btn-clinical-guide-close"
+                data-testid="player_clinical_guide_close"
+                type="button"
+                class="w-full min-h-[40px] rounded-full text-xs font-serif-cn font-semibold"
+                style="background-color:var(--sx-accent);color:var(--sx-on-accent);"
+              >
+                知悉 · 续接此息
+              </button>
             </div>
           </div>
         </section>
@@ -1279,6 +1355,45 @@
       { id: 'eye_brow_cuanzhu_smoothing', titleCn: '指腹轻拂攒竹眉心', title: '指腹轻拂攒竹眉心', name: '指腹轻拂攒竹眉心', archetype: 'eye', zone: 'eye', secondaryZone: 'neck', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '双手指腹由眉心向两侧太阳穴轻柔拂开，随呼气松开不自觉蹙起的眉头。', cue: '双手指腹由眉心向两侧太阳穴轻柔拂开，随呼气松开不自觉蹙起的眉头。', inhale: kf(0, 0.10, 0.58, 0.58, 0.10, 112, 112, 0.15, true), exhale: kf(0, 0.22, 0.85, 0.85, 0.05, 104, 104, 0.05, true) },
       { id: 'eye_horizon_soft_gaze', titleCn: '远山凝眸与柔眨润目', title: '远山凝眸与柔眨润目', name: '远山凝眸与柔眨润目', archetype: 'eye', zone: 'eye', secondaryZone: 'neck', durationSeconds: 40, bilateralSwitchAtHalfway: false, gentleCue: '目光越过屏幕投向远处窗外天际，轻眨三次后闭目小憩，让眼底重归清润。', cue: '目光越过屏幕投向远处窗外天际，轻眨三次后闭目小憩，让眼底重归清润。', inhale: kf(0, -0.10, 0.62, 0.62, 0.22, 15, 15, 0, false), exhale: kf(0, 0.12, 0.90, 0.90, 0.10, 12, 12, 0, true) }
     ];
+    const MODALITY_META = {
+      mobility: { badge: '滑液唤醒', mechanism: '关节微幅受控流动 · 温润滑膜避免冷拉' },
+      pnf: { badge: '微抗阻PNF', mechanism: '吸气20%等长轻抗 · 呼气触发自发抑制反射' },
+      fascial: { badge: '筋膜延展', mechanism: '恒定微温低张力 · 唤醒高尔基腱柔和松解' },
+      nerve_glide: { badge: '神经滑动', mechanism: '节律温和滑移 · 疏解腕管与上肢神经紧绷' },
+      oculomotor: { badge: '眼颈解耦', mechanism: '视轴远近柔转 · 经眼颈反射松开枕下肌群' }
+    };
+    const PHASE_ROLE_META = {
+      warmup: { order: 0, short: '解绑', title: '一阶 · 滑液解绑' },
+      release: { order: 1, short: '深舒', title: '二阶 · 靶向松解' },
+      integrate: { order: 2, short: '归位', title: '三阶 · 归位沉降' }
+    };
+    const POSE_CLINICAL_BY_ID = {
+      neck_chin_tuck: { modality: 'pnf', phase: 'warmup', plane: 'sagittal', muscles: '颈深屈肌（激活） · 枕下肌群 · 头半棘肌', sensation: '颅底发际处呈温和纵向牵开感（约 3/10），咽喉松弛不紧绷。', anchor: '视线始终平视正前，水平后移下颌而非低头压迫喉部。', warning: '若向手臂放射麻木、电击感或头晕目眩，请立即停止并回正。', setup: '坐骨稳落椅面，目光平视前方松开牙关。', safeReturn: '随吸气松开收颌张力，让头颈轻盈归于中立。' },
+      neck_occiput_cradle: { modality: 'pnf', phase: 'integrate', plane: 'sagittal', muscles: '头后大直肌 · 斜方肌上束 · 胸锁乳突肌浅筋膜', sensation: '后颈被掌心稳稳承托，前颈与胸口轻柔舒展（约 3/10）。', anchor: '以掌根托住枕骨下缘而非推压颈椎棘突，腰肋保持内收不塌腰。', warning: '避免大幅后仰挤压下颈椎；若感脑后胀晕请减小仰角。', setup: '十指轻扣托于脑后枕骨缘，双肩先自然沉落。', safeReturn: '借双掌轻轻承托头部先行回正，再缓放双臂。' },
+      neck_fengchi_nod: { modality: 'fascial', phase: 'release', plane: 'coronal', muscles: '中前斜角肌 · 肩胛提肌 · 风池枕下筋膜', sensation: '对侧耳后至锁骨上方呈绵密温热延展感（约 3–4/10）。', anchor: '对侧肩头自然下沉作锚点，切勿耸肩迎头或用手强行扳压。', warning: '若锁骨窝或手指出现麻刺感，请立即减小倾角。', setup: '摘下耳机松开下颌，双肩自然垂落远离耳垂。', safeReturn: '先收下颌微蓄力，随吸气将头颅缓缓扶正。' },
+      neck_thumb_fengchi_press: { modality: 'oculomotor', phase: 'integrate', plane: 'coronal', muscles: '头夹肌 · 枕下三角肌群 · 枕大神经浅层滑道', sensation: '风池凹陷处酸温散开，连带眼底紧涩随之轻化（约 3/10）。', anchor: '以头部微倾自重轻倚指腹，手指不主动大力抠按。', warning: '避开颈侧搏动血管区；若有搏动性酸胀请轻移指位。', setup: '双肘稳支桌面，拇指轻落脑后发际风池凹处。', safeReturn: '先松开指腹轻托力，随吸气抬头平视前方。' },
+      shoulder_ear_melt: { modality: 'fascial', phase: 'release', plane: 'coronal', muscles: '上斜方肌横束 · 肩胛提肌 · 颈浅筋膜侧线', sensation: '颈侧至肩峰连线呈柔和细长牵拉感（约 3–4/10），无挤压痛。', anchor: '躯干保持垂直不随之侧歪，对侧手轻扶椅沿稳固肩胛骨。', warning: '倾斜侧颈根若出现卡压刺痛，请改小幅度并微收下颌。', setup: '双足平踏地面，双手轻搭大腿稳定肩胛基座。', safeReturn: '随吸气由颈侧柔缓托回中线，停一息再松肩。' },
+      shoulder_scapula_sigh: { modality: 'pnf', phase: 'integrate', plane: 'coronal', muscles: '中下斜方肌（激活） · 菱形肌 · 上斜方肌（交互抑制）', sensation: '吸气背部微温收拢，呼气双肩如冰雪融落般轻快（约 3/10）。', anchor: '向后下方微收肩胛下角，避免向上耸肩挤脖子。', warning: '肩缝若有弹响伴锐痛，请缩小后展弧度保持无痛范围。', setup: '脊柱自然舒展，手肘微屈垂于体侧准备呼吸。', safeReturn: '随最后一声长呼让肩胛静静落回中立胸廓。' },
+      shoulder_double_inhale_sigh: { modality: 'mobility', phase: 'integrate', plane: 'coronal', muscles: '膈肌肋部 · 斜角肌辅助呼吸束 · 上斜方肌', sensation: '胸廓充分舒张后随慢呼迅速卸除交感紧绷，肩颈松沉。', anchor: '第二小口补吸轻巧柔和，切勿猛力吸气引发头晕。', warning: '若有呼吸急促或头晕感，即刻恢复自然平缓鼻呼吸。', setup: '轻阖双目松开腹部，双掌自然安放于膝上。', safeReturn: '回归平缓自然鼻息，静候双肩余温慢慢散开。' },
+      shoulder_water_circle: { modality: 'mobility', phase: 'warmup', plane: 'coronal', muscles: '盂肱关节囊 · 胸锁与肩锁关节滑膜 · 前锯肌', sensation: '肩关节四周呈温润滑顺流动感，僵滞咔哒感渐消（约 2–3/10）。', anchor: '画圆轨迹重在向后向下沉落，头颈稳居原位不随之前探。', warning: '若肩峰下方出现夹击刺痛，请放低前升高度。', setup: '双臂自然垂顺，想象肩头浸入微温泉水之中。', safeReturn: '画完最后一圈向后轻落，稳稳停在放松肩位。' },
+      thoracic_desk_cat_cow: { modality: 'mobility', phase: 'warmup', plane: 'sagittal', muscles: '胸椎多裂肌 · 竖脊肌胸段 · 前纵与后纵韧带滑移', sensation: '两肩胛之间胸椎逐节温热流动，背部板结感柔和化开（约 3/10）。', anchor: '动作聚焦于中上背胸椎段微浪，避免全靠下腰大幅折弯代偿。', warning: '急性腰背扭伤或骨质脆弱者请保持极微幅无痛摆动。', setup: '坐稳椅前段，指尖轻扶桌沿作轻巧支撑锚点。', safeReturn: '随吸气逐节叠起脊柱，柔和回归端坐中轴。' },
+      thoracic_clasp_chest_open: { modality: 'pnf', phase: 'release', plane: 'sagittal', muscles: '胸大肌锁骨束 · 胸小肌 · 肱二头肌长头腱膜', sensation: '锁骨下方与胸前筋膜呈开阔温热感（约 3–4/10），呼吸顺畅。', anchor: '下肋微收稳住核心，避免挺肚子顶腰假性开胸；手肘保留微弯。', warning: '若前肩关节囊疼痛或手腕不适，改为双手扶后侧椅沿即可。', setup: '稍移坐向椅前三分之一，双手于身后温和相拢。', safeReturn: '先微屈双肘卸开胸前张力，再轻轻松开十指。' },
+      thoracic_chair_clavicle_smile: { modality: 'fascial', phase: 'integrate', plane: 'coronal', muscles: '胸小肌 · 锁骨下肌 · 前侧深层臂丛通道筋膜', sensation: '双侧锁骨如微笑般向两侧横向铺展，呼吸自然沉入胸底（约 3/10）。', anchor: '颈部保持修长微收下颌，切勿在开胸时仰头挤压后颈。', warning: '若指端发麻请放低扶椅位置并减小肩外旋幅度。', setup: '双手轻搭椅侧边缘，掌心朝前温和外旋肩头。', safeReturn: '随呼气缓缓收回双手安放膝面，锁骨余留开阔。' },
+      thoracic_seated_gentle_twist: { modality: 'mobility', phase: 'release', plane: 'coronal', muscles: '腹内外斜肌筋膜 · 肋间肌 · 胸腰筋膜螺旋线', sensation: '中背与侧肋呈温和螺旋舒展感，每一次呼气肋廓更松软（约 3/10）。', anchor: '双膝朝正前对齐不随骨盆歪斜，先延展脊柱再从胸口轻转，勿用蛮力扳椅。', warning: '椎间盘急性不适期请避免末端施压扭转，仅做极微幅呼吸转向。', setup: '双膝与髋同宽朝正前，吸气先轻轻立起胸口。', safeReturn: '先松开扶椅手劲，随吸气由胸椎逐节旋回正中。' },
+      lumbar_pelvic_rock: { modality: 'mobility', phase: 'warmup', plane: 'sagittal', muscles: '腰方肌深层 · 腰段多裂肌 · 骶髂周围韧带滑膜', sensation: '坐骨在椅面轻柔滚动，下腰僵硬酸滞随节律慢慢松活（约 2–3/10）。', anchor: '头顶保持平稳悬浮不前后大幅晃动，专注骨盆像盛水浅碗般微倾。', warning: '若前倾或后卷某侧出现锐刺痛，请缩小至完全舒适区间。', setup: '移坐椅前三分之一，双脚稳踏地面与髋同宽。', safeReturn: '轻巧停在坐骨正中的中立骨盆位，深长一呼。' },
+      lumbar_willow_side_bend: { modality: 'fascial', phase: 'release', plane: 'coronal', muscles: '腰方肌 · 背阔肌侧缘 · 肋间外肌体侧线', sensation: '举臂侧从盆骨上缘至腋下呈连绵温润拉开感（约 3–4/10）。', anchor: '延展侧坐骨稳稳压住椅面不翘起，重在向上拔长而非塌陷折腰。', warning: '肩关节活动受限者可将上举手轻搭耳侧或肩头，无需勉强过顶。', setup: '一手稳扶椅边作支点，两侧坐骨均匀落稳椅面。', safeReturn: '撑椅手轻推助立躯干回正，再顺呼吸缓落上臂。' },
+      lumbar_seated_figure_four: { modality: 'pnf', phase: 'release', plane: 'sagittal', muscles: '梨状肌 · 臀中肌后束 · 胸腰筋膜下缘', sensation: '搭腿侧臀部深处呈饱满温热酸舒感（约 3–4/10），下腰随之轻松。', anchor: '从髋关节折页处保持长背微倾，避免弓背低头代偿，切勿用力按压膝盖。', warning: '若膝关节内侧挤压不适或大腿后侧放射麻痛，请立即放平双脚。', setup: '一侧脚踝轻搭对侧膝上，微勾脚尖保护膝关节。', safeReturn: '先随吸气扶直上身躯干，再双手轻托脚踝放回。' },
+      lumbar_bedside_butterfly_fold: { modality: 'fascial', phase: 'integrate', plane: 'sagittal', muscles: '胸腰筋膜后浅层 · 竖脊肌腰段 · 大收肌近端', sensation: '下腰两侧深层筋膜随长呼气柔和摊开，伴随安宁困意（约 3/10）。', anchor: '双脚略远离身体成宽松菱形，手肘轻支大腿分担上身自重，不悬空硬吊。', warning: '腰椎间盘突出急性期请保持直背微倾，避免深幅弯腰圆背。', setup: '脚心相对距身一尺半成宽菱形，双手轻扶胫前。', safeReturn: '双手轻撑大腿，从下腰逐节缓缓卷起最后抬头。' },
+      wrist_palm_forward_silk: { modality: 'nerve_glide', phase: 'release', plane: 'coronal', muscles: '桡侧与尺侧腕屈肌 · 指浅屈肌 · 正中神经腕管段', sensation: '前臂掌侧呈清晰温润延展感（约 3/10），指端无发麻刺痛。', anchor: '肩膀下沉微屈肘关节5度留出神经余量，仅轻引四指不猛扳拇指。', warning: '若掌心或前三指出现电麻感，立即微屈手肘并减小背伸角。', setup: '双肩先沉落，一臂向体前轻伸并保留手肘微润。', safeReturn: '先松开引指手劲，让手腕自然垂软轻晃两下。' },
+      wrist_warm_water_wave: { modality: 'mobility', phase: 'warmup', plane: 'coronal', muscles: '指总伸肌与屈肌腱鞘 · 蚓状肌 · 腕骨间滑膜', sensation: '十指指节与掌心微热回流，敲击键盘后的僵木感消融（约 2/10）。', anchor: '动作像在温水中拂过般连绵柔顺，避免指节僵直用力绷紧。', warning: '指关节若有腱鞘弹响疼痛，请缩小屈伸幅度温和滑移。', setup: '双肘轻靠体侧，前臂悬抬于胸腹之间松软手腕。', safeReturn: '十指自然半弯松落于腿面，感受掌心微温回流。' },
+      wrist_prayer_lotus_turn: { modality: 'fascial', phase: 'integrate', plane: 'coronal', muscles: '旋前圆肌 · 掌长肌筋膜 · 腕横韧带浅层', sensation: '双侧腕根掌侧对称温和舒张，前臂酸胀渐趋平缓（约 3/10）。', anchor: '掌根保持轻贴不强压，双肩自然垂落不因合掌而耸起。', warning: '腕管敏感或撑地痛者请抬高合掌位置至锁骨前，减小折角。', setup: '双掌于胸口正前温和相合，指尖自然向上舒展。', safeReturn: '前臂轻轻回升卸除折角，双掌缓缓分开落膝。' },
+      wrist_thumb_tendon_release: { modality: 'nerve_glide', phase: 'release', plane: 'coronal', muscles: '拇长展肌 · 拇短伸肌腱鞘 · 桡神经浅支滑道', sensation: '大拇指根部腕侧呈温和细腻牵引感（约 3/10），切忌锐痛。', anchor: '四指仅轻柔拢住拇指如握雀卵，向小指侧微倾即可，严禁顿挫猛甩。', warning: '桡骨茎突腱鞘炎急性红肿刺痛期请跳过尺偏，改做温水波浪。', setup: '前臂平放或轻悬，拇指轻收掌心由四指温柔拢住。', safeReturn: '先将手腕回平中立，再缓缓舒展四指与大拇指。' },
+      eye_warm_palming: { modality: 'oculomotor', phase: 'integrate', plane: 'coronal', muscles: '眼轮匝肌 · 睫状肌（暗适应放松） · 三叉神经眶上支', sensation: '眼眶被掌心暖意包裹，视觉噪点渐隐，眉心与后颈同步松弛。', anchor: '掌心微拱如小碗轻扣眶骨边缘，绝不直接按压眼球本身。', warning: '佩戴隐形眼镜或眼部不适时更须悬空虚拢，零压迫眼球。', setup: '轻轻搓暖双掌，手肘稳支桌面避免肩臂悬空劳累。', safeReturn: '先在掌心暗处轻眨双目，再缓缓移开手掌迎光。' },
+      eye_slow_orbit_mist: { modality: 'oculomotor', phase: 'warmup', plane: 'coronal', muscles: '眼外六肌（上下内外直肌与斜肌） · 眼颈协同反射枕下群', sensation: '眼球后方紧缩感随慢转轻柔散开，泪膜均匀湿润眼表（约 2/10）。', anchor: '眼睑始终轻柔闭合不挤眼，转动速度极慢且幅度留有三分余地。', warning: '高度近视、视网膜脆弱或眩晕敏感者请改做闭目静息不转睛。', setup: '端坐轻阖双目，先松开紧咬的后槽牙与眉心。', safeReturn: '目光在闭合眼帘内静归正中，深呼一息再微睁。' },
+      eye_brow_cuanzhu_smoothing: { modality: 'fascial', phase: 'release', plane: 'coronal', muscles: '皱眉肌 · 降眉间肌 · 帽状腱膜额腹浅筋膜', sensation: '眉头攒竹至太阳穴呈温润舒展感，久思凝神后的额前紧箍感消散。', anchor: '指腹贴肤轻柔滑移如拂宣纸，避免指甲刮擦或用力揉搓眼皮。', warning: '太阳穴区域仅做羽毛般轻拂，切勿重按深压。', setup: '食中二指并拢温热，轻落于双眉内侧攒竹微凹处。', safeReturn: '指腹于太阳穴轻停一息，顺双颊缓落回膝面。' },
+      eye_horizon_soft_gaze: { modality: 'oculomotor', phase: 'warmup', plane: 'coronal', muscles: '睫状肌（远眺解痉） · 睑板腺（完整轻眨促泌） · 提上睑肌', sensation: '近距痉挛的晶状体调节肌悄然松开，眼表重获清润微凉感。', anchor: '目光柔和漫散地投向六米外远景，不眯眼费力辨认细小字迹。', warning: '避免直视刺眼强光源或正午反光玻璃。', setup: '将视线从近处屏幕温柔移开，投向窗外最远天际。', safeReturn: '完整轻柔闭合上下眼睑两次，温润回归当下视线。' }
+    };
+
     const ALL_POSES = {};
     STRETCH_POSES.forEach(p => {
       p.poseId = p.id;
@@ -1286,16 +1401,49 @@
       p.targetRegions = p.regions;
       p.inhaleKeyframe = p.inhale;
       p.exhaleKeyframe = p.exhale;
+      p.clinical = POSE_CLINICAL_BY_ID[p.id] || POSE_CLINICAL_BY_ID.neck_chin_tuck;
       ALL_POSES[p.id] = p;
     });
 
+    function resolvePoseTimelineGuidance(pose, elapsedMs, asymmetry = 'balanced') {
+      const totalMs = Math.max(1000, (pose.durationSeconds || 45) * 1000);
+      const clampedMs = Math.max(0, Math.min(totalMs, elapsedMs));
+      const setupMs = Math.max(1500, Math.min(5000, Math.floor(totalMs / 6)));
+      const returnMs = setupMs;
+      const firstRatio = (asymmetry === 'left' || asymmetry === 'right') ? 0.60 : 0.50;
+      const primarySide = asymmetry === 'right' ? 1 : -1;
+      const switchMs = pose.bilateralSwitchAtHalfway ? Math.floor(totalMs * firstRatio) : Math.floor(totalMs / 2);
+      const isSecondSegment = Boolean(pose.bilateralSwitchAtHalfway && clampedMs >= switchMs);
+      const activeSide = !pose.bilateralSwitchAtHalfway ? 0 : (!isSecondSegment ? primarySide : -primarySide);
+
+      let stageLabel = '随息深化';
+      let activeCue = pose.gentleCue;
+      if (clampedMs < setupMs) {
+        stageLabel = '入式摆位';
+        activeCue = pose.clinical.setup;
+      } else if (clampedMs >= totalMs - returnMs) {
+        stageLabel = '缓慢回正';
+        activeCue = pose.clinical.safeReturn;
+      } else if (pose.bilateralSwitchAtHalfway && clampedMs >= switchMs - 2000 && clampedMs <= switchMs + 1500) {
+        stageLabel = '温和换边';
+        activeCue = '随吸气先缓慢回正中立，呼气再柔和换向另一侧。';
+      }
+      return {
+        stageLabel,
+        activeCue,
+        isSecondSegment,
+        activeSide,
+        mirrorBilateral: Boolean(pose.bilateralSwitchAtHalfway && activeSide > 0)
+      };
+    }
+
     const PRIMARY_POOL_BY_ZONE = {
       neck: ['neck_chin_tuck', 'neck_occiput_cradle', 'neck_fengchi_nod', 'neck_thumb_fengchi_press'],
-      shoulder: ['shoulder_ear_melt', 'shoulder_scapula_sigh', 'shoulder_double_inhale_sigh', 'shoulder_water_circle'],
+      shoulder: ['shoulder_water_circle', 'shoulder_ear_melt', 'shoulder_scapula_sigh', 'shoulder_double_inhale_sigh'],
       thoracic: ['thoracic_desk_cat_cow', 'thoracic_clasp_chest_open', 'thoracic_chair_clavicle_smile', 'thoracic_seated_gentle_twist'],
       lumbar: ['lumbar_pelvic_rock', 'lumbar_willow_side_bend', 'lumbar_seated_figure_four', 'lumbar_bedside_butterfly_fold'],
-      wrist: ['wrist_palm_forward_silk', 'wrist_warm_water_wave', 'wrist_prayer_lotus_turn', 'wrist_thumb_tendon_release'],
-      eye: ['eye_warm_palming', 'eye_slow_orbit_mist', 'eye_brow_cuanzhu_smoothing', 'eye_horizon_soft_gaze']
+      wrist: ['wrist_warm_water_wave', 'wrist_palm_forward_silk', 'wrist_prayer_lotus_turn', 'wrist_thumb_tendon_release'],
+      eye: ['eye_slow_orbit_mist', 'eye_brow_cuanzhu_smoothing', 'eye_warm_palming', 'eye_horizon_soft_gaze']
     };
 
     function withSec(poseId, sec) {
@@ -1641,39 +1789,13 @@
       </svg>`;
     }
 
-    function renderFigureAndHaloSVG(skinId, pose, breathT, uid, mirrorBilateral = false) {
+    function renderFigureAndHaloSVG(skinId, pose, breathT, uid, mirrorBilateral = false, showBiomechanics = false) {
       const s = SONGXI_SKINS[skinId];
       const k = interpolatePose(pose, breathT, mirrorBilateral);
       const arch = pose.archetype || 'neck';
+      const plane = (pose.clinical && pose.clinical.plane) || 'coronal';
       const cx = 120;
       const baseY = 142 - k.spineArcRatio * 5;
-      const lShY = baseY - 22 + k.leftShoulderDropRatio * 11;
-      const rShY = baseY - 22 + k.rightShoulderDropRatio * 11;
-      const lShX = cx - 28 - k.spineArcRatio * 2.5;
-      const rShX = cx + 28 + k.spineArcRatio * 2.5;
-      const headX = cx + k.headTiltDeg * 0.22;
-      const headY = baseY - 27 + k.chinTuckRatio * 3.8;
-
-      let lElX, lElY, lHaX, lHaY, rElX, rElY, rHaX, rHaY;
-      if (arch === 'eye') {
-        lElX = lShX - 14; lElY = lShY + 26; lHaX = cx - 10; lHaY = headY - 18;
-        rElX = rShX + 14; rElY = rShY + 26; rHaX = cx + 10; rHaY = headY - 18;
-      } else if (arch === 'wrist') {
-        lElX = lShX - 9; lElY = lShY + 26; lHaX = cx + 9; lHaY = baseY + 3;
-        rElX = rShX + 13; rElY = rShY + 20; rHaX = cx + 20; rHaY = baseY - 2 - k.wristFlexRatio * 5;
-      } else if (arch === 'lumbar') {
-        const rad = (k.leftArmAngleDeg * Math.PI) / 180;
-        lElX = lShX - Math.sin(rad) * 24; lElY = lShY + Math.cos(rad) * 24;
-        lHaX = lElX + 14; lHaY = lElY - 24;
-        rElX = rShX + 11; rElY = rShY + 28; rHaX = rShX + 16; rHaY = baseY + 38;
-      } else if (arch === 'thoracic') {
-        lElX = lShX - 18 - k.spineArcRatio * 5; lElY = lShY + 25; lHaX = cx - 13; lHaY = baseY + 30;
-        rElX = rShX + 18 + k.spineArcRatio * 5; rElY = rShY + 25; rHaX = cx + 13; rHaY = baseY + 30;
-      } else {
-        lElX = lShX - 11 - (k.leftArmAngleDeg - 10) * 0.22; lElY = lShY + 28; lHaX = cx - 20; lHaY = baseY + 39;
-        rElX = rShX + 11 + (k.rightArmAngleDeg - 10) * 0.22; rElY = rShY + 28; rHaX = cx + 20; rHaY = baseY + 39;
-      }
-
       const haloScale = (0.86 + 0.22 * breathT).toFixed(3);
       let haloSvg = '';
       if (skinId === 'ink_mist') {
@@ -1702,6 +1824,110 @@
       }
 
       const collarColor = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.contourStroke);
+
+      // Genuine Sagittal Side-Profile Renderer for anterior-posterior spinal & cervical movements
+      if (plane === 'sagittal' && uid === 'player') {
+        const sp = k.spineArcRatio;
+        const ch = k.chinTuckRatio;
+        const avgArm = (k.leftArmAngleDeg + k.rightArmAngleDeg) * 0.5;
+        const isFold = sp < -0.15 && avgArm >= 24 && avgArm <= 44;
+        const hinge = isFold ? Math.abs(sp) : 0;
+        const pelX = 98 - sp * 3;
+        const pelY = 166;
+        const lumX = pelX + sp * 10 + hinge * 8;
+        const lumY = 140 + hinge * 3;
+        const thoX = pelX + 4 + sp * 12 + hinge * 22;
+        const thoY = 114 - sp * 5 + hinge * 9;
+        const neckX = thoX + 3 - Math.max(0, ch) * 5 + hinge * 7;
+        const neckY = thoY - 19;
+        const hX = neckX + 5 - ch * 12 + hinge * 5;
+        const hY = neckY - 17;
+        const pitch = (-ch * 12 + hinge * 14 - Math.max(0, sp) * 5).toFixed(1);
+        const isClasp = sp > 0.32 && avgArm >= 25 && avgArm <= 48;
+        const isCradle = avgArm >= 90;
+        const isDesk = avgArm >= 50 && avgArm <= 82;
+        const elX = isClasp ? thoX - 18 : (isCradle ? hX + 18 : (isDesk ? thoX + 20 : thoX + 10));
+        const elY = isClasp ? thoY + 22 : (isCradle ? hY + 3 : thoY + 24);
+        const haX = isClasp ? pelX - 24 : (isCradle ? hX - 12 : (isDesk ? 168 : 138 + hinge * 12));
+        const haY = isClasp ? pelY - 6 : (isCradle ? hY + 2 : (isDesk ? 132 : 158));
+
+        const sagGuideSvg = showBiomechanics ? `
+          <g data-biomech-plane="sagittal">
+            <line x1="${pelX}" y1="36" x2="${pelX}" y2="${pelY + 10}" stroke="${s.accentSecondary}" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.65" />
+            <circle cx="${pelX}" cy="${pelY}" r="5.5" fill="none" stroke="${s.sealVermilion}" stroke-width="1.4" />
+            <circle cx="${pelX}" cy="${pelY}" r="2" fill="${s.sealVermilion}" />
+            <path d="M${pelX - 5} ${pelY - 2} C${lumX - 6} ${lumY}, ${thoX - 7} ${thoY}, ${neckX - 4} ${neckY - 6}" fill="none" stroke="${s.accentPrimary}" stroke-width="2.4" stroke-linecap="round" />
+            <line x1="${hX + 20}" y1="${hY + 4}" x2="${hX + 4}" y2="${hY + 4}" stroke="${s.sealVermilion}" stroke-width="1.7" stroke-linecap="round" />
+            <path d="M${hX + 8} ${hY + 1} L${hX + 3.5} ${hY + 4} L${hX + 8} ${hY + 7}" fill="none" stroke="${s.sealVermilion}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        ` : '';
+
+        return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title} 侧视导引">
+          <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
+          ${haloSvg}
+          <line x1="62" y1="173" x2="138" y2="173" stroke="${s.borderHairline}" stroke-width="2" stroke-linecap="round" />
+          <line x1="64" y1="122" x2="68" y2="173" stroke="${s.borderHairline}" stroke-width="1.8" stroke-linecap="round" />
+          ${isDesk ? `<line x1="160" y1="136" x2="194" y2="136" stroke="${s.accentSecondary}" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.5" />` : ''}
+          <path d="M${pelX + 4} ${pelY + 2} L154 164 L158 192" fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M${pelX + 4} ${pelY + 2} L154 164 L158 192" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" stroke-linejoin="round" />
+          ${mirrorBilateral ? `<path d="M${pelX + 6} ${pelY - 2} Q130 144 148 158" fill="none" stroke="${s.accentPrimary}" stroke-width="3" stroke-linecap="round" />` : ''}
+          <line x1="${hX - 2}" y1="${hY + 9}" x2="${neckX}" y2="${neckY + 6}" stroke="${s.skinTone}" stroke-width="9.5" stroke-linecap="round" />
+          <path d="M${neckX - 7} ${neckY + 3} L${neckX + 8} ${neckY + 5} C${thoX + 18} ${thoY}, ${lumX + 19} ${lumY}, ${pelX + 19} ${pelY + 5} Q${pelX} ${pelY + 10} ${pelX - 15} ${pelY + 5} C${lumX - 15} ${lumY}, ${thoX - 15} ${thoY}, ${neckX - 7} ${neckY + 3} Z"
+            fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
+          <path d="M${thoX} ${thoY - 8} Q${elX} ${elY} ${haX} ${haY}" fill="none" stroke="${s.garmentFill}" stroke-width="12.5" stroke-linecap="round" />
+          <path d="M${thoX} ${thoY - 8} Q${elX} ${elY} ${haX} ${haY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
+          <circle cx="${haX}" cy="${haY}" r="4.6" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
+          <g transform="translate(${hX}, ${hY}) rotate(${pitch})">
+            <circle cx="-15" cy="-6" r="7.5" fill="${s.hairFill}" />
+            <ellipse cx="0" cy="-2" rx="13.2" ry="15" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
+            <path d="M11.5 -5 L15.5 1.5 L11.5 4.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linejoin="round" />
+            <path d="M9.5 -10 Q-2 -22 -13.5 -3 Q-14 8 -5 9 Q-2 -5 9.5 -10 Z" fill="${s.hairFill}" />
+            <path d="M4.5 -2 Q7 -0.5 9.5 -2" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" />
+          </g>
+          ${sagGuideSvg}
+          <text x="120" y="206" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title} · 侧视矢状</text>
+        </svg>`;
+      }
+
+      const lShY = baseY - 22 + k.leftShoulderDropRatio * 11;
+      const rShY = baseY - 22 + k.rightShoulderDropRatio * 11;
+      const lShX = cx - 28 - k.spineArcRatio * 2.5;
+      const rShX = cx + 28 + k.spineArcRatio * 2.5;
+      const headX = cx + k.headTiltDeg * 0.22;
+      const headY = baseY - 27 + k.chinTuckRatio * 3.8;
+
+      let lElX, lElY, lHaX, lHaY, rElX, rElY, rHaX, rHaY;
+      if (arch === 'eye') {
+        lElX = lShX - 14; lElY = lShY + 26; lHaX = cx - 10; lHaY = headY - 18;
+        rElX = rShX + 14; rElY = rShY + 26; rHaX = cx + 10; rHaY = headY - 18;
+      } else if (arch === 'wrist') {
+        lElX = lShX - 9; lElY = lShY + 26; lHaX = cx + 9; lHaY = baseY + 3;
+        rElX = rShX + 13; rElY = rShY + 20; rHaX = cx + 20; rHaY = baseY - 2 - k.wristFlexRatio * 5;
+      } else if (arch === 'lumbar') {
+        const rad = (k.leftArmAngleDeg * Math.PI) / 180;
+        lElX = lShX - Math.sin(rad) * 24; lElY = lShY + Math.cos(rad) * 24;
+        lHaX = lElX + 14; lHaY = lElY - 24;
+        rElX = rShX + 11; rElY = rShY + 28; rHaX = rShX + 16; rHaY = baseY + 38;
+      } else if (arch === 'thoracic') {
+        lElX = lShX - 18 - k.spineArcRatio * 5; lElY = lShY + 25; lHaX = cx - 13; lHaY = baseY + 30;
+        rElX = rShX + 18 + k.spineArcRatio * 5; rElY = rShY + 25; rHaX = cx + 13; rHaY = baseY + 30;
+      } else {
+        lElX = lShX - 11 - (k.leftArmAngleDeg - 10) * 0.22; lElY = lShY + 28; lHaX = cx - 20; lHaY = baseY + 39;
+        rElX = rShX + 11 + (k.rightArmAngleDeg - 10) * 0.22; rElY = rShY + 28; rHaX = cx + 20; rHaY = baseY + 39;
+      }
+
+      const anchorX = k.headTiltDeg >= 0 ? lShX : rShX;
+      const anchorY = k.headTiltDeg >= 0 ? lShY : rShY;
+      const coronalGuideSvg = (showBiomechanics && uid === 'player') ? `
+        <g data-biomech-plane="coronal">
+          <line x1="${cx}" y1="36" x2="${cx}" y2="${baseY + 50}" stroke="${s.accentSecondary}" stroke-width="1.2" stroke-dasharray="5 4" stroke-opacity="0.6" />
+          <circle cx="${cx}" cy="${baseY + 44}" r="5" fill="none" stroke="${s.accentSecondary}" stroke-width="1.3" />
+          <circle cx="${anchorX}" cy="${anchorY}" r="5" fill="none" stroke="${s.sealVermilion}" stroke-width="1.4" />
+          <path d="M${headX + (k.headTiltDeg >= 0 ? -9 : 9)} ${headY - 8} Q${cx + (k.headTiltDeg >= 0 ? -8 : 8)} ${baseY - 26} ${anchorX} ${anchorY}" fill="none" stroke="${s.accentPrimary}" stroke-width="2.3" stroke-linecap="round" />
+          <line x1="${anchorX}" y1="${anchorY + 5}" x2="${anchorX}" y2="${anchorY + 20}" stroke="${s.sealVermilion}" stroke-width="1.7" stroke-linecap="round" />
+          <path d="M${anchorX - 3.5} ${anchorY + 16} L${anchorX} ${anchorY + 20.5} L${anchorX + 3.5} ${anchorY + 16}" fill="none" stroke="${s.sealVermilion}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      ` : '';
 
       return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title}">
         <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
@@ -1733,6 +1959,7 @@
           }
           <path d="M-2.8 -10 Q0 -8.2 2.8 -10" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
         </g>
+        ${coronalGuideSvg}
         ${uid === 'player' ? `<text x="120" y="206" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title}</text>` : ''}
       </svg>`;
     }
@@ -1929,6 +2156,7 @@
         selectedScene: 'desk',
         selectedZones: ['neck', 'shoulder'],
         customMinutes: 4,
+        customAsymmetry: 'balanced',
         bookletCompletedDays: {},
         records: [],
         reminder: {
@@ -2007,6 +2235,7 @@
           selectedScene: typeof parsed.selectedScene === 'string' && HERO_ROUTINES[parsed.selectedScene] ? parsed.selectedScene : base.selectedScene,
           selectedZones: rawZones,
           customMinutes: [2, 4, 6].includes(Number(parsed.customMinutes)) ? Number(parsed.customMinutes) : base.customMinutes,
+          customAsymmetry: ['balanced', 'left', 'right'].includes(parsed.customAsymmetry) ? parsed.customAsymmetry : 'balanced',
           bookletCompletedDays: cleanBooklets,
           records: rawRecords,
           reminder: {
@@ -2049,15 +2278,47 @@
       return SONGXI_SKINS[store.selectedSkinId] ? store.selectedSkinId : 'ink_mist';
     }
 
-    // --- Custom Routine Composer (1:1 Parity with DataStoreStretchCatalogRepository.kt) ---
-    function composeCustomRoutine(zones, targetMinutes) {
+    // --- 3-Stage Clinical Routine Composer (1:1 Parity with DataStoreStretchCatalogRepository.kt) ---
+    function composeCustomRoutine(zones, targetMinutes, asymmetry = 'balanced') {
       const safeMins = Math.max(1, Math.min(15, Number(targetMinutes) || 4));
+      const safeAsym = ['balanced', 'left', 'right'].includes(asymmetry) ? asymmetry : 'balanced';
       const ordered = ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'].filter(z => Array.isArray(zones) && zones.includes(z));
       const activeZones = ordered.length > 0 ? ordered : ['neck', 'shoulder'];
       const baseCount = safeMins <= 2 ? 3 : safeMins <= 4 ? 4 : 6;
       const poseCount = Math.max(baseCount, activeZones.length);
       const pickedIds = [];
 
+      // Pass 1: Guarantee coverage for every selected region while seeding clinical phases
+      activeZones.forEach((z, idx) => {
+        if (pickedIds.length >= poseCount) return;
+        const pool = PRIMARY_POOL_BY_ZONE[z] || [];
+        const preferredPhase = idx === 0 ? 'warmup' : (activeZones.length >= 3 && idx === activeZones.length - 1 ? 'integrate' : 'release');
+        const match = pool.find(pid => !pickedIds.includes(pid) && ALL_POSES[pid].clinical.phase === preferredPhase)
+          || pool.find(pid => !pickedIds.includes(pid))
+          || pool[0];
+        if (match && !pickedIds.includes(match)) pickedIds.push(match);
+      });
+
+      // Pass 2: Ensure all 3 clinical prescription stages (解绑 -> 深舒 -> 归位) are present
+      for (const reqPhase of ['warmup', 'release', 'integrate']) {
+        if (pickedIds.length >= poseCount) break;
+        if (!pickedIds.some(pid => ALL_POSES[pid].clinical.phase === reqPhase)) {
+          for (const z of activeZones) {
+            const cand = (PRIMARY_POOL_BY_ZONE[z] || []).find(pid => !pickedIds.includes(pid) && ALL_POSES[pid].clinical.phase === reqPhase);
+            if (cand) {
+              pickedIds.push(cand);
+              break;
+            }
+          }
+        }
+      }
+
+      // Pass 3: Antagonist & kinetic-chain balancing when extra slots allow
+      if (pickedIds.length < poseCount && activeZones.includes('thoracic') && !pickedIds.includes('shoulder_scapula_sigh')) {
+        pickedIds.push('shoulder_scapula_sigh');
+      }
+
+      // Pass 4..6: Round-robin pools & calm closing fallbacks
       for (let depth = 0; depth < 4 && pickedIds.length < poseCount; depth++) {
         for (const z of activeZones) {
           if (pickedIds.length >= poseCount) break;
@@ -2078,6 +2339,13 @@
         if (ALL_POSES[fid] && !pickedIds.includes(fid)) pickedIds.push(fid);
       }
 
+      // Sort by 3-stage physiological role: warmup (0) -> release (1) -> integrate (2)
+      pickedIds.sort((a, b) => {
+        const oa = PHASE_ROLE_META[ALL_POSES[a].clinical.phase].order;
+        const ob = PHASE_ROLE_META[ALL_POSES[b].clinical.phase].order;
+        return oa - ob;
+      });
+
       const totalCycles = Math.floor((safeMins * 60) / 10);
       const baseCycles = Math.floor(totalCycles / pickedIds.length);
       const extraCycles = totalCycles % pickedIds.length;
@@ -2090,11 +2358,14 @@
         ? activeZones.map(z => ZONE_LABELS[z].short).join('与')
         : `${ZONE_LABELS[activeZones[0]].short}等${activeZones.length}处`;
       const styleWord = safeMins <= 2 ? '救急轻方' : safeMins <= 4 ? '温养小方' : '深舒长卷';
+      const asymSuffix = safeAsym === 'balanced' ? '' : `_${safeAsym}`;
+      const asymPrefix = safeAsym === 'left' ? '左侧偏紧（左6:右4） · 含：' : (safeAsym === 'right' ? '右侧偏紧（右6:左4） · 含：' : '含：');
       return {
-        id: `custom_${activeZones.join('_')}_${safeMins}m`,
+        id: `custom_${activeZones.join('_')}_${safeMins}m${asymSuffix}`,
         title: `《${prefix} · ${styleWord}（${safeMins}分钟）》`,
-        subtitle: `含：${poses.map(p => p.title).join(' · ')}`,
+        subtitle: `${asymPrefix}${poses.map(p => p.title).join(' · ')}`,
         scene: 'desk',
+        asymmetry: safeAsym,
         eyesFreeCapable: true,
         seatedDiscreet: poses.every(p => p.id !== 'thoracic_desk_cat_cow' && p.id !== 'thoracic_clasp_chest_open'),
         poses
@@ -2121,6 +2392,8 @@
         paused: false,
         pausedByFlip: false,
         eyesFree: false,
+        showBiomechanics: true,
+        clinicalGuideOpen: false,
         soundProfile: 'bowl',
         routine: null,
         bookletId: null,
@@ -2326,6 +2599,8 @@
       runtime.player.paused = false;
       runtime.player.pausedByFlip = false;
       runtime.player.eyesFree = false;
+      runtime.player.showBiomechanics = true;
+      runtime.player.clinicalGuideOpen = false;
       runtime.player.soundProfile = skin.soundProfile;
       runtime.player.routine = routine;
       runtime.player.bookletId = bookletId;
@@ -2343,6 +2618,7 @@
       });
       document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
       document.getElementById('el-flip-banner').classList.add('hidden');
+      document.getElementById('el-clinical-guide-sheet')?.classList.add('hidden');
       document.getElementById('btn-player-flip').setAttribute('aria-pressed', 'false');
       document.getElementById('btn-player-eyes-free').setAttribute('aria-pressed', 'false');
       document.getElementById('status-keep-awake').textContent = '常亮守护中';
@@ -2359,9 +2635,11 @@
       runtime.player.active = false;
       runtime.player.paused = false;
       runtime.player.pausedByFlip = false;
+      runtime.player.clinicalGuideOpen = false;
       runtime.player.sensorListenersCount = 0; // Immediately unregistered!
       document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
       document.getElementById('status-keep-awake').textContent = '本地私密';
+      document.getElementById('el-clinical-guide-sheet')?.classList.add('hidden');
       document.getElementById('view-player').classList.add('hidden');
       syncHeartbeatTimer();
       switchTab(runtime.callerTab);
@@ -2378,10 +2656,12 @@
         : 120;
 
       runtime.player.active = false;
+      runtime.player.clinicalGuideOpen = false;
       runtime.player.sensorListenersCount = 0;
       syncHeartbeatTimer();
       document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
       document.getElementById('status-keep-awake').textContent = '本地私密';
+      document.getElementById('el-clinical-guide-sheet')?.classList.add('hidden');
       document.getElementById('view-player').classList.add('hidden');
 
       runtime.completion.visible = true;
@@ -2411,6 +2691,9 @@
       const todayIso = formatIsoDate(now);
       const skinId = resolveEffectiveSkinId();
       const routine = runtime.completion.completedRoutine;
+      const coveredZones = routine && Array.isArray(routine.poses)
+        ? Array.from(new Set(routine.poses.flatMap(p => p.regions || [p.zone]).filter(Boolean)))
+        : ['neck', 'shoulder'];
 
       store.records.push({
         id: 'rec_' + now + '_' + store.records.length,
@@ -2421,6 +2704,8 @@
         routineTitle: routine ? routine.title : '午后伏案 · 沉肩松颈帖',
         durationSeconds: runtime.completion.completedDurationSec || 180,
         feeling: runtime.completion.selectedFeeling,
+        targetRegions: coveredZones,
+        asymmetry: (routine && routine.asymmetry) || 'balanced',
         skinId: skinId,
         skinIdUsed: skinId
       });
@@ -2463,6 +2748,41 @@
       };
     }
 
+    function renderClinicalGuideSheetContent(pose, skin) {
+      const c = pose.clinical || POSE_CLINICAL_BY_ID.neck_chin_tuck;
+      const modMeta = MODALITY_META[c.modality] || MODALITY_META.fascial;
+      const phaseMeta = PHASE_ROLE_META[c.phase] || PHASE_ROLE_META.release;
+      const planeLabel = c.plane === 'sagittal' ? '侧视矢状' : '正视导引';
+      const box = document.getElementById('clinical-guide-content');
+      if (!box) return;
+      box.innerHTML = `
+        <div>
+          <p class="text-[11px] font-medium" style="color:${skin.accentPrimary};">${phaseMeta.title} · ${planeLabel}</p>
+          <h3 class="font-serif-cn text-base font-semibold" style="color:${skin.inkPrimary};">式法精要 · ${pose.title}</h3>
+        </div>
+        <div class="p-2.5 rounded-xl" style="background-color:${skin.accentPrimarySoft};">
+          <p class="text-xs font-semibold" style="color:${skin.accentPrimary};">生理机制：${modMeta.badge}</p>
+          <p class="text-[11px] mt-0.5" style="color:${skin.inkSecondary};">${modMeta.mechanism}</p>
+        </div>
+        <div class="p-2.5 rounded-xl border text-xs space-y-0.5" style="background-color:${skin.surfaceCardSubtle};border-color:${skin.borderHairline};">
+          <p class="font-semibold text-[11px]" style="color:${skin.inkPrimary};">靶向肌群与筋膜</p>
+          <p style="color:${skin.inkSecondary};">${c.muscles}</p>
+        </div>
+        <div class="p-2.5 rounded-xl border text-xs space-y-0.5" style="background-color:${skin.surfaceCardSubtle};border-color:${skin.borderHairline};">
+          <p class="font-semibold text-[11px]" style="color:${skin.inkPrimary};">温和体感阈值（RPE 3–4/10）</p>
+          <p style="color:${skin.inkSecondary};">${c.sensation}</p>
+        </div>
+        <div class="p-2.5 rounded-xl border text-xs space-y-0.5" style="background-color:${skin.surfaceCardSubtle};border-color:${skin.borderHairline};">
+          <p class="font-semibold text-[11px]" style="color:${skin.inkPrimary};">防代偿稳固锚点</p>
+          <p style="color:${skin.inkSecondary};">${c.anchor}</p>
+        </div>
+        <div class="p-2.5 rounded-xl border text-xs space-y-0.5" style="background-color:${skin.surfaceCardSubtle};border-color:${skin.borderHairline};">
+          <p class="font-semibold text-[11px]" style="color:${skin.sealVermilion};">临床安全边界提示</p>
+          <p style="color:${skin.inkSecondary};">${c.warning}</p>
+        </div>
+      `;
+    }
+
     function renderPlayerFrame() {
       if (!runtime.player.active || !runtime.player.routine) return;
       const skinId = resolveEffectiveSkinId();
@@ -2473,17 +2793,35 @@
       const remSec = Math.max(0, Math.ceil((pose.durationSeconds * 1000 - runtime.player.poseElapsedMs) / 1000));
       const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
       const ss = String(remSec % 60).padStart(2, '0');
-      const mirrorBilateral = Boolean(pose.bilateralSwitchAtHalfway && runtime.player.poseElapsedMs >= pose.durationSeconds * 500);
+      const routineAsym = runtime.player.routine.asymmetry || 'balanced';
+      const guidance = resolvePoseTimelineGuidance(pose, runtime.player.poseElapsedMs, routineAsym);
+      const mirrorBilateral = guidance.mirrorBilateral;
+      const modMeta = MODALITY_META[(pose.clinical && pose.clinical.modality) || 'fascial'] || MODALITY_META.fascial;
 
       const bm = computePlayerBreath(runtime.player.breathElapsedMs);
       document.getElementById('view-player').setAttribute('data-pose-id', pose.id);
       document.getElementById('player-routine-title').textContent = runtime.player.routine.title;
       document.getElementById('player-pose-counter').textContent = `第 ${idx + 1} / ${poses.length} 式 · ${pose.title} · ${mm}:${ss}`;
       document.getElementById('el-breath-phase-label').textContent = bm.label;
+      const stageBadgeEl = document.getElementById('el-player-stage-badge');
+      if (stageBadgeEl) {
+        stageBadgeEl.textContent = `${modMeta.badge} · ${guidance.stageLabel}`;
+      }
       const poseTitleEl = document.getElementById('player-pose-title');
       poseTitleEl.setAttribute('data-pose-id', pose.id);
-      poseTitleEl.textContent = pose.title;
-      document.getElementById('player-pose-cue').textContent = pose.gentleCue;
+      const sideSuffix = !pose.bilateralSwitchAtHalfway
+        ? ''
+        : (guidance.isSecondSegment ? ' · 温和换边' : (guidance.activeSide > 0 ? ' · 右侧偏重延展' : ' · 左侧延展'));
+      poseTitleEl.textContent = `${pose.title}${sideSuffix}`;
+      document.getElementById('player-pose-cue').textContent = guidance.activeCue;
+
+      const biomechBtn = document.getElementById('btn-player-biomech');
+      if (biomechBtn) {
+        biomechBtn.setAttribute('aria-pressed', String(runtime.player.showBiomechanics));
+        biomechBtn.style.backgroundColor = runtime.player.showBiomechanics ? skin.accentPrimarySoft : skin.surfaceCard;
+        biomechBtn.style.color = runtime.player.showBiomechanics ? skin.accentPrimary : skin.inkSecondary;
+        biomechBtn.style.borderColor = runtime.player.showBiomechanics ? skin.accentPrimary : skin.borderHairline;
+      }
 
       const haloBox = document.getElementById('el-player-halo');
       haloBox.style.boxShadow = `0 0 ${Math.round(18 + 26 * bm.breathT)}px var(--sx-accent-glow)`;
@@ -2494,10 +2832,20 @@
       figEl.setAttribute('data-pose', pose.id);
       figEl.setAttribute('data-pose-title', pose.title);
       figEl.setAttribute('data-bilateral-mirrored', String(mirrorBilateral));
+      figEl.setAttribute('data-view-plane', (pose.clinical && pose.clinical.plane) || 'coronal');
+      figEl.setAttribute('data-biomechanics', String(runtime.player.showBiomechanics));
       figEl.setAttribute('aria-label', pose.title);
-      figEl.innerHTML = renderFigureAndHaloSVG(skinId, pose, bm.breathT, 'player', mirrorBilateral);
+      figEl.innerHTML = renderFigureAndHaloSVG(skinId, pose, bm.breathT, 'player', mirrorBilateral, runtime.player.showBiomechanics);
 
-      const isPausedAny = Boolean(runtime.player.paused || runtime.player.pausedByFlip);
+      const sheetEl = document.getElementById('el-clinical-guide-sheet');
+      if (sheetEl) {
+        sheetEl.classList.toggle('hidden', !runtime.player.clinicalGuideOpen);
+        if (runtime.player.clinicalGuideOpen) {
+          renderClinicalGuideSheetContent(pose, skin);
+        }
+      }
+
+      const isPausedAny = Boolean(runtime.player.paused || runtime.player.pausedByFlip || runtime.player.clinicalGuideOpen);
       const pauseBtn = document.getElementById('btn-player-pause');
       pauseBtn.setAttribute('aria-pressed', String(isPausedAny));
       pauseBtn.textContent = isPausedAny ? '继续' : '暂歇';
@@ -2528,9 +2876,11 @@
         runtime.player.active = false;
         runtime.player.paused = false;
         runtime.player.pausedByFlip = false;
+        runtime.player.clinicalGuideOpen = false;
         runtime.player.sensorListenersCount = 0;
         document.getElementById('songxi-phone-shell').setAttribute('data-eyes-free', 'false');
         document.getElementById('status-keep-awake').textContent = '本地私密';
+        document.getElementById('el-clinical-guide-sheet')?.classList.add('hidden');
         document.getElementById('view-player').classList.add('hidden');
         syncHeartbeatTimer();
       }
@@ -2615,6 +2965,28 @@
         btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
       });
 
+      document.querySelectorAll('.asym-pill').forEach(btn => {
+        const on = btn.dataset.asym === (store.customAsymmetry || 'balanced');
+        btn.setAttribute('aria-pressed', String(on));
+        btn.style.backgroundColor = on ? skin.accentPrimary : skin.surfaceCardSubtle;
+        btn.style.color = on ? skin.onAccent : skin.inkPrimary;
+        btn.style.borderColor = on ? skin.accentPrimary : skin.borderHairline;
+      });
+
+      const previewRoutine = composeCustomRoutine(store.selectedZones, store.customMinutes, store.customAsymmetry);
+      const previewEl = document.getElementById('el-bodymap-prescription-preview');
+      if (previewEl) {
+        const rows = ['warmup', 'release', 'integrate'].map(ph => {
+          const items = previewRoutine.poses.filter(p => p.clinical && p.clinical.phase === ph);
+          if (!items.length) return '';
+          return `<p class="truncate" style="color:${skin.inkSecondary};">${PHASE_ROLE_META[ph].short}｜${items.map(p => `${p.title}(${p.durationSeconds}s)`).join(' · ')}</p>`;
+        }).filter(Boolean).join('');
+        previewEl.innerHTML = `
+          <p class="font-semibold" style="color:${skin.accentPrimary};">三阶处方序 · 滑液解绑 → 靶向松解 → 归位沉降</p>
+          ${rows}
+        `;
+      }
+
       const count = store.selectedZones.length;
       document.getElementById('bodymap-selection-hint').textContent =
         count > 0
@@ -2685,6 +3057,20 @@
       sw.style.backgroundColor = store.autoNightDuskPine ? activeSkin.accentPrimary : activeSkin.surfaceCardSubtle;
       sw.style.color = store.autoNightDuskPine ? activeSkin.onAccent : activeSkin.inkPrimary;
       sw.style.borderColor = store.autoNightDuskPine ? activeSkin.accentPrimary : activeSkin.borderHairline;
+    }
+
+    function resolveRecordRegions(rec) {
+      if (Array.isArray(rec.targetRegions) && rec.targetRegions.length > 0) return rec.targetRegions;
+      const rid = String(rec.routineId || '');
+      if (rid.startsWith('custom_')) {
+        return ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'].filter(z => rid.includes(z));
+      }
+      if (rid === 'hero_tea_break') return ['thoracic', 'shoulder', 'lumbar'];
+      if (rid === 'hero_evening_bedside') return ['lumbar', 'thoracic', 'neck', 'eye'];
+      if (rid === 'quick_screen_warm_eyes') return ['eye', 'neck'];
+      if (rid === 'quick_mouse_wrist_relief') return ['wrist', 'shoulder'];
+      if (rid === 'quick_sedentary_lumbar_wake') return ['lumbar', 'thoracic'];
+      return ['neck', 'shoulder'];
     }
 
     function renderJournalTab() {
@@ -2758,6 +3144,49 @@
           renderJournalTab();
         });
       });
+
+      // Streak-Free Monthly Body Relief Atlas ("月度身体释压图谱")
+      const atlasEl = document.getElementById('el-journal-relief-atlas');
+      if (atlasEl) {
+        const zCounts = { neck: 0, shoulder: 0, thoracic: 0, lumbar: 0, wrist: 0, eye: 0 };
+        const fCounts = { light: 0, warm: 0, calm: 0 };
+        monthRecords.forEach(rec => {
+          resolveRecordRegions(rec).forEach(z => {
+            if (zCounts[z] !== undefined) zCounts[z] += 1;
+          });
+          if (rec.feeling && fCounts[rec.feeling] !== undefined) fCounts[rec.feeling] += 1;
+        });
+        const maxZ = Math.max(1, ...Object.values(zCounts));
+        const topZones = Object.keys(zCounts).filter(z => zCounts[z] > 0).sort((a, b) => zCounts[b] - zCounts[a]).slice(0, 2);
+        const atlasSub = topZones.length > 0
+          ? `重点温养：${topZones.map(z => ZONE_LABELS[z].full).join(' · ')} · 只观身息照拂，不设目标定额`
+          : '素宣待染 · 完成任意一息即可显现六处肌群温养分布';
+        const barsHtml = ['neck', 'shoulder', 'thoracic', 'lumbar', 'wrist', 'eye'].map(z => {
+          const cnt = zCounts[z];
+          const pct = cnt > 0 ? Math.max(14, Math.round((cnt / maxZ) * 100)) : 4;
+          return `
+            <div class="flex items-center gap-2 text-[11px]">
+              <span class="w-16 shrink-0" style="color:${skin.inkPrimary};">${ZONE_LABELS[z].full}</span>
+              <div class="flex-1 h-2 rounded-full overflow-hidden" style="background-color:${skin.surfaceCardSubtle};">
+                <div class="h-full rounded-full" style="width:${pct}%;background-color:${cnt > 0 ? skin.accentPrimary : skin.borderHairline};"></div>
+              </div>
+              <span class="w-7 text-right font-mono shrink-0" style="color:${cnt > 0 ? skin.accentPrimary : skin.inkTertiary};">${cnt}息</span>
+            </div>
+          `;
+        }).join('');
+        atlasEl.innerHTML = `
+          <div>
+            <p class="font-serif-cn text-xs font-semibold" style="color:${skin.inkPrimary};">月度身体释压图谱</p>
+            <p class="text-[11px]" style="color:${skin.inkSecondary};">${atlasSub}</p>
+          </div>
+          <div class="space-y-1">${barsHtml}</div>
+          <div class="px-2.5 py-1.5 rounded-xl flex items-center justify-between text-[11px]" style="background-color:${skin.surfaceCardSubtle};color:${skin.inkSecondary};">
+            <span>肩颈轻快 ${fCounts.light}</span>
+            <span>温热舒展 ${fCounts.warm}</span>
+            <span>心神安宁 ${fCounts.calm}</span>
+          </div>
+        `;
+      }
 
       const recentBox = document.getElementById('journal-recent-notes');
       if (store.records.length === 0) {
@@ -2918,8 +3347,15 @@
           renderBodyMapTab();
         });
       });
+      document.querySelectorAll('.asym-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          store.customAsymmetry = btn.dataset.asym || 'balanced';
+          saveStore();
+          renderBodyMapTab();
+        });
+      });
       document.getElementById('btn-bodymap-compose').addEventListener('click', () => {
-        const custom = composeCustomRoutine(store.selectedZones, store.customMinutes);
+        const custom = composeCustomRoutine(store.selectedZones, store.customMinutes, store.customAsymmetry);
         startRoutineInPlayer(custom, null);
       });
       CURATED_BOOKLETS.forEach((bk, idx) => {
@@ -3058,6 +3494,28 @@
 
       // Player Controls
       document.getElementById('btn-player-close').addEventListener('click', stopAndClosePlayer);
+      document.getElementById('btn-player-biomech')?.addEventListener('click', () => {
+        runtime.player.showBiomechanics = !runtime.player.showBiomechanics;
+        renderPlayerFrame();
+      });
+      document.getElementById('btn-player-clinical')?.addEventListener('click', () => {
+        runtime.player.clinicalGuideOpen = true;
+        SongxiAudioEngine.stopAll();
+        renderPlayerFrame();
+      });
+      document.getElementById('btn-clinical-guide-close')?.addEventListener('click', e => {
+        e.stopPropagation();
+        runtime.player.clinicalGuideOpen = false;
+        runtime.player.lastTickWallMs = Date.now();
+        renderPlayerFrame();
+      });
+      document.getElementById('el-clinical-guide-sheet')?.addEventListener('click', e => {
+        if (e.target.id === 'el-clinical-guide-sheet') {
+          runtime.player.clinicalGuideOpen = false;
+          runtime.player.lastTickWallMs = Date.now();
+          renderPlayerFrame();
+        }
+      });
       document.getElementById('btn-player-eyes-free').addEventListener('click', () => {
         runtime.player.eyesFree = !runtime.player.eyesFree;
         document.getElementById('btn-player-eyes-free').setAttribute('aria-pressed', String(runtime.player.eyesFree));
@@ -3068,7 +3526,7 @@
       const cycleAudibleSound = () => {
         const curIdx = AUDIBLE_SOUNDS.indexOf(runtime.player.soundProfile);
         runtime.player.soundProfile = AUDIBLE_SOUNDS[(curIdx + 1) % AUDIBLE_SOUNDS.length];
-        if (!runtime.player.paused && !runtime.player.pausedByFlip) {
+        if (!runtime.player.paused && !runtime.player.pausedByFlip && !runtime.player.clinicalGuideOpen) {
           SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
         }
         renderPlayerFrame();
@@ -3087,7 +3545,7 @@
             cycleAudibleSound();
           } else {
             runtime.player.soundProfile = btn.dataset.sound;
-            if (!runtime.player.paused && !runtime.player.pausedByFlip) {
+            if (!runtime.player.paused && !runtime.player.pausedByFlip && !runtime.player.clinicalGuideOpen) {
               SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
             }
             renderPlayerFrame();
@@ -3107,6 +3565,7 @@
         } else {
           runtime.player.paused = !runtime.player.paused;
         }
+        runtime.player.clinicalGuideOpen = false;
         if (runtime.player.paused) SongxiAudioEngine.stopAll();
         runtime.player.lastTickWallMs = Date.now();
         renderPlayerFrame();
@@ -3114,11 +3573,13 @@
       document.getElementById('btn-player-prev').addEventListener('click', () => {
         runtime.player.poseIndex = Math.max(0, runtime.player.poseIndex - 1);
         runtime.player.poseElapsedMs = 0;
+        runtime.player.clinicalGuideOpen = false;
         runtime.player.lastTickWallMs = Date.now();
         renderPlayerFrame();
       });
       document.getElementById('btn-player-next').addEventListener('click', () => {
         if (!runtime.player.routine) return;
+        runtime.player.clinicalGuideOpen = false;
         if (runtime.player.poseIndex + 1 >= runtime.player.routine.poses.length) {
           enterCompletionScreen();
         } else {
@@ -3136,7 +3597,7 @@
           SongxiAudioEngine.stopAll();
         } else {
           runtime.player.lastTickWallMs = Date.now();
-          if (!runtime.player.paused) {
+          if (!runtime.player.paused && !runtime.player.clinicalGuideOpen) {
             SongxiAudioEngine.playProfile(runtime.player.soundProfile, 'inhale');
           }
         }
@@ -3207,7 +3668,7 @@
           applySkinAndRefreshUI();
           evaluateSplashLaunch({ warmBackgroundDurationMs: warmBgMs });
           refreshDiagnostics();
-          if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && !runtime.splash.visible && runtime.player.soundProfile !== 'silent') {
+          if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && !runtime.player.clinicalGuideOpen && !runtime.splash.visible && runtime.player.soundProfile !== 'silent') {
             const bm = computePlayerBreath(runtime.player.breathElapsedMs);
             SongxiAudioEngine.playProfile(runtime.player.soundProfile, bm.phase);
           }
@@ -3216,6 +3677,12 @@
 
       document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
+        if (runtime.player.clinicalGuideOpen) {
+          runtime.player.clinicalGuideOpen = false;
+          runtime.player.lastTickWallMs = Date.now();
+          renderPlayerFrame();
+          return;
+        }
         const shareDlg = document.getElementById('el-share-dialog');
         if (shareDlg && !shareDlg.classList.contains('hidden')) {
           shareDlg.classList.add('hidden');
@@ -3265,7 +3732,7 @@
       }
 
       // 2. Guided Stretch Player Tick
-      if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && runtime.player.routine) {
+      if (runtime.player.active && !runtime.player.paused && !runtime.player.pausedByFlip && !runtime.player.clinicalGuideOpen && runtime.player.routine) {
         const rawPlayerDt = nowWall - runtime.player.lastTickWallMs;
         const dt = rawPlayerDt > 0 ? rawPlayerDt : 50;
         runtime.player.lastTickWallMs = nowWall;

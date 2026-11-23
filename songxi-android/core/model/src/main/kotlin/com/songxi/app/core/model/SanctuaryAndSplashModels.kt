@@ -14,7 +14,9 @@ data class PracticeSessionRecord(
     val routineTitle: String,
     val durationSeconds: Int,
     val skinId: SkinId,
-    val feeling: SomaticFeeling? = null
+    val feeling: SomaticFeeling? = null,
+    val targetRegions: Set<BodyRegion> = emptySet(),
+    val asymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED
 )
 
 @Serializable

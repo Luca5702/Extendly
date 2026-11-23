@@ -1,8 +1,11 @@
 package com.songxi.app.feature.stretch
 
 import android.view.WindowManager
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +39,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,6 +52,7 @@ import com.songxi.app.core.designsystem.EditorialStretchFigureCanvas
 import com.songxi.app.core.designsystem.LocalSongxiSkin
 import com.songxi.app.core.model.SomaticFeeling
 import com.songxi.app.core.model.SoundProfileId
+import com.songxi.app.core.model.StretchPose
 import kotlinx.coroutines.delay
 
 private const val PLAYER_TICK_MS: Long = 50L
@@ -70,6 +76,9 @@ fun StretchPlayerOverlayHost(
                 onTogglePause = viewModel::togglePause,
                 onResumeFromFlip = viewModel::resumeFromFlipBanner,
                 onToggleEyesFree = viewModel::toggleEyesFreeMode,
+                onToggleBiomechanicalGuide = viewModel::toggleBiomechanicalGuide,
+                onOpenClinicalGuide = viewModel::openClinicalGuide,
+                onCloseClinicalGuide = viewModel::closeClinicalGuide,
                 onCycleSound = { viewModel.cycleAudibleSoundProfile(skin.id) },
                 onToggleSilent = { viewModel.toggleSilentHapticMode(skin.id) },
                 onPreviousPose = viewModel::previousPose,
@@ -105,6 +114,9 @@ fun StretchPlayerScreen(
     onPreviousPose: () -> Unit,
     onNextPose: () -> Unit,
     onClose: () -> Unit,
+    onToggleBiomechanicalGuide: () -> Unit = {},
+    onOpenClinicalGuide: () -> Unit = {},
+    onCloseClinicalGuide: () -> Unit = {},
     clockNowMillis: () -> Long = { System.currentTimeMillis() },
     modifier: Modifier = Modifier
 ) {
@@ -114,6 +126,7 @@ fun StretchPlayerScreen(
     val scrollState = rememberScrollState()
 
     val latestOnAdvanceMillis by rememberUpdatedState(onAdvanceMillis)
+    @Suppress("UNUSED_VARIABLE")
     val latestClockNowMillis by rememberUpdatedState(clockNowMillis)
     val latestOnPlayerEntered by rememberUpdatedState(onPlayerEntered)
     val latestOnPlayerExited by rememberUpdatedState(onPlayerExited)
@@ -131,7 +144,7 @@ fun StretchPlayerScreen(
         }
     }
 
-    // Deterministic monotonic frame-clock playback loop — suspended when paused or flipped face-down
+    // Deterministic monotonic frame-clock playback loop — suspended when paused, flipped, or reading clinical guide
     LaunchedEffect(playing.sessionId, playing.isEffectivelyPaused) {
         if (playing.isEffectivelyPaused) return@LaunchedEffect
         var lastFrameMs = androidx.compose.runtime.withFrameMillis { it }
@@ -147,6 +160,8 @@ fun StretchPlayerScreen(
     }
 
     val breathPhase = playing.breathPhase
+    val guidance = playing.timelineGuidance
+    val clinical = playing.currentPose.clinical
     val cardShape = RoundedCornerShape(skin.palette.cardCornerRadiusDp.coerceIn(14, 30).dp)
     val stageBackgroundBrush = if (playing.isEyesFreeMode) {
         val deepGlow = lerp(skin.palette.canvasPrimary, Color(0xFF101715), if (skin.palette.isDark) 0.45f else 0.72f)
@@ -171,6 +186,7 @@ fun StretchPlayerScreen(
         val verticalPad = if (isCompact) 6.dp else 14.dp
         val sectionGap = if (isCompact) 4.dp else 12.dp
         val controlMinHeight = if (isCompact) 36.dp else 46.dp
+        val headerPillMinHeight = if (isCompact) 36.dp else 44.dp
 
         Column(
             modifier = Modifier
@@ -180,13 +196,13 @@ fun StretchPlayerScreen(
                 .testTag("player_screen"),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header row: routine progress + countdown + close button
+            // Header row: routine progress + countdown + biomechanics toggle + clinical guide + close
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Column(modifier = Modifier.weight(1f).padding(end = 6.dp)) {
                     Text(
                         text = "${playing.routine.title} · 第 ${playing.currentPoseIndex + 1}/${playing.routine.poses.size} 式",
                         fontSize = if (isCompact) 11.sp else 12.sp,
@@ -194,32 +210,91 @@ fun StretchPlayerScreen(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(
-                        text = formatPoseSecondsClock(playing.remainingPoseSeconds),
-                        fontSize = if (isCompact) 15.sp else 18.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = primaryTextColor
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = formatPoseSecondsClock(playing.remainingPoseSeconds),
+                            fontSize = if (isCompact) 15.sp else 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = primaryTextColor
+                        )
+                        Text(
+                            text = "${clinical.modality.badgeCn} · ${guidance.stage.labelCn}",
+                            fontSize = if (isCompact) 10.sp else 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = skin.palette.accentPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.testTag("player_timeline_stage_badge")
+                        )
+                    }
                 }
 
-                SongxiActionSurface(
-                    onClick = onClose,
-                    shape = CircleShape,
-                    backgroundColor = skin.palette.surfaceCard,
-                    borderColor = skin.palette.borderHairline,
-                    modifier = Modifier.defaultMinSize(
-                        minWidth = 68.dp,
-                        minHeight = if (isCompact) 40.dp else 48.dp
-                    ),
-                    testTag = "player_close_button"
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "收起",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = skin.palette.inkPrimary,
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    )
+                    SongxiTogglePill(
+                        isActive = playing.showBiomechanicalGuide,
+                        onClick = onToggleBiomechanicalGuide,
+                        shape = CircleShape,
+                        activeBackgroundColor = skin.palette.accentPrimarySoft,
+                        inactiveBackgroundColor = skin.palette.surfaceCard,
+                        activeBorderColor = skin.palette.accentPrimary,
+                        inactiveBorderColor = skin.palette.borderHairline,
+                        modifier = Modifier.defaultMinSize(minHeight = headerPillMinHeight),
+                        testTag = "player_biomechanics_toggle"
+                    ) {
+                        Text(
+                            text = "导引线",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (playing.showBiomechanicalGuide) skin.palette.accentPrimary else skin.palette.inkSecondary,
+                            modifier = Modifier.padding(horizontal = if (isCompact) 7.dp else 9.dp),
+                            maxLines = 1
+                        )
+                    }
+
+                    SongxiActionSurface(
+                        onClick = onOpenClinicalGuide,
+                        shape = CircleShape,
+                        backgroundColor = skin.palette.surfaceCard,
+                        borderColor = skin.palette.borderHairline,
+                        modifier = Modifier.defaultMinSize(minHeight = headerPillMinHeight),
+                        testTag = "player_clinical_guide_button"
+                    ) {
+                        Text(
+                            text = "精要",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = skin.palette.inkPrimary,
+                            modifier = Modifier.padding(horizontal = if (isCompact) 7.dp else 9.dp),
+                            maxLines = 1
+                        )
+                    }
+
+                    SongxiActionSurface(
+                        onClick = onClose,
+                        shape = CircleShape,
+                        backgroundColor = skin.palette.surfaceCard,
+                        borderColor = skin.palette.borderHairline,
+                        modifier = Modifier.defaultMinSize(
+                            minWidth = if (isCompact) 50.dp else 64.dp,
+                            minHeight = if (isCompact) 40.dp else 48.dp
+                        ),
+                        testTag = "player_close_button"
+                    ) {
+                        Text(
+                            text = "收起",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = skin.palette.inkPrimary,
+                            modifier = Modifier.padding(horizontal = if (isCompact) 8.dp else 12.dp),
+                            maxLines = 1
+                        )
+                    }
                 }
             }
 
@@ -250,7 +325,7 @@ fun StretchPlayerScreen(
 
             Spacer(modifier = Modifier.height(sectionGap))
 
-            // Breathing Halo + Animated Editorial Figure Stage
+            // Breathing Halo + Animated Editorial Figure Stage (Coronal or Sagittal + Biomechanical Guide)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -271,8 +346,11 @@ fun StretchPlayerScreen(
                         breathProgress = breathPhase.phaseProgress,
                         isExhale = breathPhase.isExhale,
                         isSecondHalf = playing.isSecondHalf,
+                        asymmetry = playing.routine.asymmetry,
                         skin = skin,
                         eyesFreeMinimal = playing.isEyesFreeMode,
+                        viewPlane = clinical.viewPlane,
+                        showBiomechanicalGuide = playing.showBiomechanicalGuide,
                         modifier = Modifier
                             .size(figureSize)
                             .align(Alignment.Center)
@@ -302,14 +380,16 @@ fun StretchPlayerScreen(
 
             Spacer(modifier = Modifier.height(sectionGap))
 
-            // Pose Title & Gentle Cue (<= 36 chars)
-            val poseHeading = if (playing.isSecondHalf) {
-                "${playing.currentPose.title} · 温和换边"
-            } else {
-                playing.currentPose.title
+            // Pose Title & 4-Stage Safe Coaching Cue (<= 36 chars)
+            val sideSuffix = when {
+                !playing.currentPose.bilateralSwitchAtHalfway -> ""
+                playing.isSecondHalf -> " · 温和换边"
+                guidance.activeBilateralSide > 0 -> " · 右侧偏重延展"
+                guidance.activeBilateralSide < 0 -> " · 左侧延展"
+                else -> ""
             }
             Text(
-                text = poseHeading,
+                text = "${playing.currentPose.title}$sideSuffix",
                 style = MaterialTheme.typography.titleMedium,
                 fontSize = if (isCompact) 14.sp else 18.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -322,7 +402,7 @@ fun StretchPlayerScreen(
             Spacer(modifier = Modifier.height(2.dp))
 
             Text(
-                text = playing.currentPose.gentleCue,
+                text = guidance.activeCueCn,
                 fontSize = if (isCompact) 11.sp else 13.sp,
                 lineHeight = if (isCompact) 15.sp else 20.sp,
                 color = secondaryTextColor,
@@ -469,6 +549,183 @@ fun StretchPlayerScreen(
                 }
             }
         }
+
+        // On-Demand Clinical Kinesiology Guide Sheet ("式法精要")
+        if (playing.isClinicalGuideOpen) {
+            ClinicalPoseGuideOverlay(
+                pose = playing.currentPose,
+                onDismiss = onCloseClinicalGuide
+            )
+        }
+    }
+}
+
+@Composable
+private fun ClinicalPoseGuideOverlay(
+    pose: StretchPose,
+    onDismiss: () -> Unit
+) {
+    val skin = LocalSongxiSkin.current
+    val clinical = pose.clinical
+    val cardShape = RoundedCornerShape(skin.palette.cardCornerRadiusDp.coerceIn(14, 30).dp)
+    val subShape = RoundedCornerShape((skin.palette.cardCornerRadiusDp - 6).coerceIn(12, 24).dp)
+    val sheetScroll = rememberScrollState()
+
+    BackHandler(onBack = onDismiss)
+
+    val backdropInteraction = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(skin.palette.surfaceOverlay)
+            .clickable(
+                interactionSource = backdropInteraction,
+                indication = null,
+                onClick = onDismiss
+            )
+            .padding(horizontal = 16.dp, vertical = 18.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        val cardInteraction = remember { MutableInteractionSource() }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(cardShape)
+                .background(skin.palette.surfaceCard, cardShape)
+                .border(1.dp, skin.palette.borderHairline, cardShape)
+                .clickable(
+                    interactionSource = cardInteraction,
+                    indication = null,
+                    onClick = {}
+                )
+                .verticalScroll(sheetScroll)
+                .padding(18.dp)
+                .testTag("player_clinical_guide_sheet")
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "${clinical.phaseRole.stageTitleCn} · ${clinical.viewPlane.labelCn}",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = skin.palette.accentPrimary
+                    )
+                    Text(
+                        text = "式法精要 · ${pose.title}",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = skin.palette.inkPrimary
+                    )
+                }
+                ClassicalSealBadge(skin = skin, size = 30.dp)
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Modality mechanism banner
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(subShape)
+                    .background(skin.palette.accentPrimarySoft, subShape)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .semantics(mergeDescendants = true) {}
+            ) {
+                Text(
+                    text = "生理机制：${clinical.modality.badgeCn}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = skin.palette.accentPrimary
+                )
+                Text(
+                    text = clinical.modality.mechanismSummaryCn,
+                    fontSize = 11.sp,
+                    color = skin.palette.inkSecondary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            ClinicalInfoRow(
+                label = "靶向肌群与筋膜",
+                body = clinical.primaryMusclesCn,
+                shape = subShape
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ClinicalInfoRow(
+                label = "温和体感阈值（RPE 3–4/10）",
+                body = clinical.targetSensationCn,
+                shape = subShape
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ClinicalInfoRow(
+                label = "防代偿稳固锚点",
+                body = clinical.antiCompensationCn,
+                shape = subShape
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ClinicalInfoRow(
+                label = "临床安全边界提示",
+                body = clinical.redFlagWarningCn,
+                shape = subShape,
+                accentVermilion = true
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            SongxiActionSurface(
+                onClick = onDismiss,
+                shape = CircleShape,
+                backgroundColor = skin.palette.accentPrimary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = 46.dp),
+                testTag = "player_clinical_guide_close"
+            ) {
+                Text(
+                    text = "知悉 · 续接此息",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = skin.palette.onAccent
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClinicalInfoRow(
+    label: String,
+    body: String,
+    shape: RoundedCornerShape,
+    accentVermilion: Boolean = false
+) {
+    val skin = LocalSongxiSkin.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(skin.palette.surfaceCardSubtle, shape)
+            .border(1.dp, skin.palette.borderHairline, shape)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (accentVermilion) skin.palette.sealVermilion else skin.palette.inkPrimary
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = body,
+            fontSize = 12.sp,
+            lineHeight = 17.sp,
+            color = skin.palette.inkSecondary
+        )
     }
 }
 

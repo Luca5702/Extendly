@@ -470,6 +470,113 @@ class SongxiCanvasRenderersVisualTest {
         composeTestRule.onNodeWithTag("adversarial_row").assertIsDisplayed()
     }
 
+    @Test
+    fun sagittalViewPlaneAndBiomechanicalGuideOverlay_renderDistinctAnatomicalLayers() {
+        val tempDir = File("build/outputs/roborazzi/biomechanics").apply { mkdirs() }
+        var activeSkin by mutableStateOf(BuiltInSkinRegistry.InkMist)
+        var plane by mutableStateOf(com.songxi.app.core.model.AnatomicalViewPlane.CORONAL_FRONT)
+        var showGuide by mutableStateOf(false)
+        var asymmetry by mutableStateOf(com.songxi.app.core.model.LateralAsymmetry.BALANCED)
+
+        val chinTuckPose = StretchPose(
+            id = "test_chin_tuck",
+            title = "收颌微点头",
+            gentleCue = "视线平视，下颌水平微收半寸，随呼气让后颈柔和变长。",
+            targetRegions = setOf(BodyRegion.POSTERIOR_NECK, BodyRegion.TRAPEZIUS_SHOULDER),
+            durationSeconds = 45,
+            inhaleKeyframe = PoseKeyframe(10f, 0.15f, 0.45f, 0.45f, 0.15f, 14f, 14f, 0f, false),
+            exhaleKeyframe = PoseKeyframe(22f, 0.85f, 0.90f, 0.80f, 0.25f, 12f, 12f, 0f, true),
+            bilateralSwitchAtHalfway = true
+        )
+
+        composeTestRule.setContent {
+            SongxiTheme(skin = activeSkin) {
+                Box(
+                    modifier = Modifier
+                        .size(180.dp)
+                        .background(activeSkin.palette.canvasPrimary)
+                        .testTag("biomech_stage")
+                ) {
+                    EditorialStretchFigureCanvas(
+                        pose = chinTuckPose,
+                        breathProgress = 0.8f,
+                        isExhale = true,
+                        isSecondHalf = false,
+                        asymmetry = asymmetry,
+                        viewPlane = plane,
+                        showBiomechanicalGuide = showGuide,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+        }
+
+        // 1. Coronal base vs Coronal + Biomechanical Guide
+        val coronalBasePx = captureNodePixels("biomech_stage", File(tempDir, "coronal_base.png"))
+        composeTestRule.runOnIdle { showGuide = true }
+        composeTestRule.waitForIdle()
+        val coronalGuidePx = captureNodePixels("biomech_stage", File(tempDir, "coronal_guide.png"))
+        assertTrue(
+            countDifferingPixels(coronalBasePx, coronalGuidePx) >= 80,
+            "Biomechanical guide overlay must visibly draw plumb axis, anchor ring & fascial vector in coronal view"
+        )
+
+        // 2. Sagittal base vs Coronal base & Sagittal + Biomechanical Guide across all 4 skins
+        for (skin in BuiltInSkinRegistry.allSkins) {
+            composeTestRule.runOnIdle {
+                activeSkin = skin
+                plane = com.songxi.app.core.model.AnatomicalViewPlane.SAGITTAL_SIDE
+                showGuide = false
+            }
+            composeTestRule.waitForIdle()
+            val sagFile = File(tempDir, "sagittal_${skin.id.storageKey}.png")
+            composeTestRule.onNodeWithTag("biomech_stage").captureRoboImage(
+                file = sagFile,
+                roborazziOptions = RoborazziOptions(taskType = RoborazziTaskType.Record)
+            )
+            val sagBmp = decodeArgbBitmap(sagFile)
+            assertEquals(0, countExactRgbPixels(sagBmp, 0xFFFFFF), "Sagittal ${skin.id} rendered forbidden #FFFFFF")
+            assertEquals(0, countExactRgbPixels(sagBmp, 0x000000), "Sagittal ${skin.id} rendered forbidden #000000")
+            val sagPx = IntArray(sagBmp.width * sagBmp.height)
+            sagBmp.getPixels(sagPx, 0, sagBmp.width, 0, 0, sagBmp.width, sagBmp.height)
+            sagBmp.recycle()
+
+            if (skin == BuiltInSkinRegistry.InkMist) {
+                assertTrue(
+                    countDifferingPixels(coronalBasePx, sagPx) >= 500,
+                    "Sagittal side-profile view must be structurally distinct from coronal front view"
+                )
+            }
+
+            composeTestRule.runOnIdle { showGuide = true }
+            composeTestRule.waitForIdle()
+            val sagGuidePx = captureNodePixels("biomech_stage", File(tempDir, "sagittal_guide_${skin.id.storageKey}.png"))
+            assertTrue(
+                countDifferingPixels(sagPx, sagGuidePx) >= 80,
+                "Sagittal biomechanical guide must visibly render alignment & vector arrows for ${skin.id}"
+            )
+        }
+
+        // 3. Asymmetric starting side (RIGHT_TIGHTER vs BALANCED) mirrors initial active side
+        composeTestRule.runOnIdle {
+            activeSkin = BuiltInSkinRegistry.QinglvCeladon
+            plane = com.songxi.app.core.model.AnatomicalViewPlane.CORONAL_FRONT
+            showGuide = true
+            asymmetry = com.songxi.app.core.model.LateralAsymmetry.BALANCED
+        }
+        composeTestRule.waitForIdle()
+        val balancedPx = captureNodePixels("biomech_stage", File(tempDir, "asym_balanced.png"))
+        composeTestRule.runOnIdle {
+            asymmetry = com.songxi.app.core.model.LateralAsymmetry.RIGHT_TIGHTER
+        }
+        composeTestRule.waitForIdle()
+        val rightTighterPx = captureNodePixels("biomech_stage", File(tempDir, "asym_right.png"))
+        assertTrue(
+            countDifferingPixels(balancedPx, rightTighterPx) >= 80,
+            "RIGHT_TIGHTER must start bilateral pose on mirrored right side"
+        )
+    }
+
     private fun captureNodePixelHash(tag: String, outFile: File): String {
         composeTestRule.onNodeWithTag(tag).captureRoboImage(
             file = outFile,

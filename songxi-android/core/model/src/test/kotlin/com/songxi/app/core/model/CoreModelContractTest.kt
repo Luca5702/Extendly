@@ -249,4 +249,55 @@ class CoreModelContractTest {
                 .isMutedOrQuietAt(LocalDateTime.of(2026, 11, 16, 10, 30))
         )
     }
+
+    @Test
+    fun clinicalPoseTimelineAndAsymmetryContract() {
+        val bilateralPose = StretchPose(
+            id = "bilateral_neck",
+            title = "左右风池微倾",
+            gentleCue = "随绵长呼气让颈侧缓缓松开。",
+            targetRegions = setOf(BodyRegion.POSTERIOR_NECK),
+            durationSeconds = 60,
+            inhaleKeyframe = PoseKeyframe(),
+            exhaleKeyframe = PoseKeyframe(headTiltDeg = 20f),
+            bilateralSwitchAtHalfway = true
+        )
+
+        // 1. Balanced 50:50 -> switch at 30_000ms, primary side -1 (left) then +1 (right)
+        val setup = bilateralPose.resolveTimelineGuidance(2_000L, LateralAsymmetry.BALANCED)
+        assertEquals(PoseTimelineStage.SETUP, setup.stage)
+        assertEquals(-1, setup.activeBilateralSide)
+        assertFalse(setup.isSecondSegment)
+        assertEquals(30_000L, setup.switchPointMs)
+
+        val deepenFirst = bilateralPose.resolveTimelineGuidance(15_000L, LateralAsymmetry.BALANCED)
+        assertEquals(PoseTimelineStage.DEEPEN_HOLD, deepenFirst.stage)
+        assertEquals(bilateralPose.gentleCue, deepenFirst.activeCueCn)
+        assertEquals(-1, deepenFirst.activeBilateralSide)
+
+        val halfway = bilateralPose.resolveTimelineGuidance(30_000L, LateralAsymmetry.BALANCED)
+        assertEquals(PoseTimelineStage.HALFWAY_TRANSITION, halfway.stage)
+        assertTrue(halfway.isSecondSegment)
+        assertEquals(1, halfway.activeBilateralSide)
+
+        val safeReturn = bilateralPose.resolveTimelineGuidance(57_000L, LateralAsymmetry.BALANCED)
+        assertEquals(PoseTimelineStage.SAFE_RETURN, safeReturn.stage)
+        assertEquals(bilateralPose.clinical.safeReturnCueCn, safeReturn.activeCueCn)
+
+        // 2. Right tighter 60:40 -> switch at 36_000ms, starts on +1 (right) for 36s then -1 (left) for 24s
+        val rightEarly = bilateralPose.resolveTimelineGuidance(32_000L, LateralAsymmetry.RIGHT_TIGHTER)
+        assertEquals(36_000L, rightEarly.switchPointMs)
+        assertFalse(rightEarly.isSecondSegment)
+        assertEquals(1, rightEarly.activeBilateralSide)
+
+        val rightLate = bilateralPose.resolveTimelineGuidance(42_000L, LateralAsymmetry.RIGHT_TIGHTER)
+        assertTrue(rightLate.isSecondSegment)
+        assertEquals(-1, rightLate.activeBilateralSide)
+
+        // 3. Left tighter 60:40 -> switch at 36_000ms, starts on -1 (left) for 36s then +1 (right) for 24s
+        val leftEarly = bilateralPose.resolveTimelineGuidance(32_000L, LateralAsymmetry.LEFT_TIGHTER)
+        assertEquals(36_000L, leftEarly.switchPointMs)
+        assertFalse(leftEarly.isSecondSegment)
+        assertEquals(-1, leftEarly.activeBilateralSide)
+    }
 }

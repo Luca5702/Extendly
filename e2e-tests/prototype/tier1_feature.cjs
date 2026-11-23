@@ -941,6 +941,56 @@ const tests = [
       assert.ok(stats.designBytes > 2000 && stats.mirrorBytes > 2000 && stats.skinSpecBytes > 2000);
     },
   },
+  {
+    id: 'P-T1-35',
+    tier: 1,
+    feature: 'F8',
+    name: 'Clinical 3-stage prescription, asymmetry 6:4, sagittal/biomechanics overlay, 式法精要 sheet & Body Relief Atlas work end-to-end',
+    fn: async ({ session }) => {
+      await session.withPage(async ({ page, prototypeUrl }) => {
+        await openPrototypeReadyAtHome(page, prototypeUrl);
+        await clickTestId(page, TAGS.nav_tab_bodymap);
+
+        await clickTestId(page, TAGS.bodymap_asymmetry_right);
+        const preview = await readTestIdText(page, TAGS.bodymap_prescription_preview);
+        assert.ok(preview.includes('三阶处方序'), `Expected 3-stage prescription preview, got '${preview}'`);
+
+        await clickTestId(page, TAGS.bodymap_compose_start_button);
+        assert.equal(await isVisible(page, TAGS.player_screen), true);
+        assert.equal(await isVisible(page, TAGS.player_timeline_stage_badge), true);
+
+        // neck_chin_tuck is warmup #1 and uses sagittal side-profile view + biomechanical guide
+        const planeAttr = await byTestId(page, TAGS.player_figure_canvas).getAttribute('data-view-plane');
+        assert.equal(planeAttr, 'sagittal', 'First warmup pose neck_chin_tuck must render in sagittal side-profile plane');
+
+        await clickTestId(page, TAGS.player_biomechanics_toggle);
+        assert.equal(await byTestId(page, TAGS.player_figure_canvas).getAttribute('data-biomechanics'), 'false');
+        await clickTestId(page, TAGS.player_biomechanics_toggle);
+        assert.equal(await byTestId(page, TAGS.player_figure_canvas).getAttribute('data-biomechanics'), 'true');
+
+        await clickTestId(page, TAGS.player_clinical_guide_button);
+        assert.equal(await isVisible(page, TAGS.player_clinical_guide_sheet), true);
+        const guideText = await readTestIdText(page, TAGS.player_clinical_guide_sheet);
+        assert.ok(guideText.includes('靶向肌群') && guideText.includes('RPE'), `Expected clinical details, got '${guideText}'`);
+        await clickTestId(page, TAGS.player_clinical_guide_close);
+        assert.equal(await isVisible(page, TAGS.player_clinical_guide_sheet), false);
+
+        for (let step = 0; step < 8; step++) {
+          if (await isVisible(page, TAGS.completion_screen)) break;
+          await clickTestId(page, TAGS.player_next_pose_button);
+        }
+        assert.equal(await isVisible(page, TAGS.completion_screen), true);
+        await clickTestId(page, TAGS.completion_feeling_light);
+        await clickTestId(page, TAGS.completion_finish_button);
+
+        await clickTestId(page, TAGS.nav_tab_journal);
+        assert.equal(await isVisible(page, TAGS.journal_body_relief_atlas), true);
+        const atlasText = await readTestIdText(page, TAGS.journal_body_relief_atlas);
+        assert.ok(atlasText.includes('月度身体释压图谱') && atlasText.includes('重点温养'), `Unexpected atlas text: '${atlasText}'`);
+        assert.equal(FORBIDDEN_STREAK_SHAME_REGEX.test(atlasText), false);
+      });
+    },
+  },
 ];
 
 module.exports = tests;

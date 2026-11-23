@@ -131,8 +131,11 @@ private class WriteThroughStretchCatalogRepository(
     override fun heroRoutineFor(scene: PostureScene): StretchRoutine = backing.heroRoutineFor(scene)
     override fun reminderQuickStartRoutine(): StretchRoutine = backing.reminderQuickStartRoutine()
     override fun findRoutineById(routineId: String): StretchRoutine? = backing.findRoutineById(routineId)
-    override fun composeCustomRoutine(regions: Set<BodyRegion>, targetMinutes: Int): StretchRoutine =
-        backing.composeCustomRoutine(regions, targetMinutes)
+    override fun composeCustomRoutine(
+        regions: Set<BodyRegion>,
+        targetMinutes: Int,
+        asymmetry: com.songxi.app.core.model.LateralAsymmetry
+    ): StretchRoutine = backing.composeCustomRoutine(regions, targetMinutes, asymmetry)
 
     override suspend fun markBookletDayCompleted(bookletId: String, dayIndex: Int) {
         _completedDays.update { cur ->

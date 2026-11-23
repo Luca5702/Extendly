@@ -97,6 +97,7 @@ class MainActivity : ComponentActivity() {
             splashAdLedgerRepository = container.splashAdLedgerRepository,
             audioEngine = container.audioEngine,
             hapticEngine = container.hapticEngine,
+            catalogRepository = container.stretchCatalogRepository,
             clockProvider = container.clockProvider
         )
     }

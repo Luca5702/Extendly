@@ -17,10 +17,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
+import com.songxi.app.core.model.AnatomicalViewPlane
 import com.songxi.app.core.model.BodyRegion
+import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PoseKeyframe
 import com.songxi.app.core.model.StretchPose
 import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -33,8 +36,11 @@ fun EditorialStretchFigureCanvas(
     isExhale: Boolean,
     modifier: Modifier = Modifier,
     isSecondHalf: Boolean = false,
+    asymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED,
     skin: SongxiSkin = LocalSongxiSkin.current,
-    eyesFreeMinimal: Boolean = false
+    eyesFreeMinimal: Boolean = false,
+    viewPlane: AnatomicalViewPlane = pose.clinical.viewPlane,
+    showBiomechanicalGuide: Boolean = false
 ) {
     val p = breathProgress.finiteClamp(0f, 1f, 0f)
     val eased = 0.5f - 0.5f * cos(PI.toFloat() * p)
@@ -45,15 +51,15 @@ fun EditorialStretchFigureCanvas(
     } else {
         safeExhale.lerp(safeInhale, eased)
     }
-    val effectiveKeyframe = if (pose.bilateralSwitchAtHalfway && isSecondHalf) {
+    val side = when {
+        !pose.bilateralSwitchAtHalfway -> 0
+        !isSecondHalf -> asymmetry.primarySideSign
+        else -> -asymmetry.primarySideSign
+    }
+    val effectiveKeyframe = if (pose.bilateralSwitchAtHalfway && side > 0) {
         baseKeyframe.mirroredBilaterally()
     } else {
         baseKeyframe
-    }
-    val side = when {
-        !pose.bilateralSwitchAtHalfway -> 0
-        isSecondHalf -> 1
-        else -> -1
     }
     EditorialStretchFigureCanvas(
         keyframe = effectiveKeyframe,
@@ -61,7 +67,9 @@ fun EditorialStretchFigureCanvas(
         skin = skin,
         highlightedRegions = pose.targetRegions,
         eyesFreeMinimal = eyesFreeMinimal,
-        bilateralSide = side
+        bilateralSide = side,
+        viewPlane = viewPlane,
+        showBiomechanicalGuide = showBiomechanicalGuide
     )
 }
 
@@ -72,7 +80,9 @@ fun EditorialStretchFigureCanvas(
     skin: SongxiSkin = LocalSongxiSkin.current,
     highlightedRegions: Set<BodyRegion> = emptySet(),
     eyesFreeMinimal: Boolean = false,
-    bilateralSide: Int = 0
+    bilateralSide: Int = 0,
+    viewPlane: AnatomicalViewPlane = AnatomicalViewPlane.CORONAL_FRONT,
+    showBiomechanicalGuide: Boolean = false
 ) {
     val tunicPath = remember { Path() }
     val armPath = remember { Path() }
@@ -90,37 +100,93 @@ fun EditorialStretchFigureCanvas(
 
         val safeKeyframe = keyframe.sanitized()
         val safeBilateral = bilateralSide.coerceIn(-1, 1)
-        val kin = solveFigureKinematics(
-            keyframe = safeKeyframe,
-            bilateralSide = safeBilateral,
-            ox = ox,
-            oy = oy,
-            s = s
-        )
 
-        if (eyesFreeMinimal) {
-            drawEyesFreeFigure(
-                skin = skin,
-                kin = kin,
-                s = s,
-                highlightedRegions = highlightedRegions,
-                bilateralSide = safeBilateral,
-                tunicPath = tunicPath,
-                armPath = armPath
-            )
-        } else {
-            drawFullEditorialFigure(
-                skin = skin,
+        if (viewPlane == AnatomicalViewPlane.SAGITTAL_SIDE) {
+            val sagKin = solveSagittalKinematics(
                 keyframe = safeKeyframe,
-                kin = kin,
-                s = s,
-                highlightedRegions = highlightedRegions,
                 bilateralSide = safeBilateral,
-                pt = ::pt,
-                tunicPath = tunicPath,
-                armPath = armPath,
-                detailPath = detailPath
+                ox = ox,
+                oy = oy,
+                s = s
             )
+            if (eyesFreeMinimal) {
+                drawEyesFreeSagittalFigure(
+                    skin = skin,
+                    kin = sagKin,
+                    s = s,
+                    highlightedRegions = highlightedRegions,
+                    bilateralSide = safeBilateral,
+                    tunicPath = tunicPath,
+                    armPath = armPath
+                )
+            } else {
+                drawSagittalEditorialFigure(
+                    skin = skin,
+                    keyframe = safeKeyframe,
+                    kin = sagKin,
+                    s = s,
+                    highlightedRegions = highlightedRegions,
+                    bilateralSide = safeBilateral,
+                    pt = ::pt,
+                    tunicPath = tunicPath,
+                    armPath = armPath,
+                    detailPath = detailPath
+                )
+                if (showBiomechanicalGuide) {
+                    drawSagittalBiomechanicalGuide(
+                        skin = skin,
+                        keyframe = safeKeyframe,
+                        kin = sagKin,
+                        s = s,
+                        highlightedRegions = highlightedRegions,
+                        detailPath = detailPath
+                    )
+                }
+            }
+        } else {
+            val kin = solveFigureKinematics(
+                keyframe = safeKeyframe,
+                bilateralSide = safeBilateral,
+                ox = ox,
+                oy = oy,
+                s = s
+            )
+
+            if (eyesFreeMinimal) {
+                drawEyesFreeFigure(
+                    skin = skin,
+                    kin = kin,
+                    s = s,
+                    highlightedRegions = highlightedRegions,
+                    bilateralSide = safeBilateral,
+                    tunicPath = tunicPath,
+                    armPath = armPath
+                )
+            } else {
+                drawFullEditorialFigure(
+                    skin = skin,
+                    keyframe = safeKeyframe,
+                    kin = kin,
+                    s = s,
+                    highlightedRegions = highlightedRegions,
+                    bilateralSide = safeBilateral,
+                    pt = ::pt,
+                    tunicPath = tunicPath,
+                    armPath = armPath,
+                    detailPath = detailPath
+                )
+                if (showBiomechanicalGuide) {
+                    drawCoronalBiomechanicalGuide(
+                        skin = skin,
+                        keyframe = safeKeyframe,
+                        kin = kin,
+                        s = s,
+                        highlightedRegions = highlightedRegions,
+                        bilateralSide = safeBilateral,
+                        detailPath = detailPath
+                    )
+                }
+            }
         }
     }
 }
@@ -147,6 +213,22 @@ private data class FigureKinematics(
     val chestNy: Float
 )
 
+private data class SagittalKinematics(
+    val pelvis: Offset,
+    val lumbarMid: Offset,
+    val thoracicMid: Offset,
+    val neckBase: Offset,
+    val headCenter: Offset,
+    val noseTip: Offset,
+    val glabella: Offset,
+    val shoulder: Offset,
+    val knee: Offset,
+    val ankle: Offset,
+    val arm: ArmJoints,
+    val headPitchDeg: Float,
+    val hasDeskProp: Boolean
+)
+
 private fun Float.finiteClamp(minVal: Float, maxVal: Float, fallback: Float): Float =
     if (isFinite()) coerceIn(minVal, maxVal) else fallback
 
@@ -169,6 +251,123 @@ private fun smoothstep(edge0: Float, edge1: Float, x: Float): Float {
 }
 
 private fun lerpFloat(a: Float, b: Float, t: Float): Float = a + (b - a) * t
+
+private fun solveSagittalKinematics(
+    keyframe: PoseKeyframe,
+    bilateralSide: Int,
+    ox: Float,
+    oy: Float,
+    s: Float
+): SagittalKinematics {
+    fun pt(nx: Float, ny: Float): Offset = Offset(ox + nx * s, oy + ny * s)
+
+    val spine = keyframe.spineArcRatio.coerceIn(-1f, 1f)
+    val chin = keyframe.chinTuckRatio.coerceIn(-1f, 1f)
+    val avgDrop = ((keyframe.leftShoulderDropRatio + keyframe.rightShoulderDropRatio) * 0.5f).coerceIn(0f, 1f)
+    val armDeg = ((keyframe.leftArmAngleDeg + keyframe.rightArmAngleDeg) * 0.5f).coerceIn(0f, 165f)
+    val wrist = keyframe.wristFlexRatio.coerceIn(-1f, 1f)
+
+    val isHipHingeFold = spine < -0.15f && armDeg in 24f..44f
+    val hingeAmount = if (isHipHingeFold) (-spine).coerceIn(0f, 1f) else 0f
+
+    val pelvisNx = 0.39f - spine * 0.012f
+    val pelvisNy = 0.755f
+
+    // Articulated S-curve spine in sagittal profile (+x = anterior/right, -x = posterior/left)
+    val lumbarNx = pelvisNx + spine * 0.042f + hingeAmount * 0.032f
+    val lumbarNy = 0.635f + hingeAmount * 0.014f
+    val thoracicNx = pelvisNx + 0.016f + spine * 0.048f + hingeAmount * 0.095f
+    val thoracicNy = 0.515f - spine * 0.022f + hingeAmount * 0.042f
+    val neckNx = thoracicNx + 0.012f - max(0f, chin) * 0.018f + hingeAmount * 0.032f
+    val neckNy = thoracicNy - 0.088f + avgDrop * 0.010f
+
+    // Axial posterior chin glide (-x) vs gentle occiput cradle upward tilt (-chin)
+    val headNx = neckNx + 0.024f - chin * 0.056f + hingeAmount * 0.022f
+    val headNy = neckNy - 0.076f - max(0f, chin) * 0.010f + min(0f, chin) * 0.012f
+    val headPitchDeg = -chin * 14f + hingeAmount * 16f - max(0f, spine) * 6f
+
+    val shNx = thoracicNx + 0.008f - max(0f, spine) * 0.018f
+    val shNy = neckNy + 0.042f + avgDrop * 0.046f
+
+    // Posterior clasp behind hip vs desk reach vs occiput cradle vs lap rest
+    val isPosteriorClasp = spine > 0.32f && armDeg in 25f..48f
+    val isDeskReach = armDeg in 50f..82f
+    val isOcciputCradle = armDeg >= 90f
+
+    val (elNx, elNy, handNx, handNy, wristDeg) = when {
+        isPosteriorClasp -> {
+            val claspPull = spine.coerceIn(0f, 1f)
+            floatArrayOf(
+                shNx - 0.075f - claspPull * 0.028f,
+                shNy + 0.115f,
+                pelvisNx - 0.095f - claspPull * 0.042f,
+                pelvisNy - 0.035f + avgDrop * 0.020f,
+                -22f
+            )
+        }
+        isOcciputCradle -> {
+            floatArrayOf(
+                headNx + 0.085f,
+                headNy + 0.015f,
+                headNx - 0.052f,
+                headNy + 0.012f,
+                -35f
+            )
+        }
+        isDeskReach -> {
+            floatArrayOf(
+                shNx + 0.082f,
+                shNy + 0.105f,
+                0.715f,
+                0.605f - wrist * 0.015f,
+                wrist * 18f
+            )
+        }
+        else -> {
+            floatArrayOf(
+                shNx + 0.035f + hingeAmount * 0.035f,
+                shNy + 0.125f,
+                0.555f + hingeAmount * 0.055f,
+                0.725f + hingeAmount * 0.015f,
+                8f
+            )
+        }
+    }
+
+    val pitchRad = Math.toRadians(headPitchDeg.toDouble()).toFloat()
+    val headCenterPt = pt(headNx, headNy)
+    val noseOffset = Offset(
+        x = headCenterPt.x + (cos(pitchRad) * 0.064f - sin(pitchRad) * 0.008f) * s,
+        y = headCenterPt.y + (sin(pitchRad) * 0.064f + cos(pitchRad) * 0.008f) * s
+    )
+    val glabellaPt = Offset(
+        x = headCenterPt.x + cos(pitchRad) * 0.054f * s,
+        y = headCenterPt.y - 0.018f * s + sin(pitchRad) * 0.045f * s
+    )
+
+    val legShift = bilateralSide * 0.016f
+    return SagittalKinematics(
+        pelvis = pt(pelvisNx, pelvisNy),
+        lumbarMid = pt(lumbarNx, lumbarNy),
+        thoracicMid = pt(thoracicNx, thoracicNy),
+        neckBase = pt(neckNx, neckNy),
+        headCenter = headCenterPt,
+        noseTip = noseOffset,
+        glabella = glabellaPt,
+        shoulder = pt(shNx, shNy),
+        knee = pt(0.655f + legShift, 0.742f - max(0, bilateralSide) * 0.022f),
+        ankle = pt(0.675f + legShift, 0.875f),
+        arm = ArmJoints(
+            shoulder = pt(shNx, shNy),
+            elbow = pt(elNx, elNy),
+            hand = pt(handNx, handNy),
+            wristAngleDeg = wristDeg,
+            isPosterior = isPosteriorClasp
+        ),
+        headPitchDeg = headPitchDeg,
+        hasDeskProp = isDeskReach
+    )
+}
 
 private fun solveFigureKinematics(
     keyframe: PoseKeyframe,
@@ -283,6 +482,723 @@ private fun solveFigureKinematics(
         cxNorm = cx,
         chestNy = chestNy
     )
+}
+
+private fun DrawScope.drawEyesFreeSagittalFigure(
+    skin: SongxiSkin,
+    kin: SagittalKinematics,
+    s: Float,
+    highlightedRegions: Set<BodyRegion>,
+    bilateralSide: Int,
+    tunicPath: Path,
+    armPath: Path
+) {
+    val glowStroke = 6.0.dp.toPx()
+    val crispStroke = 2.0.dp.toPx()
+    val glowColor = skin.palette.accentPrimaryGlow.copy(alpha = 0.22f)
+    val lineColor = skin.palette.accentPrimary.copy(alpha = 0.74f)
+
+    buildSagittalTorsoPath(tunicPath, kin, s)
+    drawPath(tunicPath, color = glowColor, style = Stroke(width = glowStroke, join = StrokeJoin.Round))
+    drawPath(tunicPath, color = lineColor, style = Stroke(width = crispStroke, join = StrokeJoin.Round))
+
+    val headR = 0.064f * s
+    drawCircle(color = glowColor, radius = headR, center = kin.headCenter, style = Stroke(width = glowStroke))
+    drawCircle(color = lineColor, radius = headR, center = kin.headCenter, style = Stroke(width = crispStroke))
+
+    // Articulated S-curve spinal meridian
+    armPath.reset()
+    armPath.moveTo(kin.pelvis.x, kin.pelvis.y)
+    armPath.cubicTo(
+        kin.lumbarMid.x,
+        kin.lumbarMid.y,
+        kin.thoracicMid.x,
+        kin.thoracicMid.y,
+        kin.neckBase.x,
+        kin.neckBase.y
+    )
+    drawPath(
+        armPath,
+        color = skin.palette.accentSecondary.copy(alpha = 0.62f),
+        style = Stroke(
+            width = 1.6.dp.toPx(),
+            cap = StrokeCap.Round,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f), 0f)
+        )
+    )
+
+    armPath.reset()
+    armPath.moveTo(kin.arm.shoulder.x, kin.arm.shoulder.y)
+    armPath.quadraticTo(kin.arm.elbow.x, kin.arm.elbow.y, kin.arm.hand.x, kin.arm.hand.y)
+    drawPath(armPath, color = glowColor, style = Stroke(width = glowStroke, cap = StrokeCap.Round))
+    drawPath(armPath, color = lineColor, style = Stroke(width = crispStroke, cap = StrokeCap.Round))
+
+    if (bilateralSide != 0) {
+        val sideArcX = if (bilateralSide < 0) kin.pelvis.x - 0.08f * s else kin.knee.x + 0.05f * s
+        drawCircle(
+            color = skin.palette.accentPrimary.copy(alpha = 0.55f),
+            radius = 0.032f * s,
+            center = Offset(sideArcX, kin.pelvis.y - 0.04f * s),
+            style = Stroke(width = 1.4.dp.toPx())
+        )
+    }
+    drawSagittalRegionWarmth(skin = skin, kin = kin, s = s, highlightedRegions = highlightedRegions)
+}
+
+private fun DrawScope.drawSagittalEditorialFigure(
+    skin: SongxiSkin,
+    keyframe: PoseKeyframe,
+    kin: SagittalKinematics,
+    s: Float,
+    highlightedRegions: Set<BodyRegion>,
+    bilateralSide: Int,
+    pt: (Float, Float) -> Offset,
+    tunicPath: Path,
+    armPath: Path,
+    detailPath: Path
+) {
+    val ill = skin.illustration
+    val contourW = ill.contourStrokeWidthDp.finiteClamp(0.5f, 6f, 1.8f).dp.toPx()
+
+    // 1. Minimalist wooden chair seat, low backrest & optional desk front reference
+    drawLine(
+        color = skin.palette.borderHairline,
+        start = pt(0.24f, 0.79f),
+        end = pt(0.58f, 0.79f),
+        strokeWidth = 1.6.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+    drawLine(
+        color = skin.palette.borderHairline.copy(alpha = 0.75f),
+        start = pt(0.25f, 0.55f),
+        end = pt(0.27f, 0.79f),
+        strokeWidth = 1.4.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+    drawLine(
+        color = skin.palette.accentSecondary.copy(alpha = 0.28f),
+        start = pt(0.22f, 0.88f),
+        end = pt(0.76f, 0.88f),
+        strokeWidth = 1.0.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+    if (kin.hasDeskProp) {
+        drawLine(
+            color = skin.palette.accentSecondary.copy(alpha = 0.45f),
+            start = pt(0.67f, 0.625f),
+            end = pt(0.83f, 0.625f),
+            strokeWidth = 2.0.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+    }
+
+    // 2. Posterior arm (behind-back clasp) if behind torso
+    if (kin.arm.isPosterior) {
+        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath)
+    }
+
+    // 3. Seated thigh & calf silhouette (with distinct bilateral figure-four leg fold when bilateralSide != 0)
+    val legWidth = 0.068f * s
+    if (bilateralSide > 0) {
+        // Far leg crossed figure-four elevated arc
+        detailPath.reset()
+        detailPath.moveTo(kin.pelvis.x + 0.02f * s, kin.pelvis.y - 0.01f * s)
+        detailPath.quadraticTo(
+            (kin.pelvis.x + kin.knee.x) * 0.52f,
+            kin.pelvis.y - 0.095f * s,
+            kin.knee.x - 0.02f * s,
+            kin.knee.y - 0.03f * s
+        )
+        drawPath(
+            path = detailPath,
+            color = ill.garmentShadow,
+            style = Stroke(width = legWidth * 0.85f, cap = StrokeCap.Round)
+        )
+    }
+
+    armPath.reset()
+    armPath.moveTo(kin.pelvis.x + 0.02f * s, kin.pelvis.y + 0.01f * s)
+    armPath.lineTo(kin.knee.x, kin.knee.y)
+    armPath.lineTo(kin.ankle.x, kin.ankle.y)
+    drawPath(
+        path = armPath,
+        color = ill.contourStroke,
+        style = Stroke(width = legWidth + contourW * 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+    drawPath(
+        path = armPath,
+        color = ill.garmentFill,
+        style = Stroke(width = legWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+
+    if (bilateralSide < 0) {
+        // Near leg crossed figure-four ankle resting atop opposite knee
+        val crossedKnee = Offset(kin.pelvis.x + 0.145f * s, kin.pelvis.y - 0.055f * s)
+        val crossedAnkle = Offset(kin.knee.x - 0.035f * s, kin.knee.y - 0.018f * s)
+        drawLine(
+            color = ill.garmentShadow,
+            start = Offset(kin.pelvis.x + 0.02f * s, kin.pelvis.y),
+            end = crossedKnee,
+            strokeWidth = legWidth * 0.78f,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = skin.palette.accentPrimary.copy(alpha = 0.65f),
+            start = crossedKnee,
+            end = crossedAnkle,
+            strokeWidth = 3.2.dp.toPx(),
+            cap = StrokeCap.Round
+        )
+    } else if (bilateralSide > 0) {
+        drawCircle(
+            color = skin.palette.accentPrimary.copy(alpha = 0.58f),
+            radius = 0.030f * s,
+            center = Offset(kin.knee.x - 0.02f * s, kin.knee.y - 0.03f * s),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+    }
+
+    // 4. Moonlit rim-light aura for DUSK_PINE
+    buildSagittalTorsoPath(tunicPath, kin, s)
+    if (ill.figureStyle == FigureStyle.MOONLIT_CONTOUR) {
+        drawPath(
+            path = tunicPath,
+            color = skin.palette.accentPrimary.copy(alpha = 0.24f),
+            style = Stroke(width = 4.4.dp.toPx(), join = StrokeJoin.Round)
+        )
+    }
+    if (ill.figureStyle == FigureStyle.INK_BRUSH_WASH) {
+        drawPath(
+            path = tunicPath,
+            color = ill.contourStroke.copy(alpha = 0.16f),
+            style = Stroke(width = 3.6.dp.toPx(), join = StrokeJoin.Round)
+        )
+    }
+
+    // 5. Neck column (clearly exposes posterior cervical elongation in profile)
+    drawLine(
+        color = ill.skinToneFill,
+        start = Offset(kin.headCenter.x - 0.010f * s, kin.headCenter.y + 0.042f * s),
+        end = Offset(kin.neckBase.x, kin.neckBase.y + 0.028f * s),
+        strokeWidth = 0.044f * s,
+        cap = StrokeCap.Round
+    )
+    drawLine(
+        color = ill.contourStroke.copy(alpha = 0.55f),
+        start = Offset(kin.headCenter.x - 0.032f * s, kin.headCenter.y + 0.038f * s),
+        end = Offset(kin.neckBase.x - 0.022f * s, kin.neckBase.y + 0.024f * s),
+        strokeWidth = contourW * 0.85f,
+        cap = StrokeCap.Round
+    )
+
+    // 6. Draped side-profile Song tunic & internal S-curve spinal seam
+    drawPath(path = tunicPath, color = ill.garmentFill)
+    drawPath(
+        path = tunicPath,
+        color = ill.contourStroke,
+        style = Stroke(width = contourW, join = StrokeJoin.Round)
+    )
+
+    // Subtle anatomical spine curve seam along posterior tunic
+    detailPath.reset()
+    detailPath.moveTo(kin.pelvis.x - 0.042f * s, kin.pelvis.y - 0.02f * s)
+    detailPath.cubicTo(
+        kin.lumbarMid.x - 0.045f * s,
+        kin.lumbarMid.y,
+        kin.thoracicMid.x - 0.048f * s,
+        kin.thoracicMid.y,
+        kin.neckBase.x - 0.022f * s,
+        kin.neckBase.y + 0.015f * s
+    )
+    drawPath(
+        path = detailPath,
+        color = skin.palette.accentPrimary.copy(alpha = 0.42f),
+        style = Stroke(width = 1.6.dp.toPx(), cap = StrokeCap.Round)
+    )
+
+    // Side collar trim
+    val collarColor = when (ill.figureStyle) {
+        FigureStyle.EDITORIAL_MINERAL_FLAT -> Color(0xFFB88655)
+        FigureStyle.MOONLIT_CONTOUR -> skin.palette.accentSecondary
+        FigureStyle.BOTANICAL_GOUACHE -> skin.palette.accentSecondary
+        FigureStyle.INK_BRUSH_WASH -> ill.garmentShadow
+    }
+    drawLine(
+        color = collarColor,
+        start = Offset(kin.neckBase.x - 0.012f * s, kin.neckBase.y + 0.010f * s),
+        end = Offset(kin.thoracicMid.x + 0.056f * s, kin.thoracicMid.y + 0.018f * s),
+        strokeWidth = 2.2.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+
+    // 7. Side-profile Song head, posterior hair chignon & serene profile expression
+    rotate(degrees = kin.headPitchDeg, pivot = kin.headCenter) {
+        val bunCenter = Offset(kin.headCenter.x - 0.068f * s, kin.headCenter.y - 0.032f * s)
+        drawCircle(color = ill.hairFill, radius = 0.033f * s, center = bunCenter)
+
+        when (ill.figureStyle) {
+            FigureStyle.EDITORIAL_MINERAL_FLAT -> {
+                drawLine(
+                    color = Color(0xFFB88655),
+                    start = Offset(bunCenter.x - 0.028f * s, bunCenter.y + 0.024f * s),
+                    end = Offset(bunCenter.x + 0.022f * s, bunCenter.y - 0.032f * s),
+                    strokeWidth = 1.8.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
+            FigureStyle.BOTANICAL_GOUACHE -> {
+                val ornament = Offset(bunCenter.x + 0.012f * s, bunCenter.y - 0.018f * s)
+                drawCircle(color = Color(0xFFE6A598), radius = 3.0.dp.toPx(), center = ornament)
+                drawCircle(color = skin.palette.accentPrimary, radius = 1.3.dp.toPx(), center = ornament)
+            }
+            else -> Unit
+        }
+
+        val headRx = 0.060f * s
+        val headRy = 0.068f * s
+        val faceTopLeft = Offset(kin.headCenter.x - headRx, kin.headCenter.y - headRy)
+        val faceSize = Size(headRx * 2f, headRy * 2f)
+        drawOval(color = ill.skinToneFill, topLeft = faceTopLeft, size = faceSize)
+
+        //Gentle profile nose bridge & chin contour facing right
+        detailPath.reset()
+        detailPath.moveTo(kin.headCenter.x + headRx * 0.86f, kin.headCenter.y - headRy * 0.22f)
+        detailPath.lineTo(kin.headCenter.x + headRx * 1.16f, kin.headCenter.y + headRy * 0.10f)
+        detailPath.quadraticTo(
+            kin.headCenter.x + headRx * 0.96f,
+            kin.headCenter.y + headRy * 0.26f,
+            kin.headCenter.x + headRx * 0.84f,
+            kin.headCenter.y + headRy * 0.42f
+        )
+        drawPath(path = detailPath, color = ill.skinToneFill)
+        drawPath(
+            path = detailPath,
+            color = ill.contourStroke,
+            style = Stroke(width = contourW * 0.85f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+
+        drawOval(
+            color = ill.contourStroke,
+            topLeft = faceTopLeft,
+            size = faceSize,
+            style = Stroke(width = contourW * 0.88f)
+        )
+
+        // Crown & posterior hair cap
+        detailPath.reset()
+        detailPath.moveTo(kin.headCenter.x + headRx * 0.72f, kin.headCenter.y - headRy * 0.48f)
+        detailPath.quadraticTo(
+            kin.headCenter.x - headRx * 0.15f,
+            kin.headCenter.y - headRy * 1.24f,
+            kin.headCenter.x - headRx * 0.98f,
+            kin.headCenter.y - headRy * 0.15f
+        )
+        detailPath.quadraticTo(
+            kin.headCenter.x - headRx * 1.05f,
+            kin.headCenter.y + headRy * 0.55f,
+            kin.headCenter.x - headRx * 0.35f,
+            kin.headCenter.y + headRy * 0.58f
+        )
+        detailPath.quadraticTo(
+            kin.headCenter.x - headRx * 0.12f,
+            kin.headCenter.y - headRy * 0.22f,
+            kin.headCenter.x + headRx * 0.72f,
+            kin.headCenter.y - headRy * 0.48f
+        )
+        detailPath.close()
+        drawPath(path = detailPath, color = ill.hairFill)
+
+        // Profile brow, eye & serene smile
+        val featureColor = skin.palette.inkPrimary.copy(alpha = 0.80f)
+        val fineStroke = max(1.1.dp.toPx(), contourW * 0.68f)
+        val eyeX = kin.headCenter.x + headRx * 0.52f
+        val eyeY = kin.headCenter.y - headRy * 0.06f
+        drawLine(
+            color = featureColor.copy(alpha = 0.58f),
+            start = Offset(eyeX - 0.012f * s, eyeY - 0.015f * s),
+            end = Offset(eyeX + 0.012f * s, eyeY - 0.013f * s),
+            strokeWidth = fineStroke * 0.85f,
+            cap = StrokeCap.Round
+        )
+        if (keyframe.eyesClosed) {
+            detailPath.reset()
+            detailPath.moveTo(eyeX - 0.010f * s, eyeY)
+            detailPath.quadraticTo(eyeX, eyeY + 0.008f * s, eyeX + 0.011f * s, eyeY)
+            drawPath(
+                path = detailPath,
+                color = featureColor,
+                style = Stroke(width = fineStroke, cap = StrokeCap.Round)
+            )
+        } else {
+            drawCircle(
+                color = featureColor,
+                radius = max(1.5.dp.toPx(), 0.006f * s),
+                center = Offset(eyeX + 0.002f * s, eyeY + 0.002f * s)
+            )
+        }
+    }
+
+    // 8. Foreground arm (desk cat-cow, occiput cradle, lap/butterfly support)
+    if (!kin.arm.isPosterior) {
+        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath)
+    }
+
+    // 9. Meridian warmth highlights on target body regions
+    drawSagittalRegionWarmth(skin = skin, kin = kin, s = s, highlightedRegions = highlightedRegions)
+}
+
+private fun buildSagittalTorsoPath(
+    path: Path,
+    kin: SagittalKinematics,
+    s: Float
+) {
+    val backHip = Offset(kin.pelvis.x - 0.068f * s, kin.pelvis.y + 0.025f * s)
+    val frontHip = Offset(kin.pelvis.x + 0.088f * s, kin.pelvis.y + 0.025f * s)
+    val backNeck = Offset(kin.neckBase.x - 0.030f * s, kin.neckBase.y + 0.012f * s)
+    val frontNeck = Offset(kin.neckBase.x + 0.032f * s, kin.neckBase.y + 0.020f * s)
+
+    path.reset()
+    path.moveTo(backNeck.x, backNeck.y)
+    path.lineTo(frontNeck.x, frontNeck.y)
+    path.cubicTo(
+        kin.thoracicMid.x + 0.082f * s,
+        kin.thoracicMid.y - 0.01f * s,
+        kin.lumbarMid.x + 0.085f * s,
+        kin.lumbarMid.y,
+        frontHip.x,
+        frontHip.y
+    )
+    path.quadraticTo(kin.pelvis.x + 0.01f * s, kin.pelvis.y + 0.048f * s, backHip.x, backHip.y)
+    path.cubicTo(
+        kin.lumbarMid.x - 0.068f * s,
+        kin.lumbarMid.y,
+        kin.thoracicMid.x - 0.068f * s,
+        kin.thoracicMid.y,
+        backNeck.x,
+        backNeck.y
+    )
+    path.close()
+}
+
+private fun DrawScope.drawSagittalRegionWarmth(
+    skin: SongxiSkin,
+    kin: SagittalKinematics,
+    s: Float,
+    highlightedRegions: Set<BodyRegion>
+) {
+    if (highlightedRegions.isEmpty()) return
+    val auraRadius = (0.068f * s).coerceAtLeast(6f)
+    val dotRadius = 2.3.dp.toPx()
+
+    fun drawWarmPoint(pt: Offset) {
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(skin.palette.accentPrimary.copy(alpha = 0.24f), Color.Transparent),
+                center = pt,
+                radius = auraRadius
+            ),
+            radius = auraRadius,
+            center = pt
+        )
+        drawCircle(
+            color = skin.palette.sealVermilion.copy(alpha = 0.64f),
+            radius = dotRadius,
+            center = pt
+        )
+    }
+
+    for (region in highlightedRegions) {
+        when (region) {
+            BodyRegion.EYE_BROW -> drawWarmPoint(kin.glabella)
+            BodyRegion.POSTERIOR_NECK -> drawWarmPoint(Offset(kin.neckBase.x - 0.018f * s, kin.neckBase.y - 0.02f * s))
+            BodyRegion.TRAPEZIUS_SHOULDER -> drawWarmPoint(kin.shoulder)
+            BodyRegion.THORACIC_CHEST -> drawWarmPoint(kin.thoracicMid)
+            BodyRegion.LOWER_LUMBAR -> drawWarmPoint(kin.lumbarMid)
+            BodyRegion.MOUSE_WRIST -> drawWarmPoint(kin.arm.hand)
+        }
+    }
+}
+
+private fun DrawScope.drawSagittalBiomechanicalGuide(
+    skin: SongxiSkin,
+    keyframe: PoseKeyframe,
+    kin: SagittalKinematics,
+    s: Float,
+    highlightedRegions: Set<BodyRegion>,
+    detailPath: Path
+) {
+    val axisColor = skin.palette.accentSecondary.copy(alpha = 0.56f)
+    val vectorColor = skin.palette.sealVermilion.copy(alpha = 0.78f)
+    val fascialColor = skin.palette.accentPrimary.copy(alpha = 0.68f)
+
+    // 1. Plumb vertical alignment reference passing through sit-bone (百会—坐骨铅垂线)
+    val plumbTop = Offset(kin.pelvis.x, kin.pelvis.y - 0.62f * s)
+    val plumbBottom = Offset(kin.pelvis.x, kin.pelvis.y + 0.05f * s)
+    drawLine(
+        color = axisColor,
+        start = plumbTop,
+        end = plumbBottom,
+        strokeWidth = 1.2.dp.toPx(),
+        cap = StrokeCap.Round,
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(7f, 5f), 0f)
+    )
+
+    // 2. Sit-bone & scapular anti-compensation anchor rings (防代偿锚点)
+    drawAnchorTargetRing(center = kin.pelvis, radius = 0.026f * s, color = vectorColor)
+    drawAnchorTargetRing(center = kin.shoulder, radius = 0.020f * s, color = axisColor)
+
+    // 3. Articulated sagittal spinal fascial tract highlight
+    detailPath.reset()
+    detailPath.moveTo(kin.pelvis.x - 0.022f * s, kin.pelvis.y - 0.01f * s)
+    detailPath.cubicTo(
+        kin.lumbarMid.x - 0.026f * s,
+        kin.lumbarMid.y,
+        kin.thoracicMid.x - 0.028f * s,
+        kin.thoracicMid.y,
+        kin.neckBase.x - 0.016f * s,
+        kin.neckBase.y - 0.03f * s
+    )
+    drawPath(
+        path = detailPath,
+        color = fascialColor,
+        style = Stroke(width = 2.6.dp.toPx(), cap = StrokeCap.Round)
+    )
+
+    // 4. Biomechanical directional vector arrows by primary target region
+    when {
+        BodyRegion.POSTERIOR_NECK in highlightedRegions -> {
+            if (keyframe.chinTuckRatio >= 0f) {
+                // Horizontal posterior chin-tuck glide + crown axial lift
+                drawGuideVectorArrow(
+                    start = Offset(kin.headCenter.x + 0.085f * s, kin.headCenter.y + 0.025f * s),
+                    end = Offset(kin.headCenter.x + 0.010f * s, kin.headCenter.y + 0.025f * s),
+                    color = vectorColor,
+                    s = s
+                )
+                drawGuideVectorArrow(
+                    start = Offset(kin.headCenter.x, kin.headCenter.y - 0.075f * s),
+                    end = Offset(kin.headCenter.x, kin.headCenter.y - 0.135f * s),
+                    color = fascialColor,
+                    s = s
+                )
+            } else {
+                // Gentle occiput cradle arc
+                drawGuideVectorArrow(
+                    start = Offset(kin.headCenter.x, kin.headCenter.y - 0.075f * s),
+                    end = Offset(kin.headCenter.x - 0.048f * s, kin.headCenter.y - 0.115f * s),
+                    color = vectorColor,
+                    s = s
+                )
+            }
+        }
+        BodyRegion.THORACIC_CHEST in highlightedRegions -> {
+            val dir = if (keyframe.spineArcRatio >= 0f) 1f else -1f
+            drawGuideVectorArrow(
+                start = Offset(kin.thoracicMid.x + dir * 0.035f * s, kin.thoracicMid.y),
+                end = Offset(kin.thoracicMid.x + dir * 0.115f * s, kin.thoracicMid.y - dir * 0.035f * s),
+                color = vectorColor,
+                s = s
+            )
+        }
+        else -> {
+            val dir = if (keyframe.spineArcRatio >= 0f) 1f else -1f
+            drawGuideVectorArrow(
+                start = Offset(kin.lumbarMid.x - 0.055f * s, kin.lumbarMid.y),
+                end = Offset(kin.lumbarMid.x - (0.055f - dir * 0.065f) * s, kin.lumbarMid.y - 0.045f * s),
+                color = vectorColor,
+                s = s
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawCoronalBiomechanicalGuide(
+    skin: SongxiSkin,
+    keyframe: PoseKeyframe,
+    kin: FigureKinematics,
+    s: Float,
+    highlightedRegions: Set<BodyRegion>,
+    bilateralSide: Int,
+    detailPath: Path
+) {
+    val axisColor = skin.palette.accentSecondary.copy(alpha = 0.56f)
+    val vectorColor = skin.palette.sealVermilion.copy(alpha = 0.78f)
+    val fascialColor = skin.palette.accentPrimary.copy(alpha = 0.68f)
+
+    // 1. Plumb vertical alignment reference (百会—坐骨中轴线)
+    drawLine(
+        color = axisColor,
+        start = Offset(kin.pelvis.x, kin.pelvis.y - 0.64f * s),
+        end = Offset(kin.pelvis.x, kin.pelvis.y + 0.04f * s),
+        strokeWidth = 1.2.dp.toPx(),
+        cap = StrokeCap.Round,
+        pathEffect = PathEffect.dashPathEffect(floatArrayOf(7f, 5f), 0f)
+    )
+    drawAnchorTargetRing(center = kin.pelvis, radius = 0.025f * s, color = axisColor)
+
+    // 2. Region-specific myofascial tension band & directional elongation vector
+    when {
+        BodyRegion.TRAPEZIUS_SHOULDER in highlightedRegions || BodyRegion.POSTERIOR_NECK in highlightedRegions -> {
+            val anchorShoulder = if (keyframe.headTiltDeg >= 0f) kin.leftShoulder else kin.rightShoulder
+            val earAnchor = Offset(
+                x = kin.headCenter.x + (if (keyframe.headTiltDeg >= 0f) -0.042f else 0.042f) * s,
+                y = kin.headCenter.y + 0.022f * s
+            )
+            drawAnchorTargetRing(center = anchorShoulder, radius = 0.022f * s, color = vectorColor)
+
+            // Upper trapezius / levator scapulae fascial band
+            detailPath.reset()
+            detailPath.moveTo(earAnchor.x, earAnchor.y)
+            detailPath.quadraticTo(
+                kin.neck.x + (if (keyframe.headTiltDeg >= 0f) -0.032f else 0.032f) * s,
+                kin.neck.y + 0.015f * s,
+                anchorShoulder.x,
+                anchorShoulder.y
+            )
+            drawPath(
+                path = detailPath,
+                color = fascialColor,
+                style = Stroke(width = 2.6.dp.toPx(), cap = StrokeCap.Round)
+            )
+            // Downward shoulder-melt anti-shrug vector
+            drawGuideVectorArrow(
+                start = Offset(anchorShoulder.x, anchorShoulder.y + 0.018f * s),
+                end = Offset(anchorShoulder.x, anchorShoulder.y + 0.082f * s),
+                color = vectorColor,
+                s = s
+            )
+        }
+
+        BodyRegion.THORACIC_CHEST in highlightedRegions -> {
+            drawLine(
+                color = fascialColor,
+                start = kin.leftShoulder,
+                end = kin.rightShoulder,
+                strokeWidth = 2.4.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            drawGuideVectorArrow(
+                start = Offset(kin.chest.x - 0.04f * s, kin.chest.y - 0.03f * s),
+                end = Offset(kin.leftShoulder.x - 0.035f * s, kin.leftShoulder.y),
+                color = vectorColor,
+                s = s
+            )
+            drawGuideVectorArrow(
+                start = Offset(kin.chest.x + 0.04f * s, kin.chest.y - 0.03f * s),
+                end = Offset(kin.rightShoulder.x + 0.035f * s, kin.rightShoulder.y),
+                color = vectorColor,
+                s = s
+            )
+        }
+
+        BodyRegion.LOWER_LUMBAR in highlightedRegions -> {
+            val activeSign = if (bilateralSide > 0) 1f else -1f
+            val hipAnchor = Offset(kin.pelvis.x + activeSign * 0.11f * s, kin.pelvis.y)
+            val ribTarget = Offset(kin.chest.x + activeSign * 0.12f * s, kin.chest.y - 0.06f * s)
+            drawAnchorTargetRing(center = hipAnchor, radius = 0.022f * s, color = vectorColor)
+            drawLine(
+                color = fascialColor,
+                start = hipAnchor,
+                end = ribTarget,
+                strokeWidth = 2.5.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            drawGuideVectorArrow(
+                start = ribTarget,
+                end = Offset(ribTarget.x - activeSign * 0.035f * s, ribTarget.y - 0.075f * s),
+                color = vectorColor,
+                s = s
+            )
+        }
+
+        BodyRegion.MOUSE_WRIST in highlightedRegions -> {
+            val activeArm = if (bilateralSide > 0) kin.rightArm else kin.leftArm
+            drawAnchorTargetRing(center = activeArm.elbow, radius = 0.019f * s, color = axisColor)
+            drawLine(
+                color = fascialColor,
+                start = activeArm.elbow,
+                end = activeArm.hand,
+                strokeWidth = 2.5.dp.toPx(),
+                cap = StrokeCap.Round
+            )
+            drawGuideVectorArrow(
+                start = activeArm.hand,
+                end = Offset(activeArm.hand.x, activeArm.hand.y - 0.062f * s),
+                color = vectorColor,
+                s = s
+            )
+        }
+
+        BodyRegion.EYE_BROW in highlightedRegions -> {
+            drawCircle(
+                color = fascialColor,
+                radius = 0.048f * s,
+                center = kin.glabella,
+                style = Stroke(
+                    width = 1.5.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 4f), 0f)
+                )
+            )
+            drawGuideVectorArrow(
+                start = Offset(kin.glabella.x - 0.020f * s, kin.glabella.y),
+                end = Offset(kin.glabella.x - 0.065f * s, kin.glabella.y),
+                color = vectorColor,
+                s = s
+            )
+            drawGuideVectorArrow(
+                start = Offset(kin.glabella.x + 0.020f * s, kin.glabella.y),
+                end = Offset(kin.glabella.x + 0.065f * s, kin.glabella.y),
+                color = vectorColor,
+                s = s
+            )
+        }
+    }
+}
+
+private fun DrawScope.drawAnchorTargetRing(
+    center: Offset,
+    radius: Float,
+    color: Color
+) {
+    drawCircle(
+        color = color,
+        radius = radius,
+        center = center,
+        style = Stroke(width = 1.4.dp.toPx())
+    )
+    drawCircle(
+        color = color,
+        radius = (radius * 0.34f).coerceAtLeast(2f),
+        center = center
+    )
+}
+
+private fun DrawScope.drawGuideVectorArrow(
+    start: Offset,
+    end: Offset,
+    color: Color,
+    s: Float
+) {
+    drawLine(
+        color = color,
+        start = start,
+        end = end,
+        strokeWidth = 1.8.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+    val angle = atan2(end.y - start.y, end.x - start.x)
+    val headLen = (0.024f * s).coerceAtLeast(4f)
+    val wingSpread = 0.52f
+    val leftWing = Offset(
+        x = end.x - cos(angle - wingSpread) * headLen,
+        y = end.y - sin(angle - wingSpread) * headLen
+    )
+    val rightWing = Offset(
+        x = end.x - cos(angle + wingSpread) * headLen,
+        y = end.y - sin(angle + wingSpread) * headLen
+    )
+    drawLine(color = color, start = end, end = leftWing, strokeWidth = 1.7.dp.toPx(), cap = StrokeCap.Round)
+    drawLine(color = color, start = end, end = rightWing, strokeWidth = 1.7.dp.toPx(), cap = StrokeCap.Round)
 }
 
 private fun DrawScope.drawEyesFreeFigure(

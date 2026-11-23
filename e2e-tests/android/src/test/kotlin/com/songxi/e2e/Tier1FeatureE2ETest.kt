@@ -1197,4 +1197,55 @@ class Tier1FeatureE2ETest {
         }
         SongxiAndroidE2EHarness.assertValidAndDistinctSkinPngs()
     }
+
+    // =========================================================================
+    // F8 (Extended) — Clinical Kinesiology, Biomechanics Guide & Body Relief Atlas
+    // =========================================================================
+
+    @Test
+    fun t1_f08_05_clinical_prescription_asymmetry_biomechanics_sheet_and_relief_atlas() {
+        activeScenario = SongxiAndroidE2EHarness.launchToHome(composeRule = composeRule)
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_bodymap")
+
+        // 1. Select asymmetric right-side weighting (6:4) and verify 3-stage prescription preview
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "bodymap_asymmetry_right")
+        val previewText = SongxiAndroidE2EHarness.readNodeText(composeRule, "bodymap_prescription_preview")
+        assertTrue(
+            "Expected 3-stage prescription preview on BodyMapScreen, got '$previewText'",
+            previewText.contains("三阶处方序")
+        )
+
+        // 2. Compose & launch custom routine -> verify timeline stage badge, biomechanics toggle & clinical guide sheet
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "bodymap_compose_start_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_screen")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_timeline_stage_badge")
+
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_biomechanics_toggle")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_biomechanics_toggle")
+
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_clinical_guide_button")
+        SongxiAndroidE2EHarness.assertTagDisplayed(composeRule, "player_clinical_guide_sheet")
+        val guideCopy = SongxiAndroidE2EHarness.readNodeText(composeRule, "player_clinical_guide_sheet")
+        assertTrue("Expected clinical RPE/safety guidance in sheet, got '$guideCopy'", guideCopy.contains("RPE") || guideCopy.contains("靶向肌群"))
+
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "player_clinical_guide_close")
+
+        // 3. Complete session and verify streak-free Monthly Body Relief Atlas on PracticeJournalScreen
+        SongxiAndroidE2EHarness.advanceRoutineToCompletion(composeRule)
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "completion_feeling_light")
+        SongxiAndroidE2EHarness.scrollToAndClick(composeRule, "completion_finish_button")
+
+        SongxiAndroidE2EHarness.navigateToTab(composeRule, "nav_tab_journal")
+        val atlasCopy = SongxiAndroidE2EHarness.readNodeText(composeRule, "journal_body_relief_atlas")
+        assertTrue(
+            "Expected Monthly Body Relief Atlas to reflect cared-for zones, got '$atlasCopy'",
+            atlasCopy.contains("月度身体释压图谱") && atlasCopy.contains("重点温养")
+        )
+        for (forbidden in SongxiAndroidE2EHarness.FORBIDDEN_STREAK_SHAME_PATTERNS) {
+            assertFalse(
+                "Forbidden streak/shame pattern '$forbidden' found in journal_body_relief_atlas: $atlasCopy",
+                atlasCopy.contains(forbidden)
+            )
+        }
+    }
 }

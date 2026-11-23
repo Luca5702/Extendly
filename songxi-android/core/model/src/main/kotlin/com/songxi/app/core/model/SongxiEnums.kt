@@ -148,3 +148,107 @@ enum class SplashArtworkStyle {
     PINE_INCENSE,
     WOOD_DESK_STAND
 }
+
+/**
+ * Physical-therapy & kinesiology mechanism classification for each micro-movement.
+ */
+@Serializable
+enum class StretchModality(
+    val key: String,
+    val badgeCn: String,
+    val mechanismSummaryCn: String
+) {
+    @SerialName("mobility")
+    MOBILITY_CARS("mobility", "滑液唤醒", "关节微幅受控流动 · 温润滑膜避免冷拉"),
+
+    @SerialName("pnf")
+    MICRO_PNF("pnf", "微抗阻PNF", "吸气20%等长轻抗 · 呼气触发自发抑制反射"),
+
+    @SerialName("fascial")
+    STATIC_FASCIAL("fascial", "筋膜延展", "恒定微温低张力 · 唤醒高尔基腱柔和松解"),
+
+    @SerialName("nerve_glide")
+    NERVE_GLIDING("nerve_glide", "神经滑动", "节律温和滑移 · 疏解腕管与上肢神经紧绷"),
+
+    @SerialName("oculomotor")
+    OCULOMOTOR_RELEASE("oculomotor", "眼颈解耦", "视轴远近柔转 · 经眼颈反射松开枕下肌群")
+}
+
+/**
+ * 3-stage rehabilitation prescription sequencing role:
+ * 1. [WARMUP_UNBIND] -> synovial lubrication & breath unbinding
+ * 2. [TARGET_RELEASE] -> focal PNF / myofascial / neural release
+ * 3. [POSTURAL_INTEGRATION] -> antagonist stabilization & parasympathetic down-regulation
+ */
+@Serializable
+enum class PrescriptionPhaseRole(
+    val order: Int,
+    val shortLabelCn: String,
+    val stageTitleCn: String
+) {
+    @SerialName("warmup")
+    WARMUP_UNBIND(0, "解绑", "一阶 · 滑液解绑"),
+
+    @SerialName("release")
+    TARGET_RELEASE(1, "深舒", "二阶 · 靶向松解"),
+
+    @SerialName("integrate")
+    POSTURAL_INTEGRATION(2, "归位", "三阶 · 归位沉降")
+}
+
+/**
+ * Optimal anatomical camera plane so sagittal movements (chin tuck, cat-cow, pelvic tilt)
+ * clearly display anterior-posterior spinal and cervical alignment.
+ */
+@Serializable
+enum class AnatomicalViewPlane(
+    val key: String,
+    val labelCn: String
+) {
+    @SerialName("coronal")
+    CORONAL_FRONT("coronal", "正视导引"),
+
+    @SerialName("sagittal")
+    SAGITTAL_SIDE("sagittal", "侧视矢状")
+}
+
+/**
+ * Pre-session bilateral tension asymmetry preference:
+ * allocates 60% : 40% dwell time starting on the tighter side for unilateral/bilateral poses.
+ */
+@Serializable
+enum class LateralAsymmetry(
+    val key: String,
+    val labelCn: String,
+    val ratioBadgeCn: String,
+    val primarySideSign: Int,
+    val firstHalfRatio: Float
+) {
+    @SerialName("balanced")
+    BALANCED("balanced", "双侧均衡", "5:5", -1, 0.50f),
+
+    @SerialName("left")
+    LEFT_TIGHTER("left", "左侧偏紧", "左6:右4", -1, 0.60f),
+
+    @SerialName("right")
+    RIGHT_TIGHTER("right", "右侧偏紧", "右6:左4", +1, 0.60f);
+
+    companion object {
+        fun fromKey(key: String?): LateralAsymmetry =
+            entries.firstOrNull {
+                it.key == key || it.name.equals(key, ignoreCase = true)
+            } ?: BALANCED
+    }
+}
+
+/**
+ * 4-stage safe intra-pose coaching timeline preventing abrupt rebound strain.
+ */
+enum class PoseTimelineStage(
+    val labelCn: String
+) {
+    SETUP("入式摆位"),
+    DEEPEN_HOLD("随息深化"),
+    HALFWAY_TRANSITION("温和换边"),
+    SAFE_RETURN("缓慢回正")
+}

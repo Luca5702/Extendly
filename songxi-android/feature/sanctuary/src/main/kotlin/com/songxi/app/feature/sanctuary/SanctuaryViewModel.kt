@@ -8,12 +8,16 @@ import com.songxi.app.core.data.MonthlyRippleSummary
 import com.songxi.app.core.data.PracticeJournalRepository
 import com.songxi.app.core.data.ReminderPreferencesRepository
 import com.songxi.app.core.data.SplashAdLedgerRepository
+import com.songxi.app.core.data.StretchCatalogRepository
 import com.songxi.app.core.data.ThemePreferencesRepository
 import com.songxi.app.core.designsystem.BuiltInSkinRegistry
+import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.ClockProvider
+import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PracticeSessionRecord
 import com.songxi.app.core.model.ReminderPreferences
 import com.songxi.app.core.model.SkinId
+import com.songxi.app.core.model.SomaticFeeling
 import com.songxi.app.core.model.SystemClockProvider
 import com.songxi.app.core.sensory.BreathingHapticEngine
 import com.songxi.app.core.sensory.HarmonicAudioEngine
@@ -30,6 +34,58 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Streak-free anatomical relief distribution & somatic feeling atlas for the displayed month.
+ */
+data class MonthlyBodyReliefAtlas(
+    val regionCounts: Map<BodyRegion, Int> = BodyRegion.entries.associateWith { 0 },
+    val feelingCounts: Map<SomaticFeeling, Int> = SomaticFeeling.entries.associateWith { 0 },
+    val asymmetricSessionCount: Int = 0
+) {
+    val maxRegionCount: Int
+        get() = regionCounts.values.maxOrNull()?.coerceAtLeast(1) ?: 1
+
+    val hasAnyReliefData: Boolean
+        get() = regionCounts.values.any { it > 0 }
+}
+
+internal fun computeMonthlyBodyReliefAtlas(
+    monthRipples: Map<LocalDate, List<PracticeSessionRecord>>,
+    catalogRepository: StretchCatalogRepository? = null
+): MonthlyBodyReliefAtlas {
+    val regionCounts = linkedMapOf<BodyRegion, Int>().apply {
+        BodyRegion.entries.forEach { put(it, 0) }
+    }
+    val feelingCounts = linkedMapOf<SomaticFeeling, Int>().apply {
+        SomaticFeeling.entries.forEach { put(it, 0) }
+    }
+    var asymmetricCount = 0
+
+    for (record in monthRipples.values.flatten()) {
+        val resolvedRegions = record.targetRegions.ifEmpty {
+            catalogRepository?.findRoutineById(record.routineId)
+                ?.poses
+                ?.flatMapTo(linkedSetOf()) { it.targetRegions }
+                .orEmpty()
+        }
+        for (region in resolvedRegions) {
+            regionCounts[region] = (regionCounts[region] ?: 0) + 1
+        }
+        record.feeling?.let { feeling ->
+            feelingCounts[feeling] = (feelingCounts[feeling] ?: 0) + 1
+        }
+        if (record.asymmetry != LateralAsymmetry.BALANCED) {
+            asymmetricCount++
+        }
+    }
+
+    return MonthlyBodyReliefAtlas(
+        regionCounts = regionCounts,
+        feelingCounts = feelingCounts,
+        asymmetricSessionCount = asymmetricCount
+    )
+}
+
 data class SanctuaryUiState(
     val selectedSkinId: SkinId = SkinId.INK_MIST,
     val autoNightSkinEnabled: Boolean = true,
@@ -41,6 +97,7 @@ data class SanctuaryUiState(
         totalDurationSeconds = 0,
         practicedDaysCount = 0
     ),
+    val reliefAtlas: MonthlyBodyReliefAtlas = MonthlyBodyReliefAtlas(),
     val reminderPreferences: ReminderPreferences = ReminderPreferences(),
     val personalizedSplashEnabled: Boolean = false,
     val showSharePreviewDialog: Boolean = false,
@@ -56,6 +113,7 @@ class SanctuaryViewModel(
     private val splashAdLedgerRepository: SplashAdLedgerRepository,
     private val audioEngine: HarmonicAudioEngine,
     private val hapticEngine: BreathingHapticEngine,
+    private val catalogRepository: StretchCatalogRepository? = null,
     val clockProvider: ClockProvider = SystemClockProvider,
     externalScope: CoroutineScope? = null
 ) : ViewModel() {
@@ -108,11 +166,13 @@ class SanctuaryViewModel(
                     Triple(month, ripples, summary)
                 }
             }.collectLatest { (month, ripples, summary) ->
+                val atlas = computeMonthlyBodyReliefAtlas(ripples, catalogRepository)
                 _uiState.update { state ->
                     state.copy(
                         displayedMonth = month,
                         monthRipples = ripples,
-                        monthSummary = summary
+                        monthSummary = summary,
+                        reliefAtlas = atlas
                     )
                 }
             }
@@ -230,6 +290,7 @@ class SanctuaryViewModel(
             splashAdLedgerRepository: SplashAdLedgerRepository,
             audioEngine: HarmonicAudioEngine,
             hapticEngine: BreathingHapticEngine,
+            catalogRepository: StretchCatalogRepository? = null,
             clockProvider: ClockProvider = SystemClockProvider
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -242,6 +303,7 @@ class SanctuaryViewModel(
                     splashAdLedgerRepository = splashAdLedgerRepository,
                     audioEngine = audioEngine,
                     hapticEngine = hapticEngine,
+                    catalogRepository = catalogRepository,
                     clockProvider = clockProvider
                 ) as T
             }

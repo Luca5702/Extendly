@@ -216,5 +216,57 @@ class StretchFeatureScreenTest {
 
         assertEquals(1, recorded.size)
         assertEquals("calm", recorded.first().feeling?.key)
+        assertTrue(recorded.first().targetRegions.isNotEmpty())
+    }
+
+    @Test
+    fun clinical_guide_sheet_biomechanics_toggle_and_asymmetry_prescription_flow() {
+        val (vm, _, _) = buildViewModel()
+
+        composeRule.setContent {
+            SongxiTheme(skin = BuiltInSkinRegistry.InkMist) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    BodyMapScreen(viewModel = vm)
+                    StretchPlayerOverlayHost(viewModel = vm)
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        // Select right-side tighter (60:40) asymmetry and verify 3-stage prescription preview
+        composeRule.onNodeWithTag("bodymap_asymmetry_right").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("bodymap_prescription_preview").performScrollTo().assertIsDisplayed()
+
+        composeRule.onNodeWithTag("bodymap_compose_start_button").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        composeRule.mainClock.autoAdvance = false
+
+        composeRule.onNodeWithTag("player_screen").assertIsDisplayed()
+        composeRule.onNodeWithTag("player_timeline_stage_badge").assertIsDisplayed()
+
+        val initialPlaying = vm.uiState.value.sessionStage as StretchSessionStage.Playing
+        assertEquals(com.songxi.app.core.model.LateralAsymmetry.RIGHT_TIGHTER, initialPlaying.routine.asymmetry)
+        assertTrue(initialPlaying.showBiomechanicalGuide)
+
+        // Toggle biomechanical guide off and back on
+        composeRule.onNodeWithTag("player_biomechanics_toggle").performClick()
+        composeRule.mainClock.advanceTimeByFrame()
+        assertFalse((vm.uiState.value.sessionStage as StretchSessionStage.Playing).showBiomechanicalGuide)
+
+        composeRule.onNodeWithTag("player_biomechanics_toggle").performClick()
+        composeRule.mainClock.advanceTimeByFrame()
+        assertTrue((vm.uiState.value.sessionStage as StretchSessionStage.Playing).showBiomechanicalGuide)
+
+        // Open Clinical Pose Guide sheet -> playback pauses while user reads safety cues
+        composeRule.onNodeWithTag("player_clinical_guide_button").performClick()
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.onNodeWithTag("player_clinical_guide_sheet").assertIsDisplayed()
+        assertTrue((vm.uiState.value.sessionStage as StretchSessionStage.Playing).isEffectivelyPaused)
+
+        composeRule.mainClock.autoAdvance = true
+        composeRule.onNodeWithTag("player_clinical_guide_close").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        assertFalse((vm.uiState.value.sessionStage as StretchSessionStage.Playing).isClinicalGuideOpen)
     }
 }

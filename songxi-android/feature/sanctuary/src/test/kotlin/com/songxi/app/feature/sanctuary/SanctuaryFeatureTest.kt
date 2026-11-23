@@ -91,4 +91,56 @@ class SanctuaryFeatureTest {
         val afterDisable = WorkManager.getInstance(context).getWorkInfos(query).get(2, TimeUnit.SECONDS)
         assertTrue(afterDisable.isEmpty())
     }
+
+    @Test
+    fun monthly_body_relief_atlas_aggregates_direct_and_catalog_fallback_regions() {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        val dsFile = File(tempFolder.newFolder(), "cat_atlas.preferences_pb")
+        val catalogRepo = com.songxi.app.core.data.DataStoreStretchCatalogRepository(
+            PreferenceDataStoreFactory.create(scope = scope, produceFile = { dsFile })
+        )
+        val d1 = java.time.LocalDate.of(2026, 11, 18)
+        val d2 = java.time.LocalDate.of(2026, 11, 19)
+        val ripples = mapOf(
+            d1 to listOf(
+                com.songxi.app.core.model.PracticeSessionRecord(
+                    id = "s1",
+                    completedAtEpochMs = 1_000L,
+                    dateIso = "2026-11-18",
+                    routineId = "custom_neck_wrist_4m_right",
+                    routineTitle = "《风池与护腕 · 温养小方（4分钟）》",
+                    durationSeconds = 240,
+                    skinId = com.songxi.app.core.model.SkinId.INK_MIST,
+                    feeling = com.songxi.app.core.model.SomaticFeeling.LIGHT_NECK_SHOULDER,
+                    targetRegions = setOf(
+                        com.songxi.app.core.model.BodyRegion.POSTERIOR_NECK,
+                        com.songxi.app.core.model.BodyRegion.MOUSE_WRIST
+                    ),
+                    asymmetry = com.songxi.app.core.model.LateralAsymmetry.RIGHT_TIGHTER
+                )
+            ),
+            d2 to listOf(
+                // Legacy record without stored targetRegions -> resolved via catalogRepository
+                com.songxi.app.core.model.PracticeSessionRecord(
+                    id = "s2",
+                    completedAtEpochMs = 2_000L,
+                    dateIso = "2026-11-19",
+                    routineId = "quick_screen_warm_eyes",
+                    routineTitle = "久盯屏幕温目",
+                    durationSeconds = 120,
+                    skinId = com.songxi.app.core.model.SkinId.QINGLV_CELADON,
+                    feeling = com.songxi.app.core.model.SomaticFeeling.CALM_PEACEFUL
+                )
+            )
+        )
+
+        val atlas = computeMonthlyBodyReliefAtlas(ripples, catalogRepo)
+        assertTrue(atlas.hasAnyReliefData)
+        assertEquals(2, atlas.regionCounts[com.songxi.app.core.model.BodyRegion.POSTERIOR_NECK])
+        assertEquals(1, atlas.regionCounts[com.songxi.app.core.model.BodyRegion.MOUSE_WRIST])
+        assertEquals(1, atlas.regionCounts[com.songxi.app.core.model.BodyRegion.EYE_BROW])
+        assertEquals(1, atlas.feelingCounts[com.songxi.app.core.model.SomaticFeeling.LIGHT_NECK_SHOULDER])
+        assertEquals(1, atlas.feelingCounts[com.songxi.app.core.model.SomaticFeeling.CALM_PEACEFUL])
+        assertEquals(1, atlas.asymmetricSessionCount)
+    }
 }

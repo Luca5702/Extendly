@@ -12,6 +12,8 @@ import com.songxi.app.core.designsystem.resolveBreathPhase
 import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.BreathRhythm
 import com.songxi.app.core.model.ClockProvider
+import com.songxi.app.core.model.LateralAsymmetry
+import com.songxi.app.core.model.PoseTimelineGuidance
 import com.songxi.app.core.model.PostureScene
 import com.songxi.app.core.model.PracticeSessionRecord
 import com.songxi.app.core.model.SkinId
@@ -53,11 +55,13 @@ sealed interface StretchSessionStage {
         val isManuallyPaused: Boolean = false,
         val isFaceDownPaused: Boolean = false,
         val isEyesFreeMode: Boolean = false,
+        val showBiomechanicalGuide: Boolean = true,
+        val isClinicalGuideOpen: Boolean = false,
         val soundProfile: SoundProfileId = SoundProfileId.defaultForSkin(skinId),
         val lastAudibleProfile: SoundProfileId = SoundProfileId.defaultForSkin(skinId)
     ) : StretchSessionStage {
         val isEffectivelyPaused: Boolean
-            get() = isManuallyPaused || isFaceDownPaused
+            get() = isManuallyPaused || isFaceDownPaused || isClinicalGuideOpen
 
         val currentPose: StretchPose
             get() = routine.poses[currentPoseIndex.coerceIn(0, routine.poses.lastIndex)]
@@ -68,8 +72,14 @@ sealed interface StretchSessionStage {
         val remainingPoseSeconds: Int
             get() = (((poseDurationMs - poseElapsedMs).coerceAtLeast(0L) + 999L) / 1_000L).toInt()
 
+        val timelineGuidance: PoseTimelineGuidance
+            get() = currentPose.resolveTimelineGuidance(
+                elapsedMs = poseElapsedMs,
+                asymmetry = routine.asymmetry
+            )
+
         val isSecondHalf: Boolean
-            get() = currentPose.bilateralSwitchAtHalfway && poseElapsedMs >= (poseDurationMs / 2L)
+            get() = timelineGuidance.isSecondSegment
 
         val breathPhase: BreathPhaseState
             get() = resolveBreathPhase(
@@ -96,6 +106,7 @@ data class StretchUiState(
         BodyRegion.TRAPEZIUS_SHOULDER
     ),
     val selectedDurationMinutes: Int = 4,
+    val selectedAsymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED,
     val bookletCompletedDays: Map<String, Set<Int>> = emptyMap(),
     val sessionStage: StretchSessionStage = StretchSessionStage.Idle
 )
@@ -197,11 +208,16 @@ class StretchSessionViewModel(
         _uiState.update { it.copy(selectedDurationMinutes = normalized) }
     }
 
+    fun selectLateralAsymmetry(asymmetry: LateralAsymmetry) {
+        _uiState.update { it.copy(selectedAsymmetry = asymmetry) }
+    }
+
     fun composeAndStartCustomRoutine(skinId: SkinId) {
         val state = _uiState.value
         val composed = catalogRepository.composeCustomRoutine(
             regions = state.selectedBodyRegions.toSet(),
-            targetMinutes = state.selectedDurationMinutes
+            targetMinutes = state.selectedDurationMinutes,
+            asymmetry = state.selectedAsymmetry
         )
         startRoutine(routine = composed, skinId = skinId, bookletContext = null)
     }
@@ -246,6 +262,8 @@ class StretchSessionViewModel(
                     isManuallyPaused = false,
                     isFaceDownPaused = false,
                     isEyesFreeMode = false,
+                    showBiomechanicalGuide = true,
+                    isClinicalGuideOpen = false,
                     soundProfile = defaultSound,
                     lastAudibleProfile = defaultSound
                 )
@@ -288,7 +306,8 @@ class StretchSessionViewModel(
                     skinId = effectiveSkin,
                     currentPoseIndex = nextIndex,
                     poseElapsedMs = 0L,
-                    breathCycleElapsedMs = nextBreathMs
+                    breathCycleElapsedMs = nextBreathMs,
+                    isClinicalGuideOpen = false
                 )
                 _uiState.update { it.copy(sessionStage = updated) }
                 val muted = updated.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
@@ -332,7 +351,7 @@ class StretchSessionViewModel(
         }
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
-            state.copy(sessionStage = cur.copy(isManuallyPaused = nextPaused))
+            state.copy(sessionStage = cur.copy(isManuallyPaused = nextPaused, isClinicalGuideOpen = false))
         }
     }
 
@@ -348,6 +367,28 @@ class StretchSessionViewModel(
         _uiState.update { state ->
             val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
             state.copy(sessionStage = cur.copy(isEyesFreeMode = !cur.isEyesFreeMode))
+        }
+    }
+
+    fun toggleBiomechanicalGuide() {
+        _uiState.update { state ->
+            val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
+            state.copy(sessionStage = cur.copy(showBiomechanicalGuide = !cur.showBiomechanicalGuide))
+        }
+    }
+
+    fun openClinicalGuide() {
+        hapticEngine.cancel()
+        _uiState.update { state ->
+            val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
+            state.copy(sessionStage = cur.copy(isClinicalGuideOpen = true))
+        }
+    }
+
+    fun closeClinicalGuide() {
+        _uiState.update { state ->
+            val cur = state.sessionStage as? StretchSessionStage.Playing ?: return@update state
+            state.copy(sessionStage = cur.copy(isClinicalGuideOpen = false))
         }
     }
 
@@ -394,7 +435,8 @@ class StretchSessionViewModel(
                 sessionStage = cur.copy(
                     currentPoseIndex = clampedIndex,
                     poseElapsedMs = 0L,
-                    breathCycleElapsedMs = 0L
+                    breathCycleElapsedMs = 0L,
+                    isClinicalGuideOpen = false
                 )
             )
         }
@@ -414,7 +456,8 @@ class StretchSessionViewModel(
                         skinId = effectiveSkin,
                         currentPoseIndex = nextIndex,
                         poseElapsedMs = 0L,
-                        breathCycleElapsedMs = 0L
+                        breathCycleElapsedMs = 0L,
+                        isClinicalGuideOpen = false
                     )
                 )
             }
@@ -450,6 +493,7 @@ class StretchSessionViewModel(
             .toLocalDate()
             .toString()
 
+        val coveredRegions = completed.routine.poses.flatMapTo(linkedSetOf()) { it.targetRegions }
         val record = PracticeSessionRecord(
             id = completed.sessionId,
             completedAtEpochMs = nowMs,
@@ -458,7 +502,9 @@ class StretchSessionViewModel(
             routineTitle = completed.routine.title,
             durationSeconds = completed.routine.totalDurationSeconds,
             skinId = effectiveSkin,
-            feeling = completed.selectedFeeling
+            feeling = completed.selectedFeeling,
+            targetRegions = coveredRegions,
+            asymmetry = completed.routine.asymmetry
         )
 
         _uiState.update { it.copy(sessionStage = StretchSessionStage.Idle) }

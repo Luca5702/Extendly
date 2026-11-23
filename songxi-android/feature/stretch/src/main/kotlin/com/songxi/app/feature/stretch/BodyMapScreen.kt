@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,9 @@ import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.LocalSongxiSkin
 import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.BookletSeries
+import com.songxi.app.core.model.LateralAsymmetry
+import com.songxi.app.core.model.PrescriptionPhaseRole
+import com.songxi.app.core.model.StretchRoutine
 
 private val SUPPORTED_CUSTOM_MINUTES: List<Int> = listOf(2, 4, 6)
 
@@ -47,6 +51,17 @@ fun BodyMapScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val skin = LocalSongxiSkin.current
     val booklets = viewModel.catalogRepository.curatedBooklets
+    val previewRoutine = remember(
+        uiState.selectedBodyRegions,
+        uiState.selectedDurationMinutes,
+        uiState.selectedAsymmetry
+    ) {
+        viewModel.catalogRepository.composeCustomRoutine(
+            regions = uiState.selectedBodyRegions.toSet(),
+            targetMinutes = uiState.selectedDurationMinutes,
+            asymmetry = uiState.selectedAsymmetry
+        )
+    }
 
     BodyMapScreen(
         selectedRegions = uiState.selectedBodyRegions,
@@ -57,6 +72,9 @@ fun BodyMapScreen(
         onSelectDuration = viewModel::selectCustomDuration,
         onComposeAndStart = { viewModel.composeAndStartCustomRoutine(skin.id) },
         onStartBooklet = { index -> viewModel.startBooklet(index, skin.id) },
+        selectedAsymmetry = uiState.selectedAsymmetry,
+        previewRoutine = previewRoutine,
+        onSelectAsymmetry = viewModel::selectLateralAsymmetry,
         modifier = modifier
     )
 }
@@ -72,6 +90,9 @@ fun BodyMapScreen(
     onSelectDuration: (Int) -> Unit,
     onComposeAndStart: () -> Unit,
     onStartBooklet: (Int) -> Unit,
+    selectedAsymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED,
+    previewRoutine: StretchRoutine? = null,
+    onSelectAsymmetry: (LateralAsymmetry) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val skin = LocalSongxiSkin.current
@@ -96,7 +117,7 @@ fun BodyMapScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "按位寻音 · 随心成方",
+                    text = "按位寻音 · 三阶成方",
                     fontSize = 12.sp,
                     color = skin.palette.inkSecondary
                 )
@@ -205,6 +226,86 @@ fun BodyMapScreen(
                             color = if (isSelected) skin.palette.onAccent else skin.palette.inkPrimary,
                             maxLines = 1
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Bilateral Asymmetry Allocation (双侧均衡 5:5 / 左6:右4 / 右6:左4)
+            Text(
+                text = "左右偏侧时长配比 · 惯用鼠标或单侧背包偏紧调配",
+                fontSize = 11.sp,
+                color = skin.palette.inkSecondary
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                LateralAsymmetry.entries.forEach { option ->
+                    val isSelected = selectedAsymmetry == option
+                    SongxiTogglePill(
+                        isActive = isSelected,
+                        onClick = { onSelectAsymmetry(option) },
+                        shape = CircleShape,
+                        activeBackgroundColor = skin.palette.accentPrimary,
+                        inactiveBackgroundColor = skin.palette.canvasPrimary,
+                        activeBorderColor = skin.palette.accentPrimary,
+                        inactiveBorderColor = skin.palette.borderHairline,
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(minHeight = 38.dp),
+                        testTag = "bodymap_asymmetry_${option.key}"
+                    ) {
+                        Text(
+                            text = "${option.labelCn} ${option.ratioBadgeCn}",
+                            fontSize = 11.sp,
+                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                            color = if (isSelected) skin.palette.onAccent else skin.palette.inkPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            // Live 3-Stage Clinical Prescription Preview (解绑 -> 深舒 -> 归位)
+            if (previewRoutine != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(subCardShape)
+                        .background(skin.palette.surfaceCardSubtle, subCardShape)
+                        .border(1.dp, skin.palette.borderHairline, subCardShape)
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                        .semantics(mergeDescendants = true) {}
+                        .testTag("bodymap_prescription_preview")
+                ) {
+                    Text(
+                        text = "三阶处方序 · 滑液解绑 → 靶向松解 → 归位沉降",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = skin.palette.accentPrimary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    PrescriptionPhaseRole.entries.forEach { role ->
+                        val matching = previewRoutine.poses.filter { it.clinical.phaseRole == role }
+                        if (matching.isNotEmpty()) {
+                            Text(
+                                text = "${role.shortLabelCn}｜" + matching.joinToString(" · ") {
+                                    "${it.title}(${it.durationSeconds}s)"
+                                },
+                                fontSize = 11.sp,
+                                lineHeight = 16.sp,
+                                color = skin.palette.inkSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }

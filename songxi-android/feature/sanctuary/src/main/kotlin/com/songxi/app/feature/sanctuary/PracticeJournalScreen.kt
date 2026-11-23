@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,7 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.songxi.app.core.data.MonthlyRippleSummary
 import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.PracticeSessionRecord
+import com.songxi.app.core.model.SomaticFeeling
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -92,6 +96,7 @@ fun PracticeJournalScreen(
             }
             context.startActivity(chooser)
         },
+        reliefAtlas = uiState.reliefAtlas,
         modifier = modifier
     )
 }
@@ -107,6 +112,7 @@ fun PracticeJournalScreen(
     onOpenShareDialog: () -> Unit,
     onDismissShareDialog: () -> Unit,
     onDispatchShare: () -> Unit,
+    reliefAtlas: MonthlyBodyReliefAtlas = computeMonthlyBodyReliefAtlas(monthRipples),
     modifier: Modifier = Modifier
 ) {
     val skin = LocalSongxiSkin.current
@@ -253,6 +259,15 @@ fun PracticeJournalScreen(
                     color = skin.palette.onAccent
                 )
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Streak-Free Monthly Body Relief Atlas ("月度身体释压图谱")
+            BodyReliefAtlasCard(
+                reliefAtlas = reliefAtlas,
+                cardShape = cardShape,
+                subCardShape = subCardShape
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -430,6 +445,124 @@ fun PracticeJournalScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BodyReliefAtlasCard(
+    reliefAtlas: MonthlyBodyReliefAtlas,
+    cardShape: RoundedCornerShape,
+    subCardShape: RoundedCornerShape
+) {
+    val skin = LocalSongxiSkin.current
+    val topRegions = BodyRegion.entries
+        .filter { (reliefAtlas.regionCounts[it] ?: 0) > 0 }
+        .sortedByDescending { reliefAtlas.regionCounts[it] ?: 0 }
+        .take(2)
+    val summaryLine = if (topRegions.isNotEmpty()) {
+        "重点温养：${topRegions.joinToString(" · ") { it.labelCn }} · 只观身息照拂，不设目标定额"
+    } else {
+        "素宣待染 · 完成任意一息即可显现六处肌群温养分布"
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(cardShape)
+            .background(skin.palette.surfaceCard, cardShape)
+            .border(1.dp, skin.palette.borderHairline, cardShape)
+            .padding(14.dp)
+            .semantics(mergeDescendants = true) {}
+            .testTag("journal_body_relief_atlas")
+    ) {
+        Text(
+            text = "月度身体释压图谱",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = skin.palette.inkPrimary
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = summaryLine,
+            fontSize = 11.sp,
+            color = skin.palette.inkSecondary
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        BodyRegion.entries.forEachIndexed { idx, region ->
+            val count = reliefAtlas.regionCounts[region] ?: 0
+            val fraction = if (count <= 0) {
+                0.04f
+            } else {
+                (count.toFloat() / reliefAtlas.maxRegionCount.toFloat()).coerceIn(0.14f, 1f)
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = region.labelCn,
+                    fontSize = 11.sp,
+                    color = skin.palette.inkPrimary,
+                    maxLines = 1,
+                    modifier = Modifier.width(76.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(8.dp)
+                        .clip(CircleShape)
+                        .background(skin.palette.surfaceCardSubtle, CircleShape)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(fraction)
+                            .fillMaxHeight()
+                            .clip(CircleShape)
+                            .background(
+                                if (count > 0) skin.palette.accentPrimary else skin.palette.borderHairline,
+                                CircleShape
+                            )
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "${count}息",
+                    fontSize = 11.sp,
+                    fontWeight = if (count > 0) FontWeight.Medium else FontWeight.Normal,
+                    color = if (count > 0) skin.palette.accentPrimary else skin.palette.inkTertiary,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(30.dp)
+                )
+            }
+            if (idx < BodyRegion.entries.lastIndex) {
+                Spacer(modifier = Modifier.height(6.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Somatic comfort check-in distribution pill bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(subCardShape)
+                .background(skin.palette.surfaceCardSubtle, subCardShape)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SomaticFeeling.entries.forEach { feeling ->
+                val fCount = reliefAtlas.feelingCounts[feeling] ?: 0
+                Text(
+                    text = "${feeling.labelCn} $fCount",
+                    fontSize = 11.sp,
+                    color = if (fCount > 0) skin.palette.accentPrimary else skin.palette.inkSecondary,
+                    maxLines = 1
+                )
             }
         }
     }

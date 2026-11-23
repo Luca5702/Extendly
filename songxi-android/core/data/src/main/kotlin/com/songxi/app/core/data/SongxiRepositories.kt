@@ -2,6 +2,7 @@ package com.songxi.app.core.data
 
 import com.songxi.app.core.model.BodyRegion
 import com.songxi.app.core.model.BookletSeries
+import com.songxi.app.core.model.LateralAsymmetry
 import com.songxi.app.core.model.PostureScene
 import com.songxi.app.core.model.PracticeSessionRecord
 import com.songxi.app.core.model.ReminderPreferences
@@ -32,7 +33,11 @@ interface StretchCatalogRepository {
     fun heroRoutineFor(scene: PostureScene): StretchRoutine
     fun reminderQuickStartRoutine(): StretchRoutine
     fun findRoutineById(routineId: String): StretchRoutine?
-    fun composeCustomRoutine(regions: Set<BodyRegion>, targetMinutes: Int): StretchRoutine
+    fun composeCustomRoutine(
+        regions: Set<BodyRegion>,
+        targetMinutes: Int,
+        asymmetry: LateralAsymmetry = LateralAsymmetry.BALANCED
+    ): StretchRoutine
     suspend fun markBookletDayCompleted(bookletId: String, dayIndex: Int)
     suspend fun resetAll()
 }
