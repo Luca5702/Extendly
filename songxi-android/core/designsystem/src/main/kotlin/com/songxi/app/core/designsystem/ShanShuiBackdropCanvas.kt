@@ -152,37 +152,57 @@ private fun DrawScope.drawSubstrateGrain(
             )
         }
     } else {
-        val warpStep = 7.dp.toPx().coerceAtLeast(4f)
-        val weftStep = 16.dp.toPx().coerceAtLeast(8f)
-        val warpColor = skin.palette.inkSecondary.copy(alpha = (grainAlpha * 1.55f).coerceAtMost(0.08f))
-        val weftColor = skin.palette.inkSecondary.copy(alpha = (grainAlpha * 1.05f).coerceAtMost(0.06f))
-        val threadStroke = 0.55.dp.toPx()
+        // Woven Song silk ("双丝细绢"): delicate discontinuous slub threads instead of mechanical graph-paper grid
+        val warpStep = 9.dp.toPx().coerceAtLeast(5f)
+        val warpColor = skin.palette.inkSecondary.copy(alpha = (grainAlpha * 1.05f).coerceAtMost(0.048f))
+        val weftColor = skin.palette.inkSecondary.copy(alpha = (grainAlpha * 0.72f).coerceAtMost(0.034f))
+        val threadStroke = 0.48.dp.toPx()
 
-        var y = warpStep * 0.5f
+        var rowIdx = 0
+        var y = warpStep * 0.6f
         while (y < h) {
-            drawLine(
-                color = warpColor,
-                start = Offset(0f, y),
-                end = Offset(w, y),
-                strokeWidth = threadStroke
-            )
+            var segIdx = 0
+            var xCursor = unitFloat(baseSeed + rowIdx * 41) * 18.dp.toPx()
+            while (xCursor < w) {
+                val segLen = (18f + 34f * unitFloat(baseSeed + rowIdx * 97 + segIdx * 13)).dp.toPx()
+                val gapLen = (8f + 18f * unitFloat(baseSeed + rowIdx * 53 + segIdx * 29)).dp.toPx()
+                val xEnd = min(w, xCursor + segLen)
+                if (xEnd > xCursor + 2f) {
+                    drawLine(
+                        color = warpColor,
+                        start = Offset(xCursor, y),
+                        end = Offset(xEnd, y),
+                        strokeWidth = threadStroke,
+                        cap = StrokeCap.Round
+                    )
+                }
+                xCursor = xEnd + gapLen
+                segIdx++
+            }
             y += warpStep
+            rowIdx++
         }
 
+        val weftStep = 22.dp.toPx().coerceAtLeast(12f)
+        var colIdx = 0
         var x = weftStep * 0.5f
         while (x < w) {
+            val yStart = unitFloat(baseSeed + 3000 + colIdx * 37) * h * 0.55f
+            val vLen = (16f + 28f * unitFloat(baseSeed + 3300 + colIdx * 19)).dp.toPx()
             drawLine(
                 color = weftColor,
-                start = Offset(x, 0f),
-                end = Offset(x, h),
-                strokeWidth = threadStroke
+                start = Offset(x, yStart),
+                end = Offset(x, min(h, yStart + vLen)),
+                strokeWidth = threadStroke,
+                cap = StrokeCap.Round
             )
             x += weftStep
+            colIdx++
         }
 
-        val micaColor = skin.landscape.celestialColor.copy(alpha = (grainAlpha * 2.3f).coerceAtMost(0.12f))
-        val micaRadius = 0.9.dp.toPx()
-        for (i in 0 until 28) {
+        val micaColor = skin.landscape.celestialColor.copy(alpha = (grainAlpha * 2.1f).coerceAtMost(0.10f))
+        val micaRadius = 0.85.dp.toPx()
+        for (i in 0 until 26) {
             val s = baseSeed + 4000 + i * 31
             val mx = unitFloat(s) * w
             val my = unitFloat(s + 73) * h

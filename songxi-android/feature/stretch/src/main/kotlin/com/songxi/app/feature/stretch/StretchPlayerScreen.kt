@@ -2,6 +2,8 @@ package com.songxi.app.feature.stretch
 
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,13 +30,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -50,6 +56,7 @@ import com.songxi.app.core.designsystem.BreathingHaloCanvas
 import com.songxi.app.core.designsystem.ClassicalSealBadge
 import com.songxi.app.core.designsystem.EditorialStretchFigureCanvas
 import com.songxi.app.core.designsystem.LocalSongxiSkin
+import com.songxi.app.core.designsystem.SongxiEditorialSerifFamily
 import com.songxi.app.core.designsystem.SongxiTabularNumericStyle
 import com.songxi.app.core.designsystem.songxiGentleStageReveal
 import com.songxi.app.core.model.SomaticFeeling
@@ -169,6 +176,26 @@ fun StretchPlayerScreen(
     val guidance = playing.timelineGuidance
     val clinical = playing.currentPose.clinical
     val cardShape = RoundedCornerShape(skin.palette.cardCornerRadiusDp.coerceIn(14, 30).dp)
+
+    // Immersive sanctuary quietude ("三分画七分留白"): gently softens auxiliary chrome after 3.5s of undisturbed practice
+    var interactionPulse by remember { mutableIntStateOf(0) }
+    var settledQuiet by remember(playing.currentPoseIndex, playing.isEffectivelyPaused, interactionPulse) {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(playing.currentPoseIndex, playing.isEffectivelyPaused, playing.isInPrepBuffer, interactionPulse) {
+        if (!playing.isEffectivelyPaused && !playing.isInPrepBuffer) {
+            delay(3_500L)
+            settledQuiet = true
+        } else {
+            settledQuiet = false
+        }
+    }
+    val quietChromeAlpha by animateFloatAsState(
+        targetValue = if (settledQuiet && !playing.isEffectivelyPaused && !playing.isClinicalGuideOpen) 0.62f else 1.0f,
+        animationSpec = tween(durationMillis = 800),
+        label = "songxi_quiet_chrome"
+    )
+
     val stageBackgroundBrush = if (playing.isEyesFreeMode) {
         val deepGlow = lerp(skin.palette.canvasPrimary, Color(0xFF101715), if (skin.palette.isDark) 0.45f else 0.72f)
         val haloWash = lerp(deepGlow, skin.palette.accentPrimaryGlow, 0.28f + 0.18f * breathPhase.expansion)
@@ -187,9 +214,9 @@ fun StretchPlayerScreen(
             .background(stageBackgroundBrush)
     ) {
         val isCompact = maxHeight < 580.dp
-        val haloSize = if (isCompact) 118.dp else 232.dp
-        val figureSize = if (isCompact) 92.dp else 172.dp
-        val verticalPad = if (isCompact) 6.dp else 14.dp
+        val haloSize = if (isCompact) 118.dp else 238.dp
+        val figureSize = if (isCompact) 92.dp else 178.dp
+        val verticalPad = if (isCompact) 6.dp else 16.dp
         val sectionGap = if (isCompact) 4.dp else 12.dp
         val controlMinHeight = if (isCompact) 36.dp else 46.dp
         val headerPillMinHeight = if (isCompact) 36.dp else 44.dp
@@ -205,7 +232,9 @@ fun StretchPlayerScreen(
         ) {
             // Header row: routine progress + tabular countdown + biomechanics toggle + clinical guide + close
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = quietChromeAlpha },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -247,10 +276,13 @@ fun StretchPlayerScreen(
                 ) {
                     SongxiTogglePill(
                         isActive = playing.showBiomechanicalGuide,
-                        onClick = onToggleBiomechanicalGuide,
+                        onClick = {
+                            interactionPulse++
+                            onToggleBiomechanicalGuide()
+                        },
                         shape = CircleShape,
                         activeBackgroundColor = skin.palette.accentPrimarySoft,
-                        inactiveBackgroundColor = skin.palette.surfaceCard,
+                        inactiveBackgroundColor = skin.palette.surfaceCard.copy(alpha = 0.78f),
                         activeBorderColor = skin.palette.accentPrimary,
                         inactiveBorderColor = skin.palette.borderHairline,
                         modifier = Modifier.defaultMinSize(minHeight = headerPillMinHeight),
@@ -267,9 +299,12 @@ fun StretchPlayerScreen(
                     }
 
                     SongxiActionSurface(
-                        onClick = onOpenClinicalGuide,
+                        onClick = {
+                            interactionPulse++
+                            onOpenClinicalGuide()
+                        },
                         shape = CircleShape,
-                        backgroundColor = skin.palette.surfaceCard,
+                        backgroundColor = skin.palette.surfaceCard.copy(alpha = 0.78f),
                         borderColor = skin.palette.borderHairline,
                         modifier = Modifier.defaultMinSize(minHeight = headerPillMinHeight),
                         testTag = "player_clinical_guide_button"
@@ -287,7 +322,7 @@ fun StretchPlayerScreen(
                     SongxiActionSurface(
                         onClick = onClose,
                         shape = CircleShape,
-                        backgroundColor = skin.palette.surfaceCard,
+                        backgroundColor = skin.palette.surfaceCard.copy(alpha = 0.78f),
                         borderColor = skin.palette.borderHairline,
                         modifier = Modifier.defaultMinSize(
                             minWidth = if (isCompact) 50.dp else 64.dp,
@@ -374,9 +409,9 @@ fun StretchPlayerScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(sectionGap))
+            Spacer(modifier = Modifier.height(if (isCompact) 4.dp else 16.dp))
 
-            // Breathing Halo + Animated Editorial Figure Stage (Coronal or Sagittal + Biomechanical Guide)
+            // Breathing Halo + Animated Editorial Figure Stage (Focal Sanctuary Centerpiece)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -416,22 +451,24 @@ fun StretchPlayerScreen(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(skin.palette.accentPrimarySoft, CircleShape)
-                    .border(1.dp, skin.palette.borderHairline, CircleShape)
-                    .padding(horizontal = 14.dp, vertical = if (isCompact) 3.dp else 6.dp)
+                    .background(skin.palette.accentPrimarySoft.copy(alpha = 0.88f), CircleShape)
+                    .border(0.8.dp, skin.palette.borderHairline, CircleShape)
+                    .padding(horizontal = 16.dp, vertical = if (isCompact) 3.dp else 6.dp)
                     .testTag("player_breath_phase_label")
             ) {
                 Text(
                     text = breathPhase.phaseLabelCn,
+                    fontFamily = SongxiEditorialSerifFamily,
                     fontSize = if (isCompact) 12.sp else 14.sp,
                     fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.8.sp,
                     color = skin.palette.accentPrimary
                 )
             }
 
             Spacer(modifier = Modifier.height(sectionGap))
 
-            // Pose Title & 4-Stage Safe Coaching Cue (<= 36 chars)
+            // Pose Title in Song-serif & 4-Stage Safe Coaching Cue (<= 36 chars)
             val sideSuffix = when {
                 !playing.currentPose.bilateralSwitchAtHalfway -> ""
                 playing.isSecondHalf -> " · 温和换边"
@@ -441,8 +478,8 @@ fun StretchPlayerScreen(
             }
             Text(
                 text = "${playing.currentPose.title}$sideSuffix",
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = if (isCompact) 14.sp else 18.sp,
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = if (isCompact) 15.sp else 19.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = primaryTextColor,
                 textAlign = TextAlign.Center,
@@ -450,7 +487,7 @@ fun StretchPlayerScreen(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = guidance.activeCueCn,
@@ -462,24 +499,33 @@ fun StretchPlayerScreen(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 6.dp)
+                    .padding(horizontal = 8.dp)
             )
 
-            Spacer(modifier = Modifier.height(if (isCompact) 6.dp else 14.dp))
+            Spacer(modifier = Modifier.height(if (isCompact) 6.dp else 16.dp))
 
-            // Eyes-Free, Voice Cue, Soundscape & Office-Silent Controls
+            // Unified Translucent Sensory Dock (replaces 4 separate heavy bordered boxes)
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = quietChromeAlpha }
+                    .clip(CircleShape)
+                    .background(skin.palette.surfaceCard.copy(alpha = 0.68f), CircleShape)
+                    .border(0.8.dp, skin.palette.borderHairline, CircleShape)
+                    .padding(horizontal = 3.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 SongxiTogglePill(
                     isActive = playing.isEyesFreeMode,
-                    onClick = onToggleEyesFree,
+                    onClick = {
+                        interactionPulse++
+                        onToggleEyesFree()
+                    },
                     shape = CircleShape,
                     activeBackgroundColor = skin.palette.accentPrimary,
-                    inactiveBackgroundColor = skin.palette.surfaceCard,
+                    inactiveBackgroundColor = Color.Transparent,
                     activeBorderColor = skin.palette.accentPrimary,
-                    inactiveBorderColor = skin.palette.borderHairline,
+                    inactiveBorderColor = Color.Transparent,
                     modifier = Modifier
                         .weight(1f)
                         .defaultMinSize(minHeight = controlMinHeight),
@@ -496,12 +542,15 @@ fun StretchPlayerScreen(
 
                 SongxiTogglePill(
                     isActive = playing.voiceGuidanceEnabled,
-                    onClick = onToggleVoiceGuidance,
+                    onClick = {
+                        interactionPulse++
+                        onToggleVoiceGuidance()
+                    },
                     shape = CircleShape,
                     activeBackgroundColor = skin.palette.accentPrimary,
-                    inactiveBackgroundColor = skin.palette.surfaceCard,
+                    inactiveBackgroundColor = Color.Transparent,
                     activeBorderColor = skin.palette.accentPrimary,
-                    inactiveBorderColor = skin.palette.borderHairline,
+                    inactiveBorderColor = Color.Transparent,
                     modifier = Modifier
                         .weight(0.82f)
                         .defaultMinSize(minHeight = controlMinHeight),
@@ -517,10 +566,13 @@ fun StretchPlayerScreen(
                 }
 
                 SongxiActionSurface(
-                    onClick = onCycleSound,
+                    onClick = {
+                        interactionPulse++
+                        onCycleSound()
+                    },
                     shape = CircleShape,
-                    backgroundColor = skin.palette.surfaceCard,
-                    borderColor = skin.palette.borderHairline,
+                    backgroundColor = Color.Transparent,
+                    borderColor = null,
                     modifier = Modifier
                         .weight(1.05f)
                         .defaultMinSize(minHeight = controlMinHeight),
@@ -538,12 +590,15 @@ fun StretchPlayerScreen(
                 val isSilent = playing.soundProfile == SoundProfileId.SILENT_HAPTIC_ONLY
                 SongxiTogglePill(
                     isActive = isSilent,
-                    onClick = onToggleSilent,
+                    onClick = {
+                        interactionPulse++
+                        onToggleSilent()
+                    },
                     shape = CircleShape,
                     activeBackgroundColor = skin.palette.accentPrimary,
-                    inactiveBackgroundColor = skin.palette.surfaceCard,
+                    inactiveBackgroundColor = Color.Transparent,
                     activeBorderColor = skin.palette.accentPrimary,
-                    inactiveBorderColor = skin.palette.borderHairline,
+                    inactiveBorderColor = Color.Transparent,
                     modifier = Modifier
                         .weight(0.95f)
                         .defaultMinSize(minHeight = controlMinHeight),
@@ -568,12 +623,16 @@ fun StretchPlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SongxiActionSurface(
-                    onClick = onPreviousPose,
+                    onClick = {
+                        interactionPulse++
+                        onPreviousPose()
+                    },
                     shape = CircleShape,
-                    backgroundColor = skin.palette.surfaceCard,
+                    backgroundColor = skin.palette.surfaceCard.copy(alpha = 0.78f),
                     borderColor = skin.palette.borderHairline,
                     modifier = Modifier
                         .weight(0.85f)
+                        .graphicsLayer { alpha = quietChromeAlpha }
                         .defaultMinSize(minHeight = controlMinHeight),
                     testTag = "player_prev_pose_button"
                 ) {
@@ -586,7 +645,10 @@ fun StretchPlayerScreen(
                 }
 
                 SongxiActionSurface(
-                    onClick = onTogglePause,
+                    onClick = {
+                        interactionPulse++
+                        onTogglePause()
+                    },
                     shape = CircleShape,
                     backgroundColor = skin.palette.accentPrimary,
                     modifier = Modifier
@@ -604,12 +666,16 @@ fun StretchPlayerScreen(
 
                 val isFinalPose = playing.currentPoseIndex >= playing.routine.poses.lastIndex
                 SongxiActionSurface(
-                    onClick = onNextPose,
+                    onClick = {
+                        interactionPulse++
+                        onNextPose()
+                    },
                     shape = CircleShape,
-                    backgroundColor = skin.palette.surfaceCard,
+                    backgroundColor = skin.palette.surfaceCard.copy(alpha = 0.78f),
                     borderColor = skin.palette.borderHairline,
                     modifier = Modifier
                         .weight(0.85f)
+                        .graphicsLayer { alpha = quietChromeAlpha }
                         .defaultMinSize(minHeight = controlMinHeight),
                     testTag = "player_next_pose_button"
                 ) {
@@ -874,8 +940,10 @@ fun CompletionScreen(
             ) {
                 Text(
                     text = skin.meta.completionVerse,
+                    fontFamily = SongxiEditorialSerifFamily,
                     fontSize = if (isCompact) 14.sp else 16.sp,
                     fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.6.sp,
                     color = skin.palette.inkPrimary,
                     textAlign = TextAlign.Center
                 )

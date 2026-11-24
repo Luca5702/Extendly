@@ -982,14 +982,17 @@
             <p id="player-pose-cue" class="text-xs leading-relaxed" style="color:var(--sx-ink-sec);">左手轻搭左腿，不必用力掰头，像轻叹一口气，让肩膀慢慢沉向地面。</p>
           </div>
 
-          <!-- Soundscape Selector + Voice Cue + Flip Simulator + Transport Controls -->
-          <div class="space-y-2.5">
-            <div class="flex items-center justify-between gap-1">
-              <div id="el-sound-selector" data-testid="player_sound_selector" class="flex items-center gap-1 flex-wrap">
-                <button type="button" data-sound="bowl" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">颂钵</button>
-                <button type="button" data-sound="bamboo" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">竹磬</button>
-                <button type="button" data-sound="guqin" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">古琴</button>
-                <button type="button" data-sound="rain" class="sound-pill min-h-[30px] px-2 rounded-full text-[11px] border">细雨</button>
+          <!-- Unified Translucent Sensory Dock + Transport Controls ("三分画七分留白") -->
+          <div class="space-y-2">
+            <div
+              class="flex items-center justify-between gap-1 px-2 py-1 rounded-full border"
+              style="background-color:var(--sx-card);border-color:var(--sx-border);opacity:0.86;"
+            >
+              <div id="el-sound-selector" data-testid="player_sound_selector" class="flex items-center gap-0.5 flex-wrap">
+                <button type="button" data-sound="bowl" class="sound-pill min-h-[28px] px-2 rounded-full text-[11px] border">颂钵</button>
+                <button type="button" data-sound="bamboo" class="sound-pill min-h-[28px] px-2 rounded-full text-[11px] border">竹磬</button>
+                <button type="button" data-sound="guqin" class="sound-pill min-h-[28px] px-2 rounded-full text-[11px] border">古琴</button>
+                <button type="button" data-sound="rain" class="sound-pill min-h-[28px] px-2 rounded-full text-[11px] border">细雨</button>
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <button
@@ -997,7 +1000,7 @@
                   data-testid="player_voice_cue_toggle"
                   type="button"
                   aria-pressed="false"
-                  class="min-h-[30px] px-2 rounded-full text-[11px] border whitespace-nowrap"
+                  class="min-h-[28px] px-2 rounded-full text-[11px] border whitespace-nowrap"
                 >
                   轻口令
                 </button>
@@ -1006,7 +1009,7 @@
                   data-testid="player_sound_silent"
                   type="button"
                   aria-pressed="false"
-                  class="min-h-[30px] px-2 rounded-full text-[11px] border whitespace-nowrap"
+                  class="min-h-[28px] px-2 rounded-full text-[11px] border whitespace-nowrap"
                 >
                   静默仅微震
                 </button>
@@ -1992,6 +1995,66 @@
       };
     }
 
+    function buildXiaoZhuanGlyphSvg(ch, ox, oy, w, h, color, sw) {
+      const x = (nx) => (ox + nx * w).toFixed(2);
+      const y = (ny) => (oy + ny * h).toFixed(2);
+      let d = '';
+      if (ch === '松') {
+        d = `M${x(0.27)} ${y(0.09)} L${x(0.27)} ${y(0.91)} M${x(0.11)} ${y(0.22)} Q${x(0.27)} ${y(0.38)} ${x(0.42)} ${y(0.22)} M${x(0.11)} ${y(0.79)} Q${x(0.27)} ${y(0.56)} ${x(0.42)} ${y(0.76)} M${x(0.60)} ${y(0.16)} Q${x(0.53)} ${y(0.34)} ${x(0.47)} ${y(0.47)} M${x(0.74)} ${y(0.16)} Q${x(0.82)} ${y(0.34)} ${x(0.89)} ${y(0.47)} M${x(0.68)} ${y(0.44)} L${x(0.52)} ${y(0.78)} Q${x(0.50)} ${y(0.84)} ${x(0.58)} ${y(0.84)} L${x(0.83)} ${y(0.81)} M${x(0.76)} ${y(0.65)} L${x(0.87)} ${y(0.88)}`;
+      } else if (ch === '息') {
+        d = `M${x(0.53)} ${y(0.06)} L${x(0.45)} ${y(0.15)} M${x(0.30)} ${y(0.22)} Q${x(0.30)} ${y(0.15)} ${x(0.38)} ${y(0.15)} L${x(0.62)} ${y(0.15)} Q${x(0.70)} ${y(0.15)} ${x(0.70)} ${y(0.22)} L${x(0.70)} ${y(0.52)} L${x(0.30)} ${y(0.52)} Z M${x(0.31)} ${y(0.27)} L${x(0.69)} ${y(0.27)} M${x(0.31)} ${y(0.39)} L${x(0.69)} ${y(0.39)} M${x(0.33)} ${y(0.63)} C${x(0.33)} ${y(0.91)}, ${x(0.67)} ${y(0.91)}, ${x(0.67)} ${y(0.63)} M${x(0.50)} ${y(0.58)} L${x(0.50)} ${y(0.75)} M${x(0.20)} ${y(0.66)} Q${x(0.14)} ${y(0.80)} ${x(0.22)} ${y(0.89)} M${x(0.79)} ${y(0.64)} Q${x(0.87)} ${y(0.78)} ${x(0.79)} ${y(0.89)}`;
+      } else if (ch === '山') {
+        d = `M${x(0.50)} ${y(0.12)} L${x(0.50)} ${y(0.85)} M${x(0.18)} ${y(0.35)} L${x(0.18)} ${y(0.76)} Q${x(0.18)} ${y(0.86)} ${x(0.30)} ${y(0.86)} L${x(0.70)} ${y(0.86)} Q${x(0.82)} ${y(0.86)} ${x(0.82)} ${y(0.76)} L${x(0.82)} ${y(0.35)}`;
+      } else if (ch === '居') {
+        d = `M${x(0.26)} ${y(0.13)} L${x(0.78)} ${y(0.13)} Q${x(0.83)} ${y(0.13)} ${x(0.83)} ${y(0.21)} L${x(0.83)} ${y(0.29)} L${x(0.27)} ${y(0.29)} M${x(0.26)} ${y(0.13)} C${x(0.26)} ${y(0.54)}, ${x(0.22)} ${y(0.75)}, ${x(0.13)} ${y(0.90)} M${x(0.35)} ${y(0.48)} L${x(0.85)} ${y(0.48)} M${x(0.59)} ${y(0.33)} L${x(0.59)} ${y(0.64)} M${x(0.40)} ${y(0.64)} L${x(0.79)} ${y(0.64)} L${x(0.79)} ${y(0.89)} L${x(0.40)} ${y(0.89)} Z`;
+      } else if (ch === '清') {
+        d = `M${x(0.15)} ${y(0.20)} Q${x(0.10)} ${y(0.34)} ${x(0.16)} ${y(0.46)} M${x(0.15)} ${y(0.58)} Q${x(0.20)} ${y(0.72)} ${x(0.14)} ${y(0.86)} M${x(0.26)} ${y(0.11)} C${x(0.20)} ${y(0.38)}, ${x(0.32)} ${y(0.62)}, ${x(0.25)} ${y(0.90)} M${x(0.66)} ${y(0.10)} L${x(0.66)} ${y(0.48)} M${x(0.49)} ${y(0.22)} Q${x(0.66)} ${y(0.28)} ${x(0.83)} ${y(0.22)} M${x(0.51)} ${y(0.35)} L${x(0.81)} ${y(0.35)} M${x(0.44)} ${y(0.48)} L${x(0.88)} ${y(0.48)} M${x(0.50)} ${y(0.90)} L${x(0.50)} ${y(0.62)} Q${x(0.50)} ${y(0.55)} ${x(0.59)} ${y(0.55)} L${x(0.73)} ${y(0.55)} Q${x(0.82)} ${y(0.55)} ${x(0.82)} ${y(0.62)} L${x(0.82)} ${y(0.90)} M${x(0.51)} ${y(0.72)} L${x(0.81)} ${y(0.72)}`;
+      } else if (ch === '听') {
+        d = `M${x(0.15)} ${y(0.24)} L${x(0.39)} ${y(0.24)} L${x(0.39)} ${y(0.68)} L${x(0.15)} ${y(0.68)} Z M${x(0.84)} ${y(0.14)} Q${x(0.64)} ${y(0.18)} ${x(0.50)} ${y(0.24)} C${x(0.50)} ${y(0.56)}, ${x(0.46)} ${y(0.76)}, ${x(0.37)} ${y(0.90)} M${x(0.50)} ${y(0.46)} L${x(0.87)} ${y(0.46)} M${x(0.70)} ${y(0.46)} L${x(0.70)} ${y(0.90)}`;
+      } else if (ch === '春') {
+        d = `M${x(0.25)} ${y(0.18)} Q${x(0.50)} ${y(0.22)} ${x(0.75)} ${y(0.18)} M${x(0.28)} ${y(0.30)} Q${x(0.50)} ${y(0.34)} ${x(0.72)} ${y(0.30)} M${x(0.16)} ${y(0.43)} L${x(0.84)} ${y(0.43)} M${x(0.50)} ${y(0.09)} L${x(0.50)} ${y(0.43)} M${x(0.50)} ${y(0.36)} Q${x(0.34)} ${y(0.54)} ${x(0.14)} ${y(0.67)} M${x(0.50)} ${y(0.36)} Q${x(0.66)} ${y(0.54)} ${x(0.86)} ${y(0.67)} M${x(0.35)} ${y(0.57)} L${x(0.65)} ${y(0.57)} L${x(0.65)} ${y(0.90)} L${x(0.35)} ${y(0.90)} Z M${x(0.36)} ${y(0.73)} L${x(0.64)} ${y(0.73)}`;
+      }
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" />`;
+    }
+
+    function buildSongWideSleeveSvg(shX, shY, elX, elY, haX, haY, s, cuffTrim, isLeftSide) {
+      let dx1 = elX - shX, dy1 = elY - shY;
+      const l1 = Math.hypot(dx1, dy1) || 1;
+      dx1 /= l1; dy1 /= l1;
+      let dx2 = haX - elX, dy2 = haY - elY;
+      const l2 = Math.hypot(dx2, dy2) || 1;
+      dx2 /= l2; dy2 /= l2;
+      let mdx = dx1 + dx2, mdy = dy1 + dy2;
+      const ml = Math.hypot(mdx, mdy) || 1;
+      mdx /= ml; mdy /= ml;
+
+      const baseMidNx = -mdy, baseMidNy = mdx;
+      const sign = baseMidNy > 0.12 ? 1 : (baseMidNy < -0.12 ? -1 : (((isLeftSide && baseMidNx < 0) || (!isLeftSide && baseMidNx > 0)) ? 1 : -1));
+      const nShX = -dy1 * sign, nShY = dx1 * sign;
+      const nElX = -mdy * sign, nElY = mdx * sign;
+      const nHaX = -dy2 * sign, nHaY = dx2 * sign;
+
+      const shU = 4.6, shL = 5.0, elU = 4.5, elL = 7.8, haU = 3.4, haL = 5.4;
+      const cuCx = haX - dx2 * 2.8, cuCy = haY - dy2 * 2.8;
+      const shTx = shX - nShX * shU, shTy = shY - nShY * shU;
+      const shBx = shX + nShX * shL, shBy = shY + nShY * shL;
+      const elTx = elX - nElX * elU, elTy = elY - nElY * elU;
+      const elBx = elX + nElX * elL, elBy = elY + nElY * elL;
+      const cuTx = cuCx - nHaX * haU, cuTy = cuCy - nHaY * haU;
+      const cuBx = cuCx + nHaX * haL, cuBy = cuCy + nHaY * haL;
+      const armDeg = (Math.atan2(dy2, dx2) * 180 / Math.PI).toFixed(1);
+
+      return `<g>
+        <g transform="translate(${haX.toFixed(1)}, ${haY.toFixed(1)}) rotate(${armDeg})">
+          <path d="M-3.2 -1.7 Q-0.4 -3.0 2.2 -1.9 Q5.4 -1.0 6.2 0.3 Q5.2 2.2 1.0 2.4 Q-1.8 2.2 -3.2 1.5 Z" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linejoin="round" />
+        </g>
+        <path d="M${shTx.toFixed(1)} ${shTy.toFixed(1)} Q${elTx.toFixed(1)} ${elTy.toFixed(1)} ${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2 * 1.6).toFixed(1)} ${(cuCy + dy2 * 1.6).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)} Q${elBx.toFixed(1)} ${elBy.toFixed(1)} ${shBx.toFixed(1)} ${shBy.toFixed(1)} Q${(shX - dx1 * 3.6).toFixed(1)} ${(shY - dy1 * 3.6).toFixed(1)} ${shTx.toFixed(1)} ${shTy.toFixed(1)} Z" fill="${s.garmentFill}" />
+        <path d="M${(elX + nElX * elL * 0.34).toFixed(1)} ${(elY + nElY * elL * 0.34).toFixed(1)} Q${((elX + cuCx) * 0.5 + nElX * elL * 0.62).toFixed(1)} ${((elY + cuCy) * 0.5 + nElY * elL * 0.62).toFixed(1)} ${(cuBx - dx2).toFixed(1)} ${(cuBy - dy2).toFixed(1)}" fill="none" stroke="${s.garmentShadow}" stroke-width="1.05" stroke-opacity="0.76" stroke-linecap="round" />
+        <path d="M${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2 * 0.9).toFixed(1)} ${(cuCy + dy2 * 0.9).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)}" fill="none" stroke="${cuffTrim}" stroke-width="1.2" stroke-opacity="0.82" stroke-linecap="round" />
+        <path d="M${shTx.toFixed(1)} ${shTy.toFixed(1)} Q${elTx.toFixed(1)} ${elTy.toFixed(1)} ${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2 * 1.6).toFixed(1)} ${(cuCy + dy2 * 1.6).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)} Q${elBx.toFixed(1)} ${elBy.toFixed(1)} ${(shX + dx1 * 4.5 + nShX * shL * 0.88).toFixed(1)} ${(shY + dy1 * 4.5 + nShY * shL * 0.88).toFixed(1)}" fill="none" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.9).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" />
+      </g>`;
+    }
+
     function renderSealSVG(skinId, scale = 1) {
       const s = SONGXI_SKINS[skinId];
       const c = s.sealVermilion;
@@ -1999,34 +2062,39 @@
       if (s.sealShape === 'SQUARE_ZHUWEN') {
         const w = Math.round(30 * scale);
         return `<svg width="${w}" height="${w}" viewBox="0 0 30 30" aria-label="朱文印 ${s.sealText}">
-          <rect x="2" y="2" width="26" height="26" rx="3" fill="none" stroke="${c}" stroke-width="1.9" />
-          <text x="15" y="13.5" text-anchor="middle" fill="${c}" font-size="8.8" font-weight="700" class="font-serif-cn">松</text>
-          <text x="15" y="23.5" text-anchor="middle" fill="${c}" font-size="8.8" font-weight="700" class="font-serif-cn">息</text>
+          <rect x="2" y="2" width="26" height="26" rx="3.6" fill="${bg}" stroke="${c}" stroke-width="1.9" />
+          <circle cx="24" cy="2" r="0.9" fill="${bg}" />
+          ${buildXiaoZhuanGlyphSvg('松', 10.2, 4.4, 9.6, 10.0, c, 0.92)}
+          ${buildXiaoZhuanGlyphSvg('息', 10.2, 15.4, 9.6, 10.0, c, 0.92)}
         </svg>`;
       }
       if (s.sealShape === 'OBLONG_BAIWEN') {
-        const w = Math.round(24 * scale), h = Math.round(42 * scale);
-        return `<svg width="${w}" height="${h}" viewBox="0 0 24 42" aria-label="白文印 ${s.sealText}">
-          <rect x="1.5" y="1.5" width="21" height="39" rx="2.5" fill="${c}" />
-          <text x="12" y="12" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">山</text>
-          <text x="12" y="20.5" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">居</text>
-          <text x="12" y="29" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">清</text>
-          <text x="12" y="37.5" text-anchor="middle" fill="${bg}" font-size="7" font-weight="600" class="font-serif-cn">息</text>
+        const w = Math.round(28 * scale), h = Math.round(36 * scale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 28 36" aria-label="白文印 ${s.sealText}">
+          <rect x="1.5" y="1.5" width="25" height="33" rx="3" fill="${c}" />
+          <rect x="3.2" y="3.2" width="21.6" height="29.6" rx="2" fill="none" stroke="${bg}" stroke-width="0.6" stroke-opacity="0.34" />
+          <line x1="14" y1="4.5" x2="14" y2="31.5" stroke="${bg}" stroke-width="0.55" stroke-opacity="0.24" />
+          <line x1="4.5" y1="18" x2="23.5" y2="18" stroke="${bg}" stroke-width="0.55" stroke-opacity="0.24" />
+          ${buildXiaoZhuanGlyphSvg('山', 4.6, 4.8, 8.2, 11.4, bg, 0.82)}
+          ${buildXiaoZhuanGlyphSvg('居', 15.2, 4.8, 8.2, 11.4, bg, 0.82)}
+          ${buildXiaoZhuanGlyphSvg('清', 4.6, 19.6, 8.2, 11.4, bg, 0.78)}
+          ${buildXiaoZhuanGlyphSvg('息', 15.2, 19.6, 8.2, 11.4, bg, 0.80)}
         </svg>`;
       }
       if (s.sealShape === 'GOURD_XIANZHANG') {
         const w = Math.round(26 * scale), h = Math.round(38 * scale);
         return `<svg width="${w}" height="${h}" viewBox="0 0 26 38" aria-label="葫芦章 ${s.sealText}">
-          <path d="M13 2 C18.5 2 20.5 7 17.8 13 C22.5 17.5 23 33.5 13 35.5 C3 33.5 3.5 17.5 8.2 13 C5.5 7 7.5 2 13 2 Z" fill="${c}" />
-          <text x="13" y="12.5" text-anchor="middle" fill="${bg}" font-size="7.2" font-weight="700" class="font-serif-cn">听</text>
-          <text x="13" y="27.5" text-anchor="middle" fill="${bg}" font-size="8.6" font-weight="700" class="font-serif-cn">松</text>
+          <path d="M13 2 C18.5 2 20.5 7 17.8 13 C22.5 17.5 23 33.5 13 35.5 C3 33.5 3.5 17.5 8.2 13 C5.5 7 7.5 2 13 2 Z" fill="${bg}" stroke="${c}" stroke-width="1.8" />
+          ${buildXiaoZhuanGlyphSvg('听', 9.0, 5.2, 8.0, 8.6, c, 0.84)}
+          ${buildXiaoZhuanGlyphSvg('松', 8.2, 18.6, 9.6, 11.2, c, 0.90)}
         </svg>`;
       }
       const w = Math.round(30 * scale);
       return `<svg width="${w}" height="${w}" viewBox="0 0 30 30" aria-label="圆印 ${s.sealText}">
-        <circle cx="15" cy="15" r="13" fill="none" stroke="${c}" stroke-width="1.8" />
-        <text x="15" y="13.5" text-anchor="middle" fill="${c}" font-size="8" font-weight="700" class="font-serif-cn">春</text>
-        <text x="15" y="23" text-anchor="middle" fill="${c}" font-size="8" font-weight="700" class="font-serif-cn">山</text>
+        <circle cx="15" cy="15" r="13" fill="${bg}" />
+        <path d="M12.2 2.3 A13 13 0 1 1 9.5 3.2" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round" />
+        ${buildXiaoZhuanGlyphSvg('春', 10.3, 4.8, 9.4, 9.8, c, 0.88)}
+        ${buildXiaoZhuanGlyphSvg('山', 10.3, 15.4, 9.4, 9.8, c, 0.88)}
       </svg>`;
     }
 
@@ -2064,9 +2132,9 @@
         </g>`;
       }
 
-      const collarColor = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.contourStroke);
+      const collarColor = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.garmentShadow);
 
-      // Genuine Sagittal Side-Profile Renderer for anterior-posterior spinal & cervical movements
+      // Genuine Song Baimiao Sagittal Side-Profile Renderer
       if (plane === 'sagittal' && uid === 'player') {
         const sp = k.spineArcRatio;
         const ch = k.chinTuckRatio;
@@ -2106,27 +2174,33 @@
         return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title} 侧视导引">
           <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
           ${haloSvg}
-          <line x1="62" y1="173" x2="138" y2="173" stroke="${s.borderHairline}" stroke-width="2" stroke-linecap="round" />
-          <line x1="64" y1="122" x2="68" y2="173" stroke="${s.borderHairline}" stroke-width="1.8" stroke-linecap="round" />
-          ${isDesk ? `<line x1="160" y1="136" x2="194" y2="136" stroke="${s.accentSecondary}" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.5" />` : ''}
-          <path d="M${pelX + 4} ${pelY + 2} L154 164 L158 192" fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M${pelX + 4} ${pelY + 2} L154 164 L158 192" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" stroke-linejoin="round" />
-          ${mirrorBilateral ? `<path d="M${pelX + 6} ${pelY - 2} Q130 144 148 158" fill="none" stroke="${s.accentPrimary}" stroke-width="3" stroke-linecap="round" />` : ''}
-          <line x1="${hX - 2}" y1="${hY + 9}" x2="${neckX}" y2="${neckY + 6}" stroke="${s.skinTone}" stroke-width="9.5" stroke-linecap="round" />
-          <path d="M${neckX - 7} ${neckY + 3} L${neckX + 8} ${neckY + 5} C${thoX + 18} ${thoY}, ${lumX + 19} ${lumY}, ${pelX + 19} ${pelY + 5} Q${pelX} ${pelY + 10} ${pelX - 15} ${pelY + 5} C${lumX - 15} ${lumY}, ${thoX - 15} ${thoY}, ${neckX - 7} ${neckY + 3} Z"
-            fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
-          <path d="M${thoX} ${thoY - 8} Q${elX} ${elY} ${haX} ${haY}" fill="none" stroke="${s.garmentFill}" stroke-width="12.5" stroke-linecap="round" />
-          <path d="M${thoX} ${thoY - 8} Q${elX} ${elY} ${haX} ${haY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
-          <circle cx="${haX}" cy="${haY}" r="4.6" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
+          <!-- Song wooden meditation chair & floor -->
+          <line x1="50" y1="195" x2="186" y2="195" stroke="${s.accentSecondary}" stroke-width="1" stroke-opacity="0.28" stroke-linecap="round" />
+          <line x1="68" y1="173" x2="65" y2="194" stroke="${s.borderHairline}" stroke-width="1.4" stroke-linecap="round" />
+          <line x1="130" y1="173" x2="133" y2="194" stroke="${s.borderHairline}" stroke-width="1.4" stroke-linecap="round" />
+          <path d="M61 118 Q65 146 67 173" fill="none" stroke="${s.borderHairline}" stroke-width="1.5" stroke-linecap="round" />
+          <line x1="61" y1="173" x2="138" y2="173" stroke="${s.borderHairline}" stroke-width="1.8" stroke-linecap="round" />
+          ${isDesk ? `<line x1="160" y1="136" x2="194" y2="136" stroke="${s.accentSecondary}" stroke-width="2" stroke-linecap="round" stroke-opacity="0.5" />` : ''}
+          <!-- Tapered seated trouser + slender ankle + Song cloth slipper (素履) -->
+          <line x1="158" y1="186" x2="158.5" y2="191" stroke="${s.skinTone}" stroke-width="4.8" stroke-linecap="round" />
+          <path d="M154.5 191 Q162 190 170 191.5 Q172 193 170.5 194.6 L155 194.6 Z" fill="${s.garmentShadow}" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linejoin="round" />
+          <path d="M${pelX + 2} ${pelY - 5} Q128 156 159 161 Q161 174 162.5 187 Q158 188.5 153 186.5 Q152 175 148 169 L${pelX - 2} ${pelY + 6} Z" fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.92).toFixed(2)}" stroke-linejoin="round" />
+          ${mirrorBilateral ? `<path d="M${pelX + 6} ${pelY - 2} Q130 144 148 158" fill="none" stroke="${s.accentPrimary}" stroke-width="2.4" stroke-linecap="round" />` : ''}
+          <path d="M${hX - 6} ${hY + 8} L${hX + 3} ${hY + 9} L${neckX + 4.5} ${neckY + 6} L${neckX - 5} ${neckY + 5} Z" fill="${s.skinTone}" />
+          <path d="M${neckX - 6.5} ${neckY + 2.5} Q${neckX} ${neckY + 4} ${neckX + 6.5} ${neckY + 4.5} C${thoX + 18} ${thoY}, ${lumX + 18.5} ${lumY}, ${pelX + 19.5} ${pelY + 5} Q${pelX} ${pelY + 11} ${pelX - 15} ${pelY + 5.5} C${lumX - 14.5} ${lumY}, ${thoX - 14.5} ${thoY}, ${neckX - 6.5} ${neckY + 2.5} Z"
+            fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.9).toFixed(2)}" stroke-linejoin="round" />
+          <path d="M${neckX - 5} ${neckY + 2} Q${neckX + 4} ${neckY + 5.5} ${thoX + 13.5} ${thoY + 6}" fill="none" stroke="${collarColor}" stroke-width="1.5" stroke-linecap="round" />
+          ${buildSongWideSleeveSvg(thoX + 1, thoY - 8, elX, elY, haX, haY, s, collarColor, false)}
           <g transform="translate(${hX}, ${hY}) rotate(${pitch})">
-            <circle cx="-15" cy="-6" r="7.5" fill="${s.hairFill}" />
-            <ellipse cx="0" cy="-2" rx="13.2" ry="15" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
-            <path d="M11.5 -5 L15.5 1.5 L11.5 4.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linejoin="round" />
-            <path d="M9.5 -10 Q-2 -22 -13.5 -3 Q-14 8 -5 9 Q-2 -5 9.5 -10 Z" fill="${s.hairFill}" />
-            <path d="M4.5 -2 Q7 -0.5 9.5 -2" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" />
+            <ellipse cx="-14.5" cy="-6.5" rx="6.5" ry="7.6" fill="${s.hairFill}" />
+            <path d="M0 -14.5 C8.5 -14.5, 12.2 -8.2, 12.0 -2.4 C14.2 -0.2, 14.4 2.2, 12.4 3.4 C12.8 5.6, 11.4 12.0, 3.2 13.8 C-7.5 14.4, -13.2 7.4, -13.0 -1.0 C-12.8 -9.8, -7.2 -14.5, 0 -14.5 Z" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.88).toFixed(2)}" stroke-linejoin="round" />
+            <path d="M10.2 -6.8 C3.2 -16.8, -10.8 -15.4, -13.2 -1.5 C-13.8 6.8, -8.2 9.8, -4.4 8.2 Q-3.0 1.4 -0.5 -1.0 Q3.6 -5.2 10.2 -6.8 Z" fill="${s.hairFill}" />
+            <path d="M3.2 -3.2 Q6.4 -4.6 9.4 -2.8" fill="none" stroke="${s.contourStroke}" stroke-width="0.95" stroke-opacity="0.6" stroke-linecap="round" />
+            <path d="M3.8 -0.8 Q6.6 1.0 9.4 -0.8" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+            <path d="M8.8 6.2 Q10.4 6.8 11.7 6.0" fill="none" stroke="${s.contourStroke}" stroke-width="0.95" stroke-opacity="0.6" stroke-linecap="round" />
           </g>
           ${sagGuideSvg}
-          <text x="120" y="206" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title} · 侧视矢状</text>
+          <text x="120" y="209" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title} · 侧视矢状</text>
         </svg>`;
       }
 
@@ -2172,45 +2246,58 @@
 
       const microAnatomySvg = arch === 'wrist'
         ? `<g data-micro-detail="wrist">
-            <path d="M${rElX - 2} ${rElY - 2} Q${(rElX + rHaX) * 0.5} ${(rElY + rHaY) * 0.5} ${rHaX} ${rHaY}" fill="none" stroke="${s.accentPrimary}" stroke-width="1.3" stroke-dasharray="3 2" stroke-opacity="0.7" />
-            <path d="M${rHaX + 3} ${rHaY - 1} L${rHaX + 8} ${rHaY - 5 - k.wristFlexRatio * 3} M${rHaX + 3.5} ${rHaY} L${rHaX + 9.5} ${rHaY - 2 - k.wristFlexRatio * 3} M${rHaX + 3} ${rHaY + 1.5} L${rHaX + 8.5} ${rHaY + 2 - k.wristFlexRatio * 2}" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+            <path d="M${rElX - 2} ${rElY - 2} Q${(rElX + rHaX) * 0.5} ${(rElY + rHaY) * 0.5} ${rHaX} ${rHaY}" fill="none" stroke="${s.accentPrimary}" stroke-width="1.15" stroke-dasharray="3 2" stroke-opacity="0.62" />
+            <path d="M${rHaX + 3} ${rHaY - 1} L${rHaX + 8} ${rHaY - 5 - k.wristFlexRatio * 3} M${rHaX + 3.5} ${rHaY} L${rHaX + 9.5} ${rHaY - 2 - k.wristFlexRatio * 3} M${rHaX + 3} ${rHaY + 1.5} L${rHaX + 8.5} ${rHaY + 2 - k.wristFlexRatio * 2}" fill="none" stroke="${s.contourStroke}" stroke-width="1.0" stroke-linecap="round" />
           </g>`
         : '';
+
+      const lColX = cx - 6.5, rColX = cx + 6.5, colY = baseY - 24;
+      const waistY = baseY + 11;
 
       return `<svg viewBox="0 0 240 220" class="w-full h-full block" role="img" aria-label="${pose.title}">
         <rect width="240" height="220" fill="${s.canvasSkyWashTop}" fill-opacity="0.55" />
         ${haloSvg}
-        <path d="M${cx - 42} ${baseY + 18} Q${cx} ${baseY + 9} ${cx + 42} ${baseY + 18}" fill="none" stroke="${s.accentSecondary}" stroke-width="2.2" stroke-opacity="0.38" stroke-linecap="round" />
-        <path d="M${lShX} ${lShY} Q${cx} ${baseY - 24} ${rShX} ${rShY} C${rShX + 13} ${rShY + 26}, ${cx + 35} ${baseY + 34}, ${cx + 33} ${baseY + 48} L${cx - 33} ${baseY + 48} C${cx - 35} ${baseY + 34}, ${lShX - 13} ${lShY + 26}, ${lShX} ${lShY} Z"
-          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
-        <path d="M${cx - 12} ${baseY - 23} L${cx + 4} ${baseY + 3} M${cx + 12} ${baseY - 23} L${cx - 2} ${baseY - 4}"
-          fill="none" stroke="${collarColor}" stroke-width="1.3" stroke-opacity="0.72" stroke-linecap="round" />
-
-        <path d="M${lShX + 2} ${lShY + 3} Q${lElX} ${lElY} ${lHaX} ${lHaY}" fill="none" stroke="${s.garmentFill}" stroke-width="13" stroke-linecap="round" />
-        <path d="M${lShX + 2} ${lShY + 3} Q${lElX} ${lElY} ${lHaX} ${lHaY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
-        <circle cx="${lHaX}" cy="${lHaY}" r="4.8" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
-
-        <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.garmentFill}" stroke-width="13" stroke-linecap="round" />
-        <path d="M${rShX - 2} ${rShY + 3} Q${rElX} ${rElY} ${rHaX} ${rHaY}" fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
-        <circle cx="${rHaX}" cy="${rHaY}" r="4.8" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.15" />
-        ${microAnatomySvg}
-
-        <rect x="${cx - 5.5}" y="${baseY - 32}" width="11" height="13" rx="4.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.1" />
+        <!-- Woven rush meditation mat (蒲团素席) -->
+        <ellipse cx="${cx}" cy="${baseY + 46}" rx="54" ry="7.2" fill="${s.surfaceCardSubtle}" stroke="${s.borderHairline}" stroke-width="1.0" />
+        <!--Posterior hair chignon & slender V-neck -->
         <g transform="translate(${headX}, ${headY}) rotate(${k.headTiltDeg.toFixed(2)})">
-          <circle cx="-12" cy="-13" r="8" fill="${s.hairFill}" />
-          <path d="M-16 -20 C-17 -35, 17 -35, 16 -20 Z" fill="${s.hairFill}" />
-          <ellipse cx="0" cy="-17" rx="13.8" ry="16.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
-          <path d="M-13.8 -20 C-11 -31, 9 -32, 13.8 -19 C7 -24.5, -6 -24.5, -13.8 -20 Z" fill="${s.hairFill}" />
-          ${k.eyesClosed === false
-            ? `<circle cx="-4.8" cy="-16.6" r="1.35" fill="${s.contourStroke}" /><circle cx="4.8" cy="-16.6" r="1.35" fill="${s.contourStroke}" />`
-            : `<path d="M-8 -17 Q-4.6 -14.8 -1.6 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />
-               <path d="M1.6 -17 Q4.6 -14.8 8 -17" fill="none" stroke="${s.contourStroke}" stroke-width="1.25" stroke-linecap="round" />`
-          }
-          ${arch === 'eye' ? `<circle cx="-2.4" cy="-19.5" r="1.3" fill="${s.accentPrimary}" fill-opacity="0.82" /><circle cx="2.4" cy="-19.5" r="1.3" fill="${s.accentPrimary}" fill-opacity="0.82" /><path d="M-10 -20.5 Q0 -23.5 10 -20.5" fill="none" stroke="${s.accentPrimary}" stroke-width="0.95" stroke-dasharray="2 2" stroke-opacity="0.58" />` : ''}
-          <path d="M-2.8 -10 Q0 -8.2 2.8 -10" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+          <ellipse cx="0" cy="-35.5" rx="8.2" ry="5.6" fill="${s.hairFill}" />
+          ${skinId === 'qinglv_celadon' ? `<line x1="-11" y1="-34.5" x2="11.5" y2="-36.5" stroke="#B88655" stroke-width="1.5" stroke-linecap="round" /><circle cx="11.5" cy="-36.5" r="2.1" fill="${s.accentPrimary}" />` : ''}
+          <ellipse cx="0" cy="-19" rx="14.2" ry="15.8" fill="${s.hairFill}" />
         </g>
+        <path d="M${headX - 4.5} ${headY - 7} L${headX + 4.5} ${headY - 7} L${rColX} ${colY + 2} L${cx} ${colY + 11} L${lColX} ${colY + 2} Z" fill="${s.skinTone}" />
+
+        <!-- Sloping Song Tunic (交领右衽宽衫) & Cross-Legged Skirt Hem -->
+        <path d="M${lColX} ${colY} Q${(lColX + lShX) * 0.5} ${colY + 2} ${lShX} ${lShY} C${cx - 29} ${(lShY + waistY) * 0.5}, ${cx - 27} ${waistY}, ${cx - 32} ${waistY + 18} Q${cx - 41} ${baseY + 38} ${cx - 39} ${baseY + 45} Q${cx} ${baseY + 53} ${cx + 39} ${baseY + 45} Q${cx + 41} ${baseY + 38} ${cx + 32} ${waistY + 18} C${cx + 27} ${waistY}, ${cx + 29} ${(rShY + waistY) * 0.5}, ${rShX} ${rShY} Q${(rColX + rShX) * 0.5} ${colY + 2} ${rColX} ${colY} Q${cx} ${colY + 11} ${lColX} ${colY} Z"
+          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.9).toFixed(2)}" stroke-linejoin="round" />
+        <path d="M${cx - 37} ${baseY + 37} Q${cx} ${baseY + 48} ${cx + 37} ${baseY + 37} L${cx + 39} ${baseY + 45} Q${cx} ${baseY + 53} ${cx - 39} ${baseY + 45} Z" fill="${s.garmentShadow}" fill-opacity="0.76" />
+        <!-- Double-layer Song Y-collar & waist sash -->
+        <path d="M${lColX + 1.2} ${colY} L${cx - 1} ${baseY - 5} L${rColX - 1.2} ${colY}" fill="none" stroke="${s.surfaceCard}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        <line x1="${rColX}" y1="${colY}" x2="${cx - 1}" y2="${baseY - 5}" stroke="${collarColor}" stroke-width="1.4" stroke-opacity="0.78" stroke-linecap="round" />
+        <path d="M${lColX} ${colY} Q${cx - 0.5} ${baseY - 4} ${cx + 9.5} ${baseY + 4}" fill="none" stroke="${collarColor}" stroke-width="1.65" stroke-linecap="round" />
+        <path d="M${cx - 26} ${waistY + 2} Q${cx} ${waistY + 5.5} ${cx + 26} ${waistY + 2}" fill="none" stroke="${collarColor}" stroke-width="1.15" stroke-opacity="0.52" stroke-linecap="round" />
+        <path d="M${cx + 9.5} ${waistY + 4} Q${cx + 12} ${waistY + 11} ${cx + 10.5} ${waistY + 17}" fill="none" stroke="${collarColor}" stroke-width="0.95" stroke-opacity="0.48" stroke-linecap="round" />
+
+        <!-- Sculpted Song head, parted locks & willow brows -->
+        <g transform="translate(${headX}, ${headY}) rotate(${k.headTiltDeg.toFixed(2)})">
+          <ellipse cx="0" cy="-17" rx="12.6" ry="15.2" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.88).toFixed(2)}" />
+          <path d="M-12.5 -19 Q-5.5 -29 0 -25.5 Q5.5 -29 12.5 -19 Q11.5 -33.5 0 -34 Q-11.5 -33.5 -12.5 -19 Z" fill="${s.hairFill}" />
+          <path d="M-7.8 -20.6 Q-4.8 -22.2 -1.8 -20.2 M1.8 -20.2 Q4.8 -22.2 7.8 -20.6" fill="none" stroke="${s.contourStroke}" stroke-width="0.88" stroke-opacity="0.58" stroke-linecap="round" />
+          ${k.eyesClosed === false
+            ? `<circle cx="-4.8" cy="-17.2" r="1.3" fill="${s.contourStroke}" /><circle cx="4.8" cy="-17.2" r="1.3" fill="${s.contourStroke}" />`
+            : `<path d="M-7.6 -17.4 Q-4.8 -15.4 -2.0 -17.4" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />
+               <path d="M2.0 -17.4 Q4.8 -15.4 7.6 -17.4" fill="none" stroke="${s.contourStroke}" stroke-width="1.15" stroke-linecap="round" />`
+          }
+          ${arch === 'eye' ? `<circle cx="-2.4" cy="-19.5" r="1.1" fill="${s.sealVermilion}" fill-opacity="0.62" /><circle cx="2.4" cy="-19.5" r="1.1" fill="${s.sealVermilion}" fill-opacity="0.62" /><path d="M-10 -20.5 Q0 -23.5 10 -20.5" fill="none" stroke="${s.accentPrimary}" stroke-width="0.9" stroke-opacity="0.45" />` : ''}
+          <path d="M-2.4 -10.5 Q0 -8.9 2.4 -10.5" fill="none" stroke="${s.contourStroke}" stroke-width="1.05" stroke-opacity="0.7" stroke-linecap="round" />
+        </g>
+
+        <!-- Seamless 连肩通袖 Song wide-sleeves & lotus hands -->
+        ${buildSongWideSleeveSvg(lShX, lShY, lElX, lElY, lHaX, lHaY, s, collarColor, true)}
+        ${buildSongWideSleeveSvg(rShX, rShY, rElX, rElY, rHaX, rHaY, s, collarColor, false)}
+        ${microAnatomySvg}
         ${coronalGuideSvg}
-        ${uid === 'player' ? `<text x="120" y="206" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title}</text>` : ''}
+        ${uid === 'player' ? `<text x="120" y="209" text-anchor="middle" fill="${s.inkSecondary}" font-size="9.5" class="font-serif-cn">${pose.title}</text>` : ''}
       </svg>`;
     }
 
@@ -2274,26 +2361,28 @@
     function renderBodyMapSVG(skinId, selectedZones) {
       const s = SONGXI_SKINS[skinId];
       const hotspots = [
-        { zone: 'eye', cx: 70, cy: 30, label: '眉眼' },
+        { zone: 'eye', cx: 70, cy: 29, label: '温目' },
         { zone: 'neck', cx: 70, cy: 52, label: '风池' },
-        { zone: 'shoulder', cx: 44, cy: 68, label: '双肩' },
-        { zone: 'thoracic', cx: 70, cy: 88, label: '胸椎' },
-        { zone: 'lumbar', cx: 70, cy: 122, label: '腰骶' },
-        { zone: 'wrist', cx: 28, cy: 132, label: '手腕' }
+        { zone: 'shoulder', cx: 40, cy: 68, label: '双肩' },
+        { zone: 'thoracic', cx: 70, cy: 92, label: '胸椎' },
+        { zone: 'lumbar', cx: 70, cy: 126, label: '腰骶' },
+        { zone: 'wrist', cx: 26, cy: 126, label: '手腕' }
       ];
 
       return `<svg viewBox="0 0 140 184" class="w-full h-full block" role="img" aria-label="东方气韵人形点选图">
-        <!-- Gentle Eastern brush silhouette -->
-        <circle cx="70" cy="30" r="14" fill="${s.surfaceCard}" stroke="${s.contourStroke}" stroke-width="1.5" />
-        <path d="M65 44 L65 55 M75 44 L75 55" stroke="${s.contourStroke}" stroke-width="1.4" />
-        <path d="M40 66 Q70 54 100 66 C106 90, 96 126, 92 156 L48 156 C44 126, 34 90, 40 66 Z" fill="${s.surfaceCard}" stroke="${s.contourStroke}" stroke-width="1.5" />
-        <path d="M40 68 Q26 100 28 136 M100 68 Q114 100 112 136" fill="none" stroke="${s.contourStroke}" stroke-width="6" stroke-linecap="round" stroke-opacity="0.28" />
-        <line x1="70" y1="54" x2="70" y2="146" stroke="${s.accentPrimary}" stroke-width="1" stroke-dasharray="3 3" stroke-opacity="0.5" />
+        <!-- Song meridian scroll silhouette with chignon & scapular curves -->
+        <circle cx="70" cy="13" r="5" fill="${s.hairFill}" fill-opacity="0.28" stroke="${s.contourStroke}" stroke-width="0.9" stroke-opacity="0.4" />
+        <ellipse cx="70" cy="29" rx="12.5" ry="14.5" fill="${s.skinTone}" fill-opacity="0.82" stroke="${s.contourStroke}" stroke-width="1.3" stroke-opacity="0.62" />
+        <path d="M64 43 C62.5 54, 48 59, 34 65 C25 72, 23 98, 22 126 Q25 134 30 128 C32 108, 36 93, 43 86 C46 108, 47 128, 42 154 Q70 158 98 154 C93 128, 94 108, 97 86 C104 93, 108 108, 110 128 Q115 134 118 126 C117 98, 115 72, 106 65 C92 59, 77.5 54, 76 43 Q70 46 64 43 Z" fill="${s.surfaceCard}" stroke="${s.contourStroke}" stroke-width="1.3" stroke-opacity="0.6" stroke-linejoin="round" />
+        <path d="M51 65 Q55 82 62 92 M89 65 Q85 82 78 92" fill="none" stroke="${s.contourStroke}" stroke-width="0.85" stroke-opacity="0.24" stroke-linecap="round" />
+        <line x1="70" y1="24" x2="70" y2="144" stroke="${s.accentPrimary}" stroke-width="1" stroke-dasharray="4 3" stroke-opacity="0.42" />
+        <path d="M70 52 Q48 61 40 68 Q29 92 26 126 M70 52 Q92 61 100 68 Q111 92 114 126" fill="none" stroke="${s.accentPrimary}" stroke-width="0.9" stroke-dasharray="4 3" stroke-opacity="0.32" />
         ${hotspots.map(h => {
           const on = selectedZones.includes(h.zone);
           return `<g data-svg-zone="${h.zone}" class="cursor-pointer">
-            ${on ? `<circle cx="${h.cx}" cy="${h.cy}" r="11" fill="${s.accentPrimary}" fill-opacity="0.24" />` : ''}
-            <circle cx="${h.cx}" cy="${h.cy}" r="${on ? 6.2 : 4.6}" fill="${on ? s.accentPrimary : s.surfaceCardSubtle}" stroke="${s.accentPrimary}" stroke-width="1.6" />
+            ${on ? `<circle cx="${h.cx}" cy="${h.cy}" r="14" fill="${s.accentPrimary}" fill-opacity="0.18" /><circle cx="${h.cx}" cy="${h.cy}" r="8.5" fill="${s.sealVermilion}" fill-opacity="0.22" /><circle cx="${h.cx}" cy="${h.cy}" r="8.2" fill="none" stroke="${s.accentPrimary}" stroke-width="0.8" stroke-opacity="0.52" />` : `<circle cx="${h.cx}" cy="${h.cy}" r="7" fill="${s.accentPrimary}" fill-opacity="0.10" />`}
+            <circle cx="${h.cx}" cy="${h.cy}" r="${on ? 4.2 : 3.6}" fill="${on ? s.accentPrimary : s.surfaceCardSubtle}" stroke="${s.accentPrimary}" stroke-width="1.15" />
+            ${on ? `<circle cx="${h.cx}" cy="${h.cy}" r="1.5" fill="${s.onAccent || s.surfaceCard}" />` : ''}
           </g>`;
         }).join('')}
       </svg>`;

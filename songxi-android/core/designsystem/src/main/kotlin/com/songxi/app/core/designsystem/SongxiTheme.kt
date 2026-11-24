@@ -1,5 +1,7 @@
 package com.songxi.app.core.designsystem
 
+import android.content.Context
+import android.graphics.Typeface
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -13,11 +15,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.songxi.app.core.model.SkinId
+
+/**
+ * Bundled subset of SIL Open Font License 1.1 "Noto Serif CJK SC" (思源宋体),
+ * guaranteeing authentic Song-dynasty brush-serif Chinese typography across all Android ROMs.
+ */
+val SongxiEditorialSerifFamily: FontFamily = FontFamily(
+    Font(resId = R.font.songxi_songti_regular, weight = FontWeight.Normal),
+    Font(resId = R.font.songxi_songti_regular, weight = FontWeight.Medium),
+    Font(resId = R.font.songxi_songti_bold, weight = FontWeight.SemiBold),
+    Font(resId = R.font.songxi_songti_bold, weight = FontWeight.Bold)
+)
+
+fun loadSongxiEditorialTypeface(context: Context?, bold: Boolean = false): Typeface {
+    val fallbackStyle = if (bold) Typeface.BOLD else Typeface.NORMAL
+    if (context == null) return Typeface.create("serif", fallbackStyle)
+    val resId = if (bold) R.font.songxi_songti_bold else R.font.songxi_songti_regular
+    return runCatching<Typeface> { context.resources.getFont(resId) }
+        .getOrNull() ?: Typeface.create("serif", fallbackStyle)
+}
 
 val LocalSongxiSkin = staticCompositionLocalOf<SongxiSkin> {
     BuiltInSkinRegistry.skinFor(SkinId.INK_MIST)
@@ -133,56 +155,56 @@ private fun buildSongxiTypography(skin: SongxiSkin): Typography {
     val titleSpacing = safeSpacing.sp
     return Typography(
         displayLarge = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 36.sp,
             lineHeight = 46.sp,
             letterSpacing = titleSpacing
         ),
         displayMedium = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 30.sp,
             lineHeight = 40.sp,
             letterSpacing = titleSpacing
         ),
         displaySmall = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 26.sp,
             lineHeight = 36.sp,
             letterSpacing = titleSpacing
         ),
         headlineLarge = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 24.sp,
             lineHeight = 34.sp,
             letterSpacing = titleSpacing
         ),
         headlineMedium = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 21.sp,
             lineHeight = 30.sp,
             letterSpacing = titleSpacing
         ),
         headlineSmall = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 18.sp,
             lineHeight = 26.sp,
             letterSpacing = titleSpacing
         ),
         titleLarge = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 19.sp,
             lineHeight = 28.sp,
             letterSpacing = titleSpacing
         ),
         titleMedium = TextStyle(
-            fontFamily = FontFamily.Serif,
+            fontFamily = SongxiEditorialSerifFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             lineHeight = 24.sp,

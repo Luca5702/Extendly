@@ -904,6 +904,66 @@
       };
     }
 
+    function buildShowcaseXiaoZhuanSvg(ch, ox, oy, w, h, color, sw) {
+      const x = (nx) => (ox + nx * w).toFixed(2);
+      const y = (ny) => (oy + ny * h).toFixed(2);
+      let d = '';
+      if (ch === '松') {
+        d = `M${x(0.27)} ${y(0.09)} L${x(0.27)} ${y(0.91)} M${x(0.11)} ${y(0.22)} Q${x(0.27)} ${y(0.38)} ${x(0.42)} ${y(0.22)} M${x(0.11)} ${y(0.79)} Q${x(0.27)} ${y(0.56)} ${x(0.42)} ${y(0.76)} M${x(0.60)} ${y(0.16)} Q${x(0.53)} ${y(0.34)} ${x(0.47)} ${y(0.47)} M${x(0.74)} ${y(0.16)} Q${x(0.82)} ${y(0.34)} ${x(0.89)} ${y(0.47)} M${x(0.68)} ${y(0.44)} L${x(0.52)} ${y(0.78)} Q${x(0.50)} ${y(0.84)} ${x(0.58)} ${y(0.84)} L${x(0.83)} ${y(0.81)} M${x(0.76)} ${y(0.65)} L${x(0.87)} ${y(0.88)}`;
+      } else if (ch === '息') {
+        d = `M${x(0.53)} ${y(0.06)} L${x(0.45)} ${y(0.15)} M${x(0.30)} ${y(0.22)} Q${x(0.30)} ${y(0.15)} ${x(0.38)} ${y(0.15)} L${x(0.62)} ${y(0.15)} Q${x(0.70)} ${y(0.15)} ${x(0.70)} ${y(0.22)} L${x(0.70)} ${y(0.52)} L${x(0.30)} ${y(0.52)} Z M${x(0.31)} ${y(0.27)} L${x(0.69)} ${y(0.27)} M${x(0.31)} ${y(0.39)} L${x(0.69)} ${y(0.39)} M${x(0.33)} ${y(0.63)} C${x(0.33)} ${y(0.91)}, ${x(0.67)} ${y(0.91)}, ${x(0.67)} ${y(0.63)} M${x(0.50)} ${y(0.58)} L${x(0.50)} ${y(0.75)} M${x(0.20)} ${y(0.66)} Q${x(0.14)} ${y(0.80)} ${x(0.22)} ${y(0.89)} M${x(0.79)} ${y(0.64)} Q${x(0.87)} ${y(0.78)} ${x(0.79)} ${y(0.89)}`;
+      } else if (ch === '山') {
+        d = `M${x(0.50)} ${y(0.12)} L${x(0.50)} ${y(0.85)} M${x(0.18)} ${y(0.35)} L${x(0.18)} ${y(0.76)} Q${x(0.18)} ${y(0.86)} ${x(0.30)} ${y(0.86)} L${x(0.70)} ${y(0.86)} Q${x(0.82)} ${y(0.86)} ${x(0.82)} ${y(0.76)} L${x(0.82)} ${y(0.35)}`;
+      } else if (ch === '居') {
+        d = `M${x(0.26)} ${y(0.13)} L${x(0.78)} ${y(0.13)} Q${x(0.83)} ${y(0.13)} ${x(0.83)} ${y(0.21)} L${x(0.83)} ${y(0.29)} L${x(0.27)} ${y(0.29)} M${x(0.26)} ${y(0.13)} C${x(0.26)} ${y(0.54)}, ${x(0.22)} ${y(0.75)}, ${x(0.13)} ${y(0.90)} M${x(0.35)} ${y(0.48)} L${x(0.85)} ${y(0.48)} M${x(0.59)} ${y(0.33)} L${x(0.59)} ${y(0.64)} M${x(0.40)} ${y(0.64)} L${x(0.79)} ${y(0.64)} L${x(0.79)} ${y(0.89)} L${x(0.40)} ${y(0.89)} Z`;
+      } else if (ch === '清') {
+        d = `M${x(0.15)} ${y(0.20)} Q${x(0.10)} ${y(0.34)} ${x(0.16)} ${y(0.46)} M${x(0.15)} ${y(0.58)} Q${x(0.20)} ${y(0.72)} ${x(0.14)} ${y(0.86)} M${x(0.26)} ${y(0.11)} C${x(0.20)} ${y(0.38)}, ${x(0.32)} ${y(0.62)}, ${x(0.25)} ${y(0.90)} M${x(0.66)} ${y(0.10)} L${x(0.66)} ${y(0.48)} M${x(0.49)} ${y(0.22)} Q${x(0.66)} ${y(0.28)} ${x(0.83)} ${y(0.22)} M${x(0.51)} ${y(0.35)} L${x(0.81)} ${y(0.35)} M${x(0.44)} ${y(0.48)} L${x(0.88)} ${y(0.48)} M${x(0.50)} ${y(0.90)} L${x(0.50)} ${y(0.62)} Q${x(0.50)} ${y(0.55)} ${x(0.59)} ${y(0.55)} L${x(0.73)} ${y(0.55)} Q${x(0.82)} ${y(0.55)} ${x(0.82)} ${y(0.62)} L${x(0.82)} ${y(0.90)} M${x(0.51)} ${y(0.72)} L${x(0.81)} ${y(0.72)}`;
+      } else if (ch === '听') {
+        d = `M${x(0.15)} ${y(0.24)} L${x(0.39)} ${y(0.24)} L${x(0.39)} ${y(0.68)} L${x(0.15)} ${y(0.68)} Z M${x(0.84)} ${y(0.14)} Q${x(0.64)} ${y(0.18)} ${x(0.50)} ${y(0.24)} C${x(0.50)} ${y(0.56)}, ${x(0.46)} ${y(0.76)}, ${x(0.37)} ${y(0.90)} M${x(0.50)} ${y(0.46)} L${x(0.87)} ${y(0.46)} M${x(0.70)} ${y(0.46)} L${x(0.70)} ${y(0.90)}`;
+      } else if (ch === '春') {
+        d = `M${x(0.25)} ${y(0.18)} Q${x(0.50)} ${y(0.22)} ${x(0.75)} ${y(0.18)} M${x(0.28)} ${y(0.30)} Q${x(0.50)} ${y(0.34)} ${x(0.72)} ${y(0.30)} M${x(0.16)} ${y(0.43)} L${x(0.84)} ${y(0.43)} M${x(0.50)} ${y(0.09)} L${x(0.50)} ${y(0.43)} M${x(0.50)} ${y(0.36)} Q${x(0.34)} ${y(0.54)} ${x(0.14)} ${y(0.67)} M${x(0.50)} ${y(0.36)} Q${x(0.66)} ${y(0.54)} ${x(0.86)} ${y(0.67)} M${x(0.35)} ${y(0.57)} L${x(0.65)} ${y(0.57)} L${x(0.65)} ${y(0.90)} L${x(0.35)} ${y(0.90)} Z M${x(0.36)} ${y(0.73)} L${x(0.64)} ${y(0.73)}`;
+      }
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" />`;
+    }
+
+    function buildShowcaseSleeveSvg(shX, shY, elX, elY, haX, haY, s, cuffTrim, isLeftSide) {
+      let dx1 = elX - shX, dy1 = elY - shY;
+      const l1 = Math.hypot(dx1, dy1) || 1;
+      dx1 /= l1; dy1 /= l1;
+      let dx2 = haX - elX, dy2 = haY - elY;
+      const l2 = Math.hypot(dx2, dy2) || 1;
+      dx2 /= l2; dy2 /= l2;
+      let mdx = dx1 + dx2, mdy = dy1 + dy2;
+      const ml = Math.hypot(mdx, mdy) || 1;
+      mdx /= ml; mdy /= ml;
+
+      const baseMidNx = -mdy, baseMidNy = mdx;
+      const sign = baseMidNy > 0.12 ? 1 : (baseMidNy < -0.12 ? -1 : (((isLeftSide && baseMidNx < 0) || (!isLeftSide && baseMidNx > 0)) ? 1 : -1));
+      const nShX = -dy1 * sign, nShY = dx1 * sign;
+      const nElX = -mdy * sign, nElY = mdx * sign;
+      const nHaX = -dy2 * sign, nHaY = dx2 * sign;
+
+      const shU = 5.0, shL = 5.4, elU = 4.8, elL = 8.4, haU = 3.7, haL = 5.8;
+      const cuCx = haX - dx2 * 3.0, cuCy = haY - dy2 * 3.0;
+      const shTx = shX - nShX * shU, shTy = shY - nShY * shU;
+      const shBx = shX + nShX * shL, shBy = shY + nShY * shL;
+      const elTx = elX - nElX * elU, elTy = elY - nElY * elU;
+      const elBx = elX + nElX * elL, elBy = elY + nElY * elL;
+      const cuTx = cuCx - nHaX * haU, cuTy = cuCy - nHaY * haU;
+      const cuBx = cuCx + nHaX * haL, cuBy = cuCy + nHaY * haL;
+      const armDeg = (Math.atan2(dy2, dx2) * 180 / Math.PI).toFixed(1);
+
+      return `<g>
+        <g transform="translate(${haX.toFixed(1)}, ${haY.toFixed(1)}) rotate(${armDeg})">
+          <path d="M-3.5 -1.8 Q-0.4 -3.2 2.4 -2.0 Q5.8 -1.1 6.6 0.3 Q5.6 2.4 1.1 2.6 Q-2.0 2.4 -3.5 1.6 Z" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linejoin="round" />
+        </g>
+        <path d="M${shTx.toFixed(1)} ${shTy.toFixed(1)} Q${elTx.toFixed(1)} ${elTy.toFixed(1)} ${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2 * 1.8).toFixed(1)} ${(cuCy + dy2 * 1.8).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)} Q${elBx.toFixed(1)} ${elBy.toFixed(1)} ${shBx.toFixed(1)} ${shBy.toFixed(1)} Q${(shX - dx1 * 4.0).toFixed(1)} ${(shY - dy1 * 4.0).toFixed(1)} ${shTx.toFixed(1)} ${shTy.toFixed(1)} Z" fill="${s.garmentFill}" />
+        <path d="M${(elX + nElX * elL * 0.34).toFixed(1)} ${(elY + nElY * elL * 0.34).toFixed(1)} Q${((elX + cuCx) * 0.5 + nElX * elL * 0.62).toFixed(1)} ${((elY + cuCy) * 0.5 + nElY * elL * 0.62).toFixed(1)} ${(cuBx - dx2).toFixed(1)} ${(cuBy - dy2).toFixed(1)}" fill="none" stroke="${s.garmentShadow}" stroke-width="1.1" stroke-opacity="0.76" stroke-linecap="round" />
+        <path d="M${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2).toFixed(1)} ${(cuCy + dy2).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)}" fill="none" stroke="${cuffTrim}" stroke-width="1.25" stroke-opacity="0.82" stroke-linecap="round" />
+        <path d="M${shTx.toFixed(1)} ${shTy.toFixed(1)} Q${elTx.toFixed(1)} ${elTy.toFixed(1)} ${cuTx.toFixed(1)} ${cuTy.toFixed(1)} Q${(cuCx + dx2 * 1.8).toFixed(1)} ${(cuCy + dy2 * 1.8).toFixed(1)} ${cuBx.toFixed(1)} ${cuBy.toFixed(1)} Q${elBx.toFixed(1)} ${elBy.toFixed(1)} ${(shX + dx1 * 4.8 + nShX * shL * 0.88).toFixed(1)} ${(shY + dy1 * 4.8 + nShY * shL * 0.88).toFixed(1)}" fill="none" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.9).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" />
+      </g>`;
+    }
+
     function renderClassicalSealSVG(skinId, sizeScale = 1) {
       const s = SONGXI_SKINS[skinId];
       const c = s.sealVermilion;
@@ -912,21 +972,25 @@
         const w = Math.round(32 * sizeScale);
         return `<svg width="${w}" height="${w}" viewBox="0 0 32 32" aria-label="朱文方印 ${s.sealText}">
           <g filter="url(#sx-ink-bleed)">
-            <rect x="2.5" y="2.5" width="27" height="27" rx="3.5" fill="none" stroke="${c}" stroke-width="2" />
-            <text x="16" y="14" text-anchor="middle" fill="${c}" font-size="9.5" font-weight="700" class="font-serif-cn">松</text>
-            <text x="16" y="25" text-anchor="middle" fill="${c}" font-size="9.5" font-weight="700" class="font-serif-cn">息</text>
+            <rect x="2.5" y="2.5" width="27" height="27" rx="3.8" fill="${bg}" stroke="${c}" stroke-width="2" />
+            <circle cx="25" cy="2.5" r="0.95" fill="${bg}" />
+            ${buildShowcaseXiaoZhuanSvg('松', 10.8, 4.8, 10.4, 10.6, c, 0.96)}
+            ${buildShowcaseXiaoZhuanSvg('息', 10.8, 16.4, 10.4, 10.6, c, 0.96)}
           </g>
         </svg>`;
       }
       if (s.sealShape === 'OBLONG_BAIWEN') {
-        const w = Math.round(26 * sizeScale), h = Math.round(46 * sizeScale);
-        return `<svg width="${w}" height="${h}" viewBox="0 0 26 46" aria-label="白文长印 ${s.sealText}">
+        const w = Math.round(30 * sizeScale), h = Math.round(38 * sizeScale);
+        return `<svg width="${w}" height="${h}" viewBox="0 0 30 38" aria-label="白文长印 ${s.sealText}">
           <g filter="url(#sx-ink-bleed)">
-            <rect x="2" y="2" width="22" height="42" rx="3" fill="${c}" />
-            <text x="13" y="13" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">山</text>
-            <text x="13" y="22.5" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">居</text>
-            <text x="13" y="32" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">清</text>
-            <text x="13" y="41" text-anchor="middle" fill="${bg}" font-size="7.5" font-weight="600" class="font-serif-cn">息</text>
+            <rect x="1.8" y="1.8" width="26.4" height="34.4" rx="3" fill="${c}" />
+            <rect x="3.5" y="3.5" width="23" height="31" rx="2" fill="none" stroke="${bg}" stroke-width="0.65" stroke-opacity="0.34" />
+            <line x1="15" y1="5" x2="15" y2="33" stroke="${bg}" stroke-width="0.55" stroke-opacity="0.24" />
+            <line x1="5" y1="19" x2="25" y2="19" stroke="${bg}" stroke-width="0.55" stroke-opacity="0.24" />
+            ${buildShowcaseXiaoZhuanSvg('山', 5.0, 5.2, 8.8, 12.0, bg, 0.86)}
+            ${buildShowcaseXiaoZhuanSvg('居', 16.2, 5.2, 8.8, 12.0, bg, 0.86)}
+            ${buildShowcaseXiaoZhuanSvg('清', 5.0, 20.6, 8.8, 12.0, bg, 0.82)}
+            ${buildShowcaseXiaoZhuanSvg('息', 16.2, 20.6, 8.8, 12.0, bg, 0.84)}
           </g>
         </svg>`;
       }
@@ -934,18 +998,19 @@
         const w = Math.round(28 * sizeScale), h = Math.round(42 * sizeScale);
         return `<svg width="${w}" height="${h}" viewBox="0 0 28 42" aria-label="葫芦闲章 ${s.sealText}">
           <g filter="url(#sx-ink-bleed)">
-            <path d="M14 2 C20 2 22.5 7.5 19.2 14.5 C24.8 19.5 25.5 37.5 14 39.5 C2.5 37.5 3.2 19.5 8.8 14.5 C5.5 7.5 8 2 14 2 Z" fill="${c}" />
-            <text x="14" y="14" text-anchor="middle" fill="${bg}" font-size="8" font-weight="700" class="font-serif-cn">听</text>
-            <text x="14" y="30.5" text-anchor="middle" fill="${bg}" font-size="9.5" font-weight="700" class="font-serif-cn">松</text>
+            <path d="M14 2 C20 2 22.5 7.5 19.2 14.5 C24.8 19.5 25.5 37.5 14 39.5 C2.5 37.5 3.2 19.5 8.8 14.5 C5.5 7.5 8 2 14 2 Z" fill="${bg}" stroke="${c}" stroke-width="1.9" />
+            ${buildShowcaseXiaoZhuanSvg('听', 9.6, 5.8, 8.8, 9.4, c, 0.90)}
+            ${buildShowcaseXiaoZhuanSvg('松', 8.8, 20.2, 10.4, 12.4, c, 0.96)}
           </g>
         </svg>`;
       }
       const w = Math.round(34 * sizeScale);
       return `<svg width="${w}" height="${w}" viewBox="0 0 34 34" aria-label="圆朱文印 ${s.sealText}">
         <g filter="url(#sx-ink-bleed)">
-          <circle cx="17" cy="17" r="14.5" fill="none" stroke="${c}" stroke-width="1.9" />
-          <text x="17" y="15" text-anchor="middle" fill="${c}" font-size="9" font-weight="700" class="font-serif-cn">春</text>
-          <text x="17" y="25.5" text-anchor="middle" fill="${c}" font-size="9" font-weight="700" class="font-serif-cn">山</text>
+          <circle cx="17" cy="17" r="14.5" fill="${bg}" />
+          <path d="M14 2.8 A14.5 14.5 0 1 1 11 3.8" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round" />
+          ${buildShowcaseXiaoZhuanSvg('春', 11.6, 5.4, 10.8, 11.0, c, 0.94)}
+          ${buildShowcaseXiaoZhuanSvg('山', 11.6, 17.4, 10.8, 11.0, c, 0.94)}
         </g>
       </svg>`;
     }
@@ -1030,45 +1095,47 @@
         rHandX = cx + 22; rHandY = baseTorsoY + 42;
       }
 
-      const collarAccent = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.contourStroke);
+      const collarAccent = skinId === 'qinglv_celadon' ? '#B88655' : (skinId === 'spring_blossom' ? '#4E7266' : s.garmentShadow);
+      const lColX = cx - 7, rColX = cx + 7, colY = baseTorsoY - 25;
+      const waistY = baseTorsoY + 12;
 
       return `<g class="sx-editorial-figure">
-        <path d="M${cx - 46} ${baseTorsoY + 20} Q${cx} ${baseTorsoY + 10} ${cx + 46} ${baseTorsoY + 20}" fill="none" stroke="${s.accentSecondary}" stroke-width="2.4" stroke-opacity="0.38" stroke-linecap="round" />
-        <path d="M${cx - 56} ${baseTorsoY + 50} L${cx + 56} ${baseTorsoY + 50}" fill="none" stroke="${s.borderHairline}" stroke-width="2" stroke-linecap="round" />
-
-        <path d="M${lShoulderX} ${lShoulderY} Q${cx} ${baseTorsoY - 26} ${rShoulderX} ${rShoulderY} C${rShoulderX + 14} ${rShoulderY + 28}, ${cx + 38} ${baseTorsoY + 36}, ${cx + 36} ${baseTorsoY + 50} L${cx - 36} ${baseTorsoY + 50} C${cx - 38} ${baseTorsoY + 36}, ${lShoulderX - 14} ${lShoulderY + 28}, ${lShoulderX} ${lShoulderY} Z"
-          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linejoin="round" />
-
-        <path d="M${cx - 32} ${baseTorsoY + 34} Q${cx} ${baseTorsoY + 44} ${cx + 32} ${baseTorsoY + 34} L${cx + 35} ${baseTorsoY + 49} L${cx - 35} ${baseTorsoY + 49} Z"
-          fill="${s.garmentShadow}" fill-opacity="0.65" />
-        <path d="M${cx - 13} ${baseTorsoY - 25} L${cx + 5} ${baseTorsoY + 4} M${cx + 13} ${baseTorsoY - 25} L${cx - 2} ${baseTorsoY - 5}"
-          fill="none" stroke="${collarAccent}" stroke-width="1.35" stroke-opacity="0.72" stroke-linecap="round" />
-
-        <path d="M${lShoulderX + 2} ${lShoulderY + 3} Q${lElbowX} ${lElbowY} ${lHandX} ${lHandY}"
-          fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M${lShoulderX + 2} ${lShoulderY + 3} Q${lElbowX} ${lElbowY} ${lHandX} ${lHandY}"
-          fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
-        <circle cx="${lHandX}" cy="${lHandY}" r="5.2" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
-
-        <path d="M${rShoulderX - 2} ${rShoulderY + 3} Q${rElbowX} ${rElbowY} ${rHandX} ${rHandY}"
-          fill="none" stroke="${s.garmentFill}" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M${rShoulderX - 2} ${rShoulderY + 3} Q${rElbowX} ${rElbowY} ${rHandX} ${rHandY}"
-          fill="none" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" stroke-linecap="round" />
-        <circle cx="${rHandX}" cy="${rHandY}" r="5.2" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
-
-        <rect x="${cx - 6}" y="${baseTorsoY - 34}" width="12" height="14" rx="5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="1.2" />
+        <!-- Woven rush meditation mat (蒲团素席) -->
+        <ellipse cx="${cx}" cy="${baseTorsoY + 49}" rx="58" ry="7.8" fill="${s.surfaceCardSubtle}" stroke="${s.borderHairline}" stroke-width="1.1" />
         <g transform="translate(${headPivotX}, ${headPivotY}) rotate(${k.headTiltDeg.toFixed(2)})">
-          <circle cx="-13" cy="-14" r="8.5" fill="${s.hairFill}" />
-          <path d="M-17 -22 C-18 -38, 18 -38, 17 -22 C17 -14, -17 -14, -17 -22 Z" fill="${s.hairFill}" />
-          <ellipse cx="0" cy="-18" rx="14.5" ry="17.5" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${s.contourWidth}" />
-          <path d="M-14.5 -21 C-12 -33, 10 -34, 14.5 -20 C8 -26, -6 -26, -14.5 -21 Z" fill="${s.hairFill}" />
-          ${k.eyesClosed === false
-            ? `<circle cx="-5.2" cy="-17.5" r="1.45" fill="${s.contourStroke}" /><circle cx="5.2" cy="-17.5" r="1.45" fill="${s.contourStroke}" />`
-            : `<path d="M-8.5 -18 Q-5 -15.5 -1.8 -18" fill="none" stroke="${s.contourStroke}" stroke-width="1.3" stroke-linecap="round" />
-               <path d="M1.8 -18 Q5 -15.5 8.5 -18" fill="none" stroke="${s.contourStroke}" stroke-width="1.3" stroke-linecap="round" />`
-          }
-          <path d="M-3 -10.5 Q0 -8.5 3 -10.5" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.78" />
+          <ellipse cx="0" cy="-38" rx="8.8" ry="6.0" fill="${s.hairFill}" />
+          ${skinId === 'qinglv_celadon' ? `<line x1="-12" y1="-37" x2="12.5" y2="-39" stroke="#B88655" stroke-width="1.6" stroke-linecap="round" /><circle cx="12.5" cy="-39" r="2.3" fill="${s.accentPrimary}" />` : ''}
+          <ellipse cx="0" cy="-20" rx="15.2" ry="17.0" fill="${s.hairFill}" />
         </g>
+        <path d="M${headPivotX - 5} ${headPivotY - 8} L${headPivotX + 5} ${headPivotY - 8} L${rColX} ${colY + 2} L${cx} ${colY + 12} L${lColX} ${colY + 2} Z" fill="${s.skinTone}" />
+
+        <!-- Sloping Song Tunic (交领右衽宽衫) & Cross-Legged Skirt Hem -->
+        <path d="M${lColX} ${colY} Q${(lColX + lShoulderX) * 0.5} ${colY + 2} ${lShoulderX} ${lShoulderY} C${cx - 31} ${(lShoulderY + waistY) * 0.5}, ${cx - 29} ${waistY}, ${cx - 34} ${waistY + 19} Q${cx - 44} ${baseTorsoY + 40} ${cx - 42} ${baseTorsoY + 48} Q${cx} ${baseTorsoY + 56} ${cx + 42} ${baseTorsoY + 48} Q${cx + 44} ${baseTorsoY + 40} ${cx + 34} ${waistY + 19} C${cx + 29} ${waistY}, ${cx + 31} ${(rShoulderY + waistY) * 0.5}, ${rShoulderX} ${rShoulderY} Q${(rColX + rShoulderX) * 0.5} ${colY + 2} ${rColX} ${colY} Q${cx} ${colY + 12} ${lColX} ${colY} Z"
+          fill="${s.garmentFill}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.9).toFixed(2)}" stroke-linejoin="round" />
+
+        <path d="M${cx - 40} ${baseTorsoY + 39} Q${cx} ${baseTorsoY + 50} ${cx + 40} ${baseTorsoY + 39} L${cx + 42} ${baseTorsoY + 48} Q${cx} ${baseTorsoY + 56} ${cx - 42} ${baseTorsoY + 48} Z"
+          fill="${s.garmentShadow}" fill-opacity="0.76" />
+        <path d="M${lColX + 1.2} ${colY} L${cx - 1} ${baseTorsoY - 5} L${rColX - 1.2} ${colY}"
+          fill="none" stroke="${s.surfaceCard}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        <line x1="${rColX}" y1="${colY}" x2="${cx - 1}" y2="${baseTorsoY - 5}" stroke="${collarAccent}" stroke-width="1.5" stroke-opacity="0.78" stroke-linecap="round" />
+        <path d="M${lColX} ${colY} Q${cx - 0.5} ${baseTorsoY - 4} ${cx + 10.5} ${baseTorsoY + 5}"
+          fill="none" stroke="${collarAccent}" stroke-width="1.75" stroke-linecap="round" />
+        <path d="M${cx - 28} ${waistY + 2} Q${cx} ${waistY + 6} ${cx + 28} ${waistY + 2}" fill="none" stroke="${collarAccent}" stroke-width="1.2" stroke-opacity="0.52" stroke-linecap="round" />
+
+        <g transform="translate(${headPivotX}, ${headPivotY}) rotate(${k.headTiltDeg.toFixed(2)})">
+          <ellipse cx="0" cy="-18" rx="13.5" ry="16.4" fill="${s.skinTone}" stroke="${s.contourStroke}" stroke-width="${(s.contourWidth * 0.88).toFixed(2)}" />
+          <path d="M-13.4 -20.5 Q-6 -31 0 -27 Q6 -31 13.4 -20.5 Q12.4 -36 0 -36.5 Q-12.4 -36 -13.4 -20.5 Z" fill="${s.hairFill}" />
+          <path d="M-8.4 -21.8 Q-5.2 -23.6 -2.0 -21.4 M2.0 -21.4 Q5.2 -23.6 8.4 -21.8" fill="none" stroke="${s.contourStroke}" stroke-width="0.92" stroke-opacity="0.58" stroke-linecap="round" />
+          ${k.eyesClosed === false
+            ? `<circle cx="-5.2" cy="-18.2" r="1.4" fill="${s.contourStroke}" /><circle cx="5.2" cy="-18.2" r="1.4" fill="${s.contourStroke}" />`
+            : `<path d="M-8.2 -18.4 Q-5.2 -16.2 -2.2 -18.4" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" />
+               <path d="M2.2 -18.4 Q5.2 -16.2 8.2 -18.4" fill="none" stroke="${s.contourStroke}" stroke-width="1.2" stroke-linecap="round" />`
+          }
+          <path d="M-2.6 -11 Q0 -9.2 2.6 -11" fill="none" stroke="${s.contourStroke}" stroke-width="1.1" stroke-linecap="round" stroke-opacity="0.72" />
+        </g>
+
+        ${buildShowcaseSleeveSvg(lShoulderX, lShoulderY, lElbowX, lElbowY, lHandX, lHandY, s, collarAccent, true)}
+        ${buildShowcaseSleeveSvg(rShoulderX, rShoulderY, rElbowX, rElbowY, rHandX, rHandY, s, collarAccent, false)}
       </g>`;
     }
 

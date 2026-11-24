@@ -34,7 +34,8 @@ object SongxiSharePosterRenderer {
         totalMinutes: Int,
         practicedDaysCount: Int,
         daySessionCounts: Map<Int, Int>,
-        topCaredRegionsLabel: String? = null
+        topCaredRegionsLabel: String? = null,
+        context: Context? = null
     ): Bitmap {
         val w = POSTER_WIDTH_PX.toFloat()
         val h = POSTER_HEIGHT_PX.toFloat()
@@ -126,40 +127,63 @@ object SongxiSharePosterRenderer {
         canvas.drawRoundRect(outerRect, 36f, 36f, strokePaint)
         canvas.drawRoundRect(bannerRect, 24f, 24f, strokePaint)
 
-        // 4. Classical Vermilion Seal ("松息") overlapping banner bottom center
-        val sealSize = 68f
-        val sealRect = RectF(w * 0.5f - sealSize * 0.5f, 256f, w * 0.5f + sealSize * 0.5f, 256f + sealSize)
+        // 4. Classical Vermilion Seal ("松息") overlapping banner bottom center with Xiao-Zhuan calligraphy
+        val songtiRegular = loadSongxiEditorialTypeface(context, bold = false)
+        val songtiBold = loadSongxiEditorialTypeface(context, bold = true)
+        val sealSize = 72f
+        val sealRect = RectF(w * 0.5f - sealSize * 0.5f, 252f, w * 0.5f + sealSize * 0.5f, 252f + sealSize)
         fillPaint.color = sealArgb
         canvas.drawRoundRect(sealRect, 12f, 12f, fillPaint)
-        strokePaint.color = safePosterArgb(Color(0xFFF3EFE6))
-        strokePaint.strokeWidth = 2.4f
+        val sealGlyphArgb = safePosterArgb(Color(0xFFF5F1E8))
+        strokePaint.color = sealGlyphArgb
+        strokePaint.strokeWidth = 2.0f
         val innerSeal = RectF(sealRect.left + 6f, sealRect.top + 6f, sealRect.right - 6f, sealRect.bottom - 6f)
         canvas.drawRoundRect(innerSeal, 8f, 8f, strokePaint)
 
-        val sealTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = safePosterArgb(Color(0xFFF5F1E8))
-            textSize = 24f
-            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+        val sealFallbackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = sealGlyphArgb
+            typeface = songtiBold
             textAlign = Paint.Align.CENTER
         }
-        canvas.drawText("松息", w * 0.5f, sealRect.centerY() + 9f, sealTextPaint)
+        val sealStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+        }
+        SongxiSealCalligraphy.drawSealCharacters(
+            nativeCanvas = canvas,
+            chars = listOf("松", "息"),
+            innerRect = androidx.compose.ui.geometry.Rect(
+                left = innerSeal.left + 5f,
+                top = innerSeal.top + 4f,
+                right = innerSeal.right - 5f,
+                bottom = innerSeal.bottom - 4f
+            ),
+            colorArgb = sealGlyphArgb,
+            isGourd = false,
+            textFallbackPaint = sealFallbackPaint,
+            strokePaint = sealStrokePaint,
+            workPath = Path()
+        )
 
-        // 5. Title & Active Skin Verse
+        // 5. Title & Active Skin Verse in bundled Song-serif
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = inkPrimary
             textSize = 34f
-            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+            typeface = songtiBold
             textAlign = Paint.Align.CENTER
+            letterSpacing = 0.05f
         }
-        canvas.drawText("松息日笺 · ${skin.meta.titleCn}", w * 0.5f, 376f, titlePaint)
+        canvas.drawText("松息日笺 · ${skin.meta.titleCn}", w * 0.5f, 378f, titlePaint)
 
         val versePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = accentArgb
             textSize = 24f
-            typeface = Typeface.create(Typeface.SERIF, Typeface.NORMAL)
+            typeface = songtiRegular
             textAlign = Paint.Align.CENTER
+            letterSpacing = 0.04f
         }
-        canvas.drawText(skin.meta.completionVerse, w * 0.5f, 422f, versePaint)
+        canvas.drawText(skin.meta.completionVerse, w * 0.5f, 424f, versePaint)
 
         // 6. Calm Monthly Summary Pill
         val summaryRect = RectF(76f, 452f, w - 76f, 544f)

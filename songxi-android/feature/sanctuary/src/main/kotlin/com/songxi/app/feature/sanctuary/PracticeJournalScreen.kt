@@ -562,6 +562,7 @@ fun PracticeJournalScreen(
         // In-hierarchy Shareable Poetic Poster Preview Overlay ("松息日笺 · 高清宣纸海报")
         if (showSharePreviewDialog) {
             BackHandler(onBack = onDismissShareDialog)
+            val posterContext = LocalContext.current
             val dayCounts = remember(monthRipples) {
                 monthRipples.entries.associate { (d, list) -> d.dayOfMonth to list.size }
             }
@@ -573,7 +574,7 @@ fun PracticeJournalScreen(
                     .joinToString(" · ") { it.labelCn }
                     .ifBlank { null }
             }
-            val posterBitmap = remember(skin, month, monthSummary, dayCounts, topRegionsLabel) {
+            val posterBitmap = remember(skin, month, monthSummary, dayCounts, topRegionsLabel, posterContext) {
                 SongxiSharePosterRenderer.renderPosterBitmap(
                     skin = skin,
                     month = month,
@@ -581,7 +582,8 @@ fun PracticeJournalScreen(
                     totalMinutes = monthSummary.totalMinutesRoundedUp,
                     practicedDaysCount = monthSummary.practicedDaysCount,
                     daySessionCounts = dayCounts,
-                    topCaredRegionsLabel = topRegionsLabel
+                    topCaredRegionsLabel = topRegionsLabel,
+                    context = posterContext
                 )
             }
             val dialogScroll = rememberScrollState()
@@ -618,6 +620,7 @@ fun PracticeJournalScreen(
                 ) {
                     Text(
                         text = "松息日笺 · ${skin.meta.titleCn}",
+                        style = MaterialTheme.typography.titleMedium,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = skin.palette.inkPrimary
@@ -625,6 +628,7 @@ fun PracticeJournalScreen(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = skin.meta.completionVerse,
+                        style = MaterialTheme.typography.titleMedium,
                         fontSize = 12.sp,
                         color = skin.palette.accentPrimary,
                         textAlign = TextAlign.Center

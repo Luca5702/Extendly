@@ -25,6 +25,7 @@ import com.songxi.app.core.model.StretchPose
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
@@ -558,28 +559,53 @@ private fun DrawScope.drawSagittalEditorialFigure(
     detailPath: Path
 ) {
     val ill = skin.illustration
-    val contourW = ill.contourStrokeWidthDp.finiteClamp(0.5f, 6f, 1.8f).dp.toPx()
+    val contourW = (ill.contourStrokeWidthDp.finiteClamp(0.5f, 6f, 1.6f) * 0.86f).dp.toPx()
 
-    // 1. Minimalist wooden chair seat, low backrest & optional desk front reference
+    // 1. Minimalist Song wooden meditation chair ("宋式禅椅") & soft floor horizon
+    val woodStroke = skin.palette.borderHairline.copy(alpha = 0.88f)
+    // Floor horizon
     drawLine(
-        color = skin.palette.borderHairline,
-        start = pt(0.24f, 0.79f),
-        end = pt(0.58f, 0.79f),
-        strokeWidth = 1.6.dp.toPx(),
+        color = skin.palette.accentSecondary.copy(alpha = 0.26f),
+        start = pt(0.20f, 0.892f),
+        end = pt(0.78f, 0.892f),
+        strokeWidth = 0.95.dp.toPx(),
+        cap = StrokeCap.Round
+    )
+    // Chair legs (subtle tapered mortise-and-tenon stance)
+    drawLine(
+        color = woodStroke.copy(alpha = 0.58f),
+        start = pt(0.275f, 0.792f),
+        end = pt(0.262f, 0.890f),
+        strokeWidth = 1.35.dp.toPx(),
         cap = StrokeCap.Round
     )
     drawLine(
-        color = skin.palette.borderHairline.copy(alpha = 0.75f),
-        start = pt(0.25f, 0.55f),
-        end = pt(0.27f, 0.79f),
-        strokeWidth = 1.4.dp.toPx(),
+        color = woodStroke.copy(alpha = 0.58f),
+        start = pt(0.545f, 0.792f),
+        end = pt(0.556f, 0.890f),
+        strokeWidth = 1.35.dp.toPx(),
         cap = StrokeCap.Round
     )
+    // Gently curved backrest + cushioned seat rail
+    detailPath.reset()
+    detailPath.moveTo(pt(0.246f, 0.535f).x, pt(0.246f, 0.535f).y)
+    detailPath.quadraticTo(pt(0.262f, 0.665f).x, pt(0.262f, 0.665f).y, pt(0.270f, 0.790f).x, pt(0.270f, 0.790f).y)
+    drawPath(
+        path = detailPath,
+        color = woodStroke.copy(alpha = 0.72f),
+        style = Stroke(width = 1.4.dp.toPx(), cap = StrokeCap.Round)
+    )
+    drawRoundRect(
+        color = skin.palette.surfaceCardSubtle,
+        topLeft = pt(0.252f, 0.778f),
+        size = Size(0.325f * s, 0.018f * s),
+        cornerRadius = CornerRadius(0.009f * s, 0.009f * s)
+    )
     drawLine(
-        color = skin.palette.accentSecondary.copy(alpha = 0.28f),
-        start = pt(0.22f, 0.88f),
-        end = pt(0.76f, 0.88f),
-        strokeWidth = 1.0.dp.toPx(),
+        color = woodStroke,
+        start = pt(0.248f, 0.792f),
+        end = pt(0.582f, 0.792f),
+        strokeWidth = 1.5.dp.toPx(),
         cap = StrokeCap.Round
     )
     if (kin.hasDeskProp) {
@@ -587,263 +613,380 @@ private fun DrawScope.drawSagittalEditorialFigure(
             color = skin.palette.accentSecondary.copy(alpha = 0.45f),
             start = pt(0.67f, 0.625f),
             end = pt(0.83f, 0.625f),
-            strokeWidth = 2.0.dp.toPx(),
+            strokeWidth = 1.8.dp.toPx(),
             cap = StrokeCap.Round
         )
     }
 
     // 2. Posterior arm (behind-back clasp) if behind torso
     if (kin.arm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
 
-    // 3. Seated thigh & calf silhouette (with distinct bilateral figure-four leg fold when bilateralSide != 0)
-    val legWidth = 0.068f * s
+    // 3. Tapered Song seated trousers + slender ankle + soft cloth slipper ("素履")
     if (bilateralSide > 0) {
-        // Far leg crossed figure-four elevated arc
         detailPath.reset()
         detailPath.moveTo(kin.pelvis.x + 0.02f * s, kin.pelvis.y - 0.01f * s)
         detailPath.quadraticTo(
             (kin.pelvis.x + kin.knee.x) * 0.52f,
-            kin.pelvis.y - 0.095f * s,
+            kin.pelvis.y - 0.088f * s,
             kin.knee.x - 0.02f * s,
-            kin.knee.y - 0.03f * s
+            kin.knee.y - 0.026f * s
         )
         drawPath(
             path = detailPath,
             color = ill.garmentShadow,
-            style = Stroke(width = legWidth * 0.85f, cap = StrokeCap.Round)
+            style = Stroke(width = 0.048f * s, cap = StrokeCap.Round)
         )
     }
 
+    val cuffY = kin.ankle.y - 0.022f * s
+    // Slender skin ankle + cloud-toe Song cloth slipper resting on floor
+    drawLine(
+        color = ill.skinToneFill,
+        start = Offset(kin.ankle.x - 0.004f * s, cuffY - 0.004f * s),
+        end = Offset(kin.ankle.x, kin.ankle.y + 0.002f * s),
+        strokeWidth = 0.022f * s,
+        cap = StrokeCap.Round
+    )
+    detailPath.reset()
+    val heelX = kin.ankle.x - 0.016f * s
+    val soleY = kin.ankle.y + 0.015f * s
+    val toeX = kin.ankle.x + 0.056f * s
+    detailPath.moveTo(heelX, kin.ankle.y - 0.002f * s)
+    detailPath.quadraticTo(kin.ankle.x + 0.016f * s, kin.ankle.y - 0.006f * s, toeX - 0.010f * s, kin.ankle.y + 0.001f * s)
+    detailPath.quadraticTo(toeX + 0.006f * s, kin.ankle.y + 0.006f * s, toeX - 0.002f * s, soleY)
+    detailPath.lineTo(heelX + 0.004f * s, soleY)
+    detailPath.quadraticTo(heelX - 0.004f * s, soleY, heelX, kin.ankle.y - 0.002f * s)
+    detailPath.close()
+    drawPath(path = detailPath, color = ill.garmentShadow)
+    drawPath(
+        path = detailPath,
+        color = ill.contourStroke,
+        style = Stroke(width = contourW * 0.82f, join = StrokeJoin.Round)
+    )
+
+    // Sculpted tapered trouser silhouette (hip -> rounded knee -> tapered cuff)
     armPath.reset()
-    armPath.moveTo(kin.pelvis.x + 0.02f * s, kin.pelvis.y + 0.01f * s)
-    armPath.lineTo(kin.knee.x, kin.knee.y)
-    armPath.lineTo(kin.ankle.x, kin.ankle.y)
+    armPath.moveTo(kin.pelvis.x + 0.01f * s, kin.pelvis.y - 0.024f * s)
+    armPath.quadraticTo(
+        (kin.pelvis.x + kin.knee.x) * 0.54f,
+        kin.knee.y - 0.036f * s,
+        kin.knee.x + 0.028f * s,
+        kin.knee.y - 0.012f * s
+    )
+    armPath.quadraticTo(
+        kin.knee.x + 0.034f * s,
+        (kin.knee.y + cuffY) * 0.48f,
+        kin.ankle.x + 0.020f * s,
+        cuffY
+    )
+    armPath.quadraticTo(kin.ankle.x - 0.002f * s, cuffY + 0.006f * s, kin.ankle.x - 0.024f * s, cuffY - 0.002f * s)
+    armPath.quadraticTo(
+        kin.knee.x - 0.022f * s,
+        (kin.knee.y + cuffY) * 0.54f,
+        kin.knee.x - 0.026f * s,
+        kin.knee.y + 0.028f * s
+    )
+    armPath.lineTo(kin.pelvis.x - 0.01f * s, kin.pelvis.y + 0.032f * s)
+    armPath.close()
+
+    drawPath(path = armPath, color = ill.garmentFill)
     drawPath(
         path = armPath,
         color = ill.contourStroke,
-        style = Stroke(width = legWidth + contourW * 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        style = Stroke(width = contourW * 0.92f, join = StrokeJoin.Round)
     )
-    drawPath(
-        path = armPath,
-        color = ill.garmentFill,
-        style = Stroke(width = legWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
+    // Subtle inner knee drapery crease
+    drawLine(
+        color = ill.garmentShadow.copy(alpha = 0.72f),
+        start = Offset(kin.knee.x - 0.024f * s, kin.knee.y + 0.022f * s),
+        end = Offset(kin.knee.x - 0.004f * s, kin.knee.y + 0.005f * s),
+        strokeWidth = 0.95.dp.toPx(),
+        cap = StrokeCap.Round
     )
 
     if (bilateralSide < 0) {
-        // Near leg crossed figure-four ankle resting atop opposite knee
         val crossedKnee = Offset(kin.pelvis.x + 0.145f * s, kin.pelvis.y - 0.055f * s)
         val crossedAnkle = Offset(kin.knee.x - 0.035f * s, kin.knee.y - 0.018f * s)
         drawLine(
             color = ill.garmentShadow,
             start = Offset(kin.pelvis.x + 0.02f * s, kin.pelvis.y),
             end = crossedKnee,
-            strokeWidth = legWidth * 0.78f,
+            strokeWidth = 0.044f * s,
             cap = StrokeCap.Round
         )
         drawLine(
-            color = skin.palette.accentPrimary.copy(alpha = 0.65f),
+            color = skin.palette.accentPrimary.copy(alpha = 0.62f),
             start = crossedKnee,
             end = crossedAnkle,
-            strokeWidth = 3.2.dp.toPx(),
+            strokeWidth = 2.6.dp.toPx(),
             cap = StrokeCap.Round
         )
     } else if (bilateralSide > 0) {
         drawCircle(
-            color = skin.palette.accentPrimary.copy(alpha = 0.58f),
-            radius = 0.030f * s,
+            color = skin.palette.accentPrimary.copy(alpha = 0.52f),
+            radius = 0.028f * s,
             center = Offset(kin.knee.x - 0.02f * s, kin.knee.y - 0.03f * s),
-            style = Stroke(width = 1.5.dp.toPx())
+            style = Stroke(width = 1.25.dp.toPx())
         )
     }
 
-    // 4. Moonlit rim-light aura for DUSK_PINE
+    // 4. Moonlit / ink rim-light aura
     buildSagittalTorsoPath(tunicPath, kin, s)
     if (ill.figureStyle == FigureStyle.MOONLIT_CONTOUR) {
         drawPath(
             path = tunicPath,
-            color = skin.palette.accentPrimary.copy(alpha = 0.24f),
-            style = Stroke(width = 4.4.dp.toPx(), join = StrokeJoin.Round)
+            color = skin.palette.accentPrimary.copy(alpha = 0.22f),
+            style = Stroke(width = 3.8.dp.toPx(), join = StrokeJoin.Round)
         )
-    }
-    if (ill.figureStyle == FigureStyle.INK_BRUSH_WASH) {
+    } else if (ill.figureStyle == FigureStyle.INK_BRUSH_WASH) {
         drawPath(
             path = tunicPath,
-            color = ill.contourStroke.copy(alpha = 0.16f),
-            style = Stroke(width = 3.6.dp.toPx(), join = StrokeJoin.Round)
+            color = ill.contourStroke.copy(alpha = 0.14f),
+            style = Stroke(width = 3.2.dp.toPx(), join = StrokeJoin.Round)
         )
     }
 
-    // 5. Neck column (clearly exposes posterior cervical elongation in profile)
-    drawLine(
-        color = ill.skinToneFill,
-        start = Offset(kin.headCenter.x - 0.010f * s, kin.headCenter.y + 0.042f * s),
-        end = Offset(kin.neckBase.x, kin.neckBase.y + 0.028f * s),
-        strokeWidth = 0.044f * s,
-        cap = StrokeCap.Round
-    )
-    drawLine(
-        color = ill.contourStroke.copy(alpha = 0.55f),
-        start = Offset(kin.headCenter.x - 0.032f * s, kin.headCenter.y + 0.038f * s),
-        end = Offset(kin.neckBase.x - 0.022f * s, kin.neckBase.y + 0.024f * s),
-        strokeWidth = contourW * 0.85f,
-        cap = StrokeCap.Round
-    )
-
-    // 6. Draped side-profile Song tunic & internal S-curve spinal seam
-    drawPath(path = tunicPath, color = ill.garmentFill)
-    drawPath(
-        path = tunicPath,
-        color = ill.contourStroke,
-        style = Stroke(width = contourW, join = StrokeJoin.Round)
-    )
-
-    // Subtle anatomical spine curve seam along posterior tunic
+    // 5. Slender anatomical neck column
     detailPath.reset()
-    detailPath.moveTo(kin.pelvis.x - 0.042f * s, kin.pelvis.y - 0.02f * s)
+    detailPath.moveTo(kin.headCenter.x - 0.028f * s, kin.headCenter.y + 0.038f * s)
+    detailPath.lineTo(kin.headCenter.x + 0.014f * s, kin.headCenter.y + 0.044f * s)
+    detailPath.lineTo(kin.neckBase.x + 0.020f * s, kin.neckBase.y + 0.028f * s)
+    detailPath.lineTo(kin.neckBase.x - 0.022f * s, kin.neckBase.y + 0.022f * s)
+    detailPath.close()
+    drawPath(path = detailPath, color = ill.skinToneFill)
+    drawLine(
+        color = ill.contourStroke.copy(alpha = 0.62f),
+        start = Offset(kin.headCenter.x - 0.027f * s, kin.headCenter.y + 0.040f * s),
+        end = Offset(kin.neckBase.x - 0.021f * s, kin.neckBase.y + 0.020f * s),
+        strokeWidth = contourW * 0.82f,
+        cap = StrokeCap.Round
+    )
+
+    // 6. Draped side-profile Song tunic, curved lapel & internal spinal drapery seam
+    drawPath(path = tunicPath, color = ill.garmentFill)
+
+    // Soft lower hem shadow wash
+    detailPath.reset()
+    detailPath.moveTo(kin.pelvis.x - 0.064f * s, kin.pelvis.y + 0.008f * s)
+    detailPath.quadraticTo(kin.pelvis.x + 0.012f * s, kin.pelvis.y + 0.042f * s, kin.pelvis.x + 0.084f * s, kin.pelvis.y + 0.014f * s)
+    detailPath.lineTo(kin.pelvis.x + 0.088f * s, kin.pelvis.y + 0.026f * s)
+    detailPath.quadraticTo(kin.pelvis.x + 0.010f * s, kin.pelvis.y + 0.052f * s, kin.pelvis.x - 0.068f * s, kin.pelvis.y + 0.026f * s)
+    detailPath.close()
+    drawPath(path = detailPath, color = ill.garmentShadow.copy(alpha = 0.72f))
+
+    // Subtle anatomical S-curve spinal seam along posterior tunic
+    detailPath.reset()
+    detailPath.moveTo(kin.pelvis.x - 0.038f * s, kin.pelvis.y - 0.02f * s)
     detailPath.cubicTo(
-        kin.lumbarMid.x - 0.045f * s,
+        kin.lumbarMid.x - 0.042f * s,
         kin.lumbarMid.y,
-        kin.thoracicMid.x - 0.048f * s,
+        kin.thoracicMid.x - 0.044f * s,
         kin.thoracicMid.y,
-        kin.neckBase.x - 0.022f * s,
+        kin.neckBase.x - 0.020f * s,
         kin.neckBase.y + 0.015f * s
     )
     drawPath(
         path = detailPath,
-        color = skin.palette.accentPrimary.copy(alpha = 0.42f),
-        style = Stroke(width = 1.6.dp.toPx(), cap = StrokeCap.Round)
+        color = skin.palette.accentPrimary.copy(alpha = 0.34f),
+        style = Stroke(width = 1.25.dp.toPx(), cap = StrokeCap.Round)
     )
 
-    // Side collar trim
+    // Curved Song side collar trim ("曲领右衽") + white inner under-collar edge
     val collarColor = when (ill.figureStyle) {
         FigureStyle.EDITORIAL_MINERAL_FLAT -> Color(0xFFB88655)
         FigureStyle.MOONLIT_CONTOUR -> skin.palette.accentSecondary
         FigureStyle.BOTANICAL_GOUACHE -> skin.palette.accentSecondary
         FigureStyle.INK_BRUSH_WASH -> ill.garmentShadow
     }
-    drawLine(
+    detailPath.reset()
+    detailPath.moveTo(kin.neckBase.x - 0.022f * s, kin.neckBase.y + 0.008f * s)
+    detailPath.quadraticTo(
+        kin.neckBase.x + 0.018f * s,
+        kin.neckBase.y + 0.024f * s,
+        kin.thoracicMid.x + 0.062f * s,
+        kin.thoracicMid.y + 0.026f * s
+    )
+    drawPath(
+        path = detailPath,
+        color = skin.palette.surfaceCard.copy(alpha = 0.85f),
+        style = Stroke(width = 2.6.dp.toPx(), cap = StrokeCap.Round)
+    )
+    drawPath(
+        path = detailPath,
         color = collarColor,
-        start = Offset(kin.neckBase.x - 0.012f * s, kin.neckBase.y + 0.010f * s),
-        end = Offset(kin.thoracicMid.x + 0.056f * s, kin.thoracicMid.y + 0.018f * s),
-        strokeWidth = 2.2.dp.toPx(),
-        cap = StrokeCap.Round
+        style = Stroke(width = 1.45.dp.toPx(), cap = StrokeCap.Round)
     )
 
-    // 7. Side-profile Song head, posterior hair chignon & serene profile expression
+    drawPath(
+        path = tunicPath,
+        color = ill.contourStroke,
+        style = Stroke(width = contourW, join = StrokeJoin.Round)
+    )
+
+    // 7. Sculpted Song side-profile head, hair chignon & soft East Asian facial contour
     rotate(degrees = kin.headPitchDeg, pivot = kin.headCenter) {
-        val bunCenter = Offset(kin.headCenter.x - 0.068f * s, kin.headCenter.y - 0.032f * s)
-        drawCircle(color = ill.hairFill, radius = 0.033f * s, center = bunCenter)
+        val bunCenter = Offset(kin.headCenter.x - 0.066f * s, kin.headCenter.y - 0.030f * s)
+        // Double-looped Song chignon
+        drawOval(
+            color = ill.hairFill,
+            topLeft = Offset(bunCenter.x - 0.030f * s, bunCenter.y - 0.036f * s),
+            size = Size(0.058f * s, 0.068f * s)
+        )
 
         when (ill.figureStyle) {
             FigureStyle.EDITORIAL_MINERAL_FLAT -> {
                 drawLine(
                     color = Color(0xFFB88655),
-                    start = Offset(bunCenter.x - 0.028f * s, bunCenter.y + 0.024f * s),
+                    start = Offset(bunCenter.x - 0.024f * s, bunCenter.y + 0.024f * s),
                     end = Offset(bunCenter.x + 0.022f * s, bunCenter.y - 0.032f * s),
-                    strokeWidth = 1.8.dp.toPx(),
+                    strokeWidth = 1.5.dp.toPx(),
                     cap = StrokeCap.Round
+                )
+                drawCircle(
+                    color = skin.palette.accentPrimary,
+                    radius = 2.0.dp.toPx(),
+                    center = Offset(bunCenter.x + 0.022f * s, bunCenter.y - 0.032f * s)
                 )
             }
             FigureStyle.BOTANICAL_GOUACHE -> {
-                val ornament = Offset(bunCenter.x + 0.012f * s, bunCenter.y - 0.018f * s)
-                drawCircle(color = Color(0xFFE6A598), radius = 3.0.dp.toPx(), center = ornament)
-                drawCircle(color = skin.palette.accentPrimary, radius = 1.3.dp.toPx(), center = ornament)
+                val ornament = Offset(bunCenter.x + 0.012f * s, bunCenter.y - 0.020f * s)
+                drawCircle(color = Color(0xFFE6A598), radius = 2.8.dp.toPx(), center = ornament)
+                drawCircle(color = skin.palette.accentPrimary, radius = 1.2.dp.toPx(), center = ornament)
             }
             else -> Unit
         }
 
-        val headRx = 0.060f * s
-        val headRy = 0.068f * s
-        val faceTopLeft = Offset(kin.headCenter.x - headRx, kin.headCenter.y - headRy)
-        val faceSize = Size(headRx * 2f, headRy * 2f)
-        drawOval(color = ill.skinToneFill, topLeft = faceTopLeft, size = faceSize)
+        val headRx = 0.058f * s
+        val headRy = 0.066f * s
+        val cx = kin.headCenter.x
+        val cy = kin.headCenter.y
 
-        //Gentle profile nose bridge & chin contour facing right
+        // Unified organic cranial + soft profile silhouette (smooth brow -> rounded nose -> gentle chin -> jaw)
         detailPath.reset()
-        detailPath.moveTo(kin.headCenter.x + headRx * 0.86f, kin.headCenter.y - headRy * 0.22f)
-        detailPath.lineTo(kin.headCenter.x + headRx * 1.16f, kin.headCenter.y + headRy * 0.10f)
-        detailPath.quadraticTo(
-            kin.headCenter.x + headRx * 0.96f,
-            kin.headCenter.y + headRy * 0.26f,
-            kin.headCenter.x + headRx * 0.84f,
-            kin.headCenter.y + headRy * 0.42f
+        detailPath.moveTo(cx, cy - headRy)
+        // Forehead to glabella
+        detailPath.cubicTo(
+            cx + headRx * 0.65f, cy - headRy,
+            cx + headRx * 0.94f, cy - headRy * 0.56f,
+            cx + headRx * 0.92f, cy - headRy * 0.16f
         )
+        // Soft curved nasal bridge & rounded nose tip (zero sharp Pinocchio corner!)
+        detailPath.cubicTo(
+            cx + headRx * 1.08f, cy - headRy * 0.02f,
+            cx + headRx * 1.10f, cy + headRy * 0.14f,
+            cx + headRx * 0.95f, cy + headRy * 0.22f
+        )
+        // Subtle philtrum, calm lips & rounded chin
+        detailPath.cubicTo(
+            cx + headRx * 0.98f, cy + headRy * 0.36f,
+            cx + headRx * 0.88f, cy + headRy * 0.82f,
+            cx + headRx * 0.24f, cy + headRy * 0.94f
+        )
+        // Jawline & occiput back to crown
+        detailPath.cubicTo(
+            cx - headRx * 0.58f, cy + headRy * 0.98f,
+            cx - headRx * 1.02f, cy + headRy * 0.50f,
+            cx - headRx * 1.00f, cy - headRy * 0.06f
+        )
+        detailPath.cubicTo(
+            cx - headRx * 0.98f, cy - headRy * 0.66f,
+            cx - headRx * 0.56f, cy - headRy,
+            cx, cy - headRy
+        )
+        detailPath.close()
+
         drawPath(path = detailPath, color = ill.skinToneFill)
         drawPath(
             path = detailPath,
             color = ill.contourStroke,
-            style = Stroke(width = contourW * 0.85f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            style = Stroke(width = contourW * 0.86f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
 
-        drawOval(
-            color = ill.contourStroke,
-            topLeft = faceTopLeft,
-            size = faceSize,
-            style = Stroke(width = contourW * 0.88f)
+        // Flowing Song crown hair & delicate sideburn temple lock ("鬓发")
+        armPath.reset()
+        armPath.moveTo(cx + headRx * 0.78f, cy - headRy * 0.46f)
+        armPath.cubicTo(
+            cx + headRx * 0.25f, cy - headRy * 1.16f,
+            cx - headRx * 0.82f, cy - headRy * 1.06f,
+            cx - headRx * 1.02f, cy - headRy * 0.10f
         )
+        armPath.cubicTo(
+            cx - headRx * 1.06f, cy + headRy * 0.48f,
+            cx - headRx * 0.62f, cy + headRy * 0.68f,
+            cx - headRx * 0.34f, cy + headRy * 0.56f
+        )
+        armPath.quadraticTo(
+            cx - headRx * 0.24f, cy + headRy * 0.10f,
+            cx - headRx * 0.04f, cy - headRy * 0.06f
+        )
+        armPath.quadraticTo(
+            cx + headRx * 0.28f, cy - headRy * 0.36f,
+            cx + headRx * 0.78f, cy - headRy * 0.46f
+        )
+        armPath.close()
+        drawPath(path = armPath, color = ill.hairFill)
 
-        // Crown & posterior hair cap
+        // Delicate auricle curve
         detailPath.reset()
-        detailPath.moveTo(kin.headCenter.x + headRx * 0.72f, kin.headCenter.y - headRy * 0.48f)
-        detailPath.quadraticTo(
-            kin.headCenter.x - headRx * 0.15f,
-            kin.headCenter.y - headRy * 1.24f,
-            kin.headCenter.x - headRx * 0.98f,
-            kin.headCenter.y - headRy * 0.15f
+        detailPath.moveTo(cx - headRx * 0.16f, cy + headRy * 0.02f)
+        detailPath.quadraticTo(cx - headRx * 0.30f, cy + headRy * 0.18f, cx - headRx * 0.14f, cy + headRy * 0.34f)
+        drawPath(
+            path = detailPath,
+            color = ill.contourStroke.copy(alpha = 0.50f),
+            style = Stroke(width = contourW * 0.65f, cap = StrokeCap.Round)
         )
-        detailPath.quadraticTo(
-            kin.headCenter.x - headRx * 1.05f,
-            kin.headCenter.y + headRy * 0.55f,
-            kin.headCenter.x - headRx * 0.35f,
-            kin.headCenter.y + headRy * 0.58f
-        )
-        detailPath.quadraticTo(
-            kin.headCenter.x - headRx * 0.12f,
-            kin.headCenter.y - headRy * 0.22f,
-            kin.headCenter.x + headRx * 0.72f,
-            kin.headCenter.y - headRy * 0.48f
-        )
-        detailPath.close()
-        drawPath(path = detailPath, color = ill.hairFill)
 
-        // Profile brow, eye & serene smile
-        val featureColor = skin.palette.inkPrimary.copy(alpha = 0.80f)
-        val fineStroke = max(1.1.dp.toPx(), contourW * 0.68f)
-        val eyeX = kin.headCenter.x + headRx * 0.52f
-        val eyeY = kin.headCenter.y - headRy * 0.06f
-        drawLine(
-            color = featureColor.copy(alpha = 0.58f),
-            start = Offset(eyeX - 0.012f * s, eyeY - 0.015f * s),
-            end = Offset(eyeX + 0.012f * s, eyeY - 0.013f * s),
-            strokeWidth = fineStroke * 0.85f,
-            cap = StrokeCap.Round
+        // Tapered willow eyebrow ("远山黛"), calm closed eye & serene lip corner
+        val featureColor = skin.palette.inkPrimary.copy(alpha = 0.78f)
+        val fineStroke = max(1.0.dp.toPx(), contourW * 0.64f)
+        val eyeX = cx + headRx * 0.48f
+        val eyeY = cy - headRy * 0.05f
+
+        detailPath.reset()
+        detailPath.moveTo(eyeX - 0.015f * s, eyeY - 0.015f * s)
+        detailPath.quadraticTo(eyeX, eyeY - 0.022f * s, eyeX + 0.014f * s, eyeY - 0.013f * s)
+        drawPath(
+            path = detailPath,
+            color = featureColor.copy(alpha = 0.56f),
+            style = Stroke(width = fineStroke * 0.80f, cap = StrokeCap.Round)
         )
+
         if (keyframe.eyesClosed) {
             detailPath.reset()
-            detailPath.moveTo(eyeX - 0.010f * s, eyeY)
-            detailPath.quadraticTo(eyeX, eyeY + 0.008f * s, eyeX + 0.011f * s, eyeY)
+            detailPath.moveTo(eyeX - 0.011f * s, eyeY)
+            detailPath.quadraticTo(eyeX + 0.001f * s, eyeY + 0.008f * s, eyeX + 0.013f * s, eyeY - 0.001f * s)
             drawPath(
                 path = detailPath,
                 color = featureColor,
-                style = Stroke(width = fineStroke, cap = StrokeCap.Round)
+                style = Stroke(width = fineStroke * 0.92f, cap = StrokeCap.Round)
             )
         } else {
             drawCircle(
                 color = featureColor,
-                radius = max(1.5.dp.toPx(), 0.006f * s),
+                radius = max(1.4.dp.toPx(), 0.0055f * s),
                 center = Offset(eyeX + 0.002f * s, eyeY + 0.002f * s)
             )
         }
+
+        // Subtle serene lip line
+        detailPath.reset()
+        detailPath.moveTo(cx + headRx * 0.68f, cy + headRy * 0.42f)
+        detailPath.quadraticTo(cx + headRx * 0.80f, cy + headRy * 0.46f, cx + headRx * 0.90f, cy + headRy * 0.41f)
+        drawPath(
+            path = detailPath,
+            color = featureColor.copy(alpha = 0.55f),
+            style = Stroke(width = fineStroke * 0.75f, cap = StrokeCap.Round)
+        )
     }
 
-    // 8. Foreground arm (desk cat-cow, occiput cradle, lap/butterfly support)
+    // 8. Foreground wide-sleeve & anatomical hand
     if (!kin.arm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.arm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
 
-    // 9. Meridian warmth highlights on target body regions
+    // 9. Soft ink-wash meridian warmth highlights (zero hard red rivets!)
     drawSagittalRegionWarmth(skin = skin, kin = kin, s = s, highlightedRegions = highlightedRegions)
 }
 
@@ -853,26 +996,26 @@ private fun buildSagittalTorsoPath(
     s: Float
 ) {
     val backHip = Offset(kin.pelvis.x - 0.068f * s, kin.pelvis.y + 0.025f * s)
-    val frontHip = Offset(kin.pelvis.x + 0.088f * s, kin.pelvis.y + 0.025f * s)
-    val backNeck = Offset(kin.neckBase.x - 0.030f * s, kin.neckBase.y + 0.012f * s)
-    val frontNeck = Offset(kin.neckBase.x + 0.032f * s, kin.neckBase.y + 0.020f * s)
+    val frontHip = Offset(kin.pelvis.x + 0.088f * s, kin.pelvis.y + 0.022f * s)
+    val backNeck = Offset(kin.neckBase.x - 0.028f * s, kin.neckBase.y + 0.010f * s)
+    val frontNeck = Offset(kin.neckBase.x + 0.028f * s, kin.neckBase.y + 0.020f * s)
 
     path.reset()
     path.moveTo(backNeck.x, backNeck.y)
-    path.lineTo(frontNeck.x, frontNeck.y)
+    path.quadraticTo(kin.neckBase.x, kin.neckBase.y + 0.018f * s, frontNeck.x, frontNeck.y)
     path.cubicTo(
-        kin.thoracicMid.x + 0.082f * s,
-        kin.thoracicMid.y - 0.01f * s,
-        kin.lumbarMid.x + 0.085f * s,
-        kin.lumbarMid.y,
+        kin.thoracicMid.x + 0.080f * s,
+        kin.thoracicMid.y - 0.008f * s,
+        kin.lumbarMid.x + 0.082f * s,
+        kin.lumbarMid.y + 0.004f * s,
         frontHip.x,
         frontHip.y
     )
-    path.quadraticTo(kin.pelvis.x + 0.01f * s, kin.pelvis.y + 0.048f * s, backHip.x, backHip.y)
+    path.quadraticTo(kin.pelvis.x + 0.01f * s, kin.pelvis.y + 0.050f * s, backHip.x, backHip.y)
     path.cubicTo(
-        kin.lumbarMid.x - 0.068f * s,
+        kin.lumbarMid.x - 0.066f * s,
         kin.lumbarMid.y,
-        kin.thoracicMid.x - 0.068f * s,
+        kin.thoracicMid.x - 0.066f * s,
         kin.thoracicMid.y,
         backNeck.x,
         backNeck.y
@@ -887,34 +1030,18 @@ private fun DrawScope.drawSagittalRegionWarmth(
     highlightedRegions: Set<BodyRegion>
 ) {
     if (highlightedRegions.isEmpty()) return
-    val auraRadius = (0.068f * s).coerceAtLeast(6f)
-    val dotRadius = 2.3.dp.toPx()
-
-    fun drawWarmPoint(pt: Offset) {
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(skin.palette.accentPrimary.copy(alpha = 0.24f), Color.Transparent),
-                center = pt,
-                radius = auraRadius
-            ),
-            radius = auraRadius,
-            center = pt
-        )
-        drawCircle(
-            color = skin.palette.sealVermilion.copy(alpha = 0.64f),
-            radius = dotRadius,
-            center = pt
-        )
-    }
-
     for (region in highlightedRegions) {
         when (region) {
-            BodyRegion.EYE_BROW -> drawWarmPoint(kin.glabella)
-            BodyRegion.POSTERIOR_NECK -> drawWarmPoint(Offset(kin.neckBase.x - 0.018f * s, kin.neckBase.y - 0.02f * s))
-            BodyRegion.TRAPEZIUS_SHOULDER -> drawWarmPoint(kin.shoulder)
-            BodyRegion.THORACIC_CHEST -> drawWarmPoint(kin.thoracicMid)
-            BodyRegion.LOWER_LUMBAR -> drawWarmPoint(kin.lumbarMid)
-            BodyRegion.MOUSE_WRIST -> drawWarmPoint(kin.arm.hand)
+            BodyRegion.EYE_BROW -> drawSoftQiWarmthAura(skin, kin.glabella, s)
+            BodyRegion.POSTERIOR_NECK -> drawSoftQiWarmthAura(
+                skin,
+                Offset(kin.neckBase.x - 0.016f * s, kin.neckBase.y - 0.016f * s),
+                s
+            )
+            BodyRegion.TRAPEZIUS_SHOULDER -> drawSoftQiWarmthAura(skin, kin.shoulder, s)
+            BodyRegion.THORACIC_CHEST -> drawSoftQiWarmthAura(skin, kin.thoracicMid, s)
+            BodyRegion.LOWER_LUMBAR -> drawSoftQiWarmthAura(skin, kin.lumbarMid, s)
+            BodyRegion.MOUSE_WRIST -> drawSoftQiWarmthAura(skin, kin.arm.hand, s)
         }
     }
 }
@@ -1263,142 +1390,219 @@ private fun DrawScope.drawFullEditorialFigure(
     detailPath: Path
 ) {
     val ill = skin.illustration
-    val contourW = ill.contourStrokeWidthDp.finiteClamp(0.5f, 6f, 1.8f).dp.toPx()
+    val contourW = (ill.contourStrokeWidthDp.finiteClamp(0.5f, 6f, 1.6f) * 0.86f).dp.toPx()
 
-    // 1. Seated mat / chair horizon line
-    drawLine(
-        color = skin.palette.borderHairline,
-        start = pt(0.24f, 0.81f),
-        end = pt(0.76f, 0.81f),
-        strokeWidth = 1.3.dp.toPx(),
-        cap = StrokeCap.Round
+    // 1. Woven rush meditation mat ("蒲团素席") & subtle horizon line
+    val matTopLeft = pt(0.24f, 0.778f)
+    val matSize = Size(0.52f * s, 0.068f * s)
+    drawOval(
+        color = skin.palette.surfaceCardSubtle.copy(alpha = 0.78f),
+        topLeft = matTopLeft,
+        size = matSize
+    )
+    drawOval(
+        color = skin.palette.borderHairline.copy(alpha = 0.85f),
+        topLeft = matTopLeft,
+        size = matSize,
+        style = Stroke(width = 1.05.dp.toPx())
     )
     drawLine(
-        color = skin.palette.accentSecondary.copy(alpha = 0.30f),
-        start = pt(0.32f, 0.84f),
-        end = pt(0.68f, 0.84f),
-        strokeWidth = 1.0.dp.toPx(),
+        color = skin.palette.accentSecondary.copy(alpha = 0.28f),
+        start = pt(0.31f, 0.862f),
+        end = pt(0.69f, 0.862f),
+        strokeWidth = 0.9.dp.toPx(),
         cap = StrokeCap.Round
     )
 
     // 2. Moonlit rim-light aura for DUSK_PINE (MOONLIT_CONTOUR)
+    buildTorsoTunicPath(tunicPath, kin, s)
     if (ill.figureStyle == FigureStyle.MOONLIT_CONTOUR) {
-        buildTorsoTunicPath(tunicPath, kin, s)
         drawPath(
             path = tunicPath,
-            color = skin.palette.accentPrimary.copy(alpha = 0.24f),
-            style = Stroke(width = 4.4.dp.toPx(), join = StrokeJoin.Round)
+            color = skin.palette.accentPrimary.copy(alpha = 0.22f),
+            style = Stroke(width = 3.8.dp.toPx(), join = StrokeJoin.Round)
         )
     }
 
     // 3. Posterior arms (occiput cradle / Fengchi press) behind hair & head
     if (kin.leftArm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.leftArm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.leftArm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
     if (kin.rightArm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.rightArm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.rightArm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
 
-    // 4. Posterior hair bun & hair silhouette
+    // 4. Sculpted Song hair chignon ("宋式雅髻") & posterior hair silhouette
     val tiltDeg = keyframe.headTiltDeg.coerceIn(-30f, 30f)
     rotate(degrees = tiltDeg, pivot = kin.headCenter) {
-        val bunCenter = Offset(kin.headCenter.x, kin.headCenter.y - 0.082f * s)
-        drawCircle(
+        val bunCenter = Offset(kin.headCenter.x, kin.headCenter.y - 0.084f * s)
+        // Cloud-shaped Song chignon
+        drawOval(
             color = ill.hairFill,
-            radius = 0.032f * s,
-            center = bunCenter
+            topLeft = Offset(bunCenter.x - 0.036f * s, bunCenter.y - 0.026f * s),
+            size = Size(0.072f * s, 0.052f * s)
         )
-        // Style-specific hair ornament
+        // Style-specific classical hair ornament ("玉簪 / 花钿")
         when (ill.figureStyle) {
             FigureStyle.EDITORIAL_MINERAL_FLAT -> {
-                // Carved mud-gold & celadon hairpin
                 drawLine(
                     color = Color(0xFFB88655),
-                    start = Offset(bunCenter.x - 0.046f * s, bunCenter.y + 0.004f * s),
-                    end = Offset(bunCenter.x + 0.048f * s, bunCenter.y - 0.006f * s),
-                    strokeWidth = 1.8.dp.toPx(),
+                    start = Offset(bunCenter.x - 0.048f * s, bunCenter.y + 0.005f * s),
+                    end = Offset(bunCenter.x + 0.050f * s, bunCenter.y - 0.006f * s),
+                    strokeWidth = 1.5.dp.toPx(),
                     cap = StrokeCap.Round
                 )
                 drawCircle(
                     color = skin.palette.accentPrimary,
-                    radius = 2.4.dp.toPx(),
-                    center = Offset(bunCenter.x + 0.048f * s, bunCenter.y - 0.006f * s)
+                    radius = 2.2.dp.toPx(),
+                    center = Offset(bunCenter.x + 0.050f * s, bunCenter.y - 0.006f * s)
                 )
             }
 
             FigureStyle.BOTANICAL_GOUACHE -> {
-                // Miniature spring blossom hair ornament
-                val ornament = Offset(bunCenter.x + 0.026f * s, bunCenter.y - 0.004f * s)
-                drawCircle(color = Color(0xFFE6A598), radius = 3.2.dp.toPx(), center = ornament)
-                drawCircle(color = skin.palette.accentPrimary, radius = 1.4.dp.toPx(), center = ornament)
+                val ornament = Offset(bunCenter.x + 0.028f * s, bunCenter.y - 0.004f * s)
+                drawCircle(color = Color(0xFFE6A598), radius = 3.0.dp.toPx(), center = ornament)
+                drawCircle(color = skin.palette.accentPrimary, radius = 1.3.dp.toPx(), center = ornament)
+            }
+
+            FigureStyle.INK_BRUSH_WASH -> {
+                // Wooden hairpin for Ink Mist scholar poise
+                drawLine(
+                    color = ill.garmentShadow,
+                    start = Offset(bunCenter.x - 0.044f * s, bunCenter.y + 0.003f * s),
+                    end = Offset(bunCenter.x + 0.044f * s, bunCenter.y - 0.004f * s),
+                    strokeWidth = 1.4.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
             }
 
             else -> Unit
         }
 
-        val hairRx = 0.068f * s
-        val hairRy = 0.078f * s
+        val hairRx = 0.066f * s
+        val hairRy = 0.076f * s
         drawOval(
             color = ill.hairFill,
             topLeft = Offset(kin.headCenter.x - hairRx, kin.headCenter.y - hairRy * 1.04f),
-            size = Size(hairRx * 2f, hairRy * 1.85f)
+            size = Size(hairRx * 2f, hairRy * 1.86f)
         )
     }
 
-    // 5. Neck column
-    val neckWidth = 0.046f * s
-    drawLine(
-        color = ill.skinToneFill,
-        start = Offset(kin.headCenter.x, kin.headCenter.y + 0.045f * s),
-        end = Offset(kin.neck.x, kin.neck.y + 0.035f * s),
-        strokeWidth = neckWidth,
-        cap = StrokeCap.Round
-    )
+    // 5. Slender anatomical neck column & soft V-clavicle skin base
+    detailPath.reset()
+    detailPath.moveTo(kin.headCenter.x - 0.020f * s, kin.headCenter.y + 0.045f * s)
+    detailPath.lineTo(kin.headCenter.x + 0.020f * s, kin.headCenter.y + 0.045f * s)
+    detailPath.lineTo(kin.neck.x + 0.028f * s, kin.neck.y + 0.036f * s)
+    detailPath.lineTo(kin.chest.x, kin.neck.y + 0.076f * s)
+    detailPath.lineTo(kin.neck.x - 0.028f * s, kin.neck.y + 0.036f * s)
+    detailPath.close()
+    drawPath(path = detailPath, color = ill.skinToneFill)
 
-    // 6. Song tunic torso & style-specific garment details
-    buildTorsoTunicPath(tunicPath, kin, s)
+    // 6. Sculpted Song tunic ("交领右衽宽衫") & seated cross-legged skirt drapery ("交趺裳褶")
     if (ill.figureStyle == FigureStyle.INK_BRUSH_WASH) {
-        // Offset dry-brush ink wash shadow
         drawPath(
             path = tunicPath,
-            color = ill.contourStroke.copy(alpha = 0.16f),
-            style = Stroke(width = 3.6.dp.toPx(), join = StrokeJoin.Round)
+            color = ill.contourStroke.copy(alpha = 0.14f),
+            style = Stroke(width = 3.2.dp.toPx(), join = StrokeJoin.Round)
         )
     }
     drawPath(path = tunicPath, color = ill.garmentFill)
 
-    // Lower seated lap drapery shadow band
+    // Cross-legged seated skirt folds ("裳裾叠褶")
     detailPath.reset()
-    detailPath.moveTo(kin.pelvis.x - 0.165f * s, kin.pelvis.y - 0.03f * s)
-    detailPath.quadraticTo(kin.pelvis.x, kin.pelvis.y + 0.035f * s, kin.pelvis.x + 0.165f * s, kin.pelvis.y - 0.03f * s)
-    detailPath.lineTo(kin.pelvis.x + 0.175f * s, kin.pelvis.y + 0.025f * s)
-    detailPath.quadraticTo(kin.pelvis.x, kin.pelvis.y + 0.055f * s, kin.pelvis.x - 0.175f * s, kin.pelvis.y + 0.025f * s)
+    detailPath.moveTo(kin.pelvis.x - 0.176f * s, kin.pelvis.y - 0.012f * s)
+    detailPath.quadraticTo(
+        kin.pelvis.x - 0.02f * s,
+        kin.pelvis.y + 0.042f * s,
+        kin.pelvis.x + 0.176f * s,
+        kin.pelvis.y - 0.012f * s
+    )
+    detailPath.lineTo(kin.pelvis.x + 0.182f * s, kin.pelvis.y + 0.022f * s)
+    detailPath.quadraticTo(
+        kin.pelvis.x,
+        kin.pelvis.y + 0.058f * s,
+        kin.pelvis.x - 0.182f * s,
+        kin.pelvis.y + 0.022f * s
+    )
     detailPath.close()
-    drawPath(path = detailPath, color = ill.garmentShadow.copy(alpha = 0.85f))
+    drawPath(path = detailPath, color = ill.garmentShadow.copy(alpha = 0.80f))
 
-    // Crossed Song lapel (交领右衽)
+    // Delicate interior knee-fold gossamer arcs
+    detailPath.reset()
+    detailPath.moveTo(kin.pelvis.x - 0.135f * s, kin.pelvis.y - 0.008f * s)
+    detailPath.quadraticTo(kin.pelvis.x - 0.020f * s, kin.pelvis.y + 0.024f * s, kin.pelvis.x + 0.055f * s, kin.pelvis.y + 0.016f * s)
+    detailPath.moveTo(kin.pelvis.x + 0.130f * s, kin.pelvis.y - 0.006f * s)
+    detailPath.quadraticTo(kin.pelvis.x + 0.040f * s, kin.pelvis.y + 0.022f * s, kin.pelvis.x - 0.025f * s, kin.pelvis.y + 0.032f * s)
+    drawPath(
+        path = detailPath,
+        color = ill.contourStroke.copy(alpha = 0.34f),
+        style = Stroke(width = max(0.85.dp.toPx(), contourW * 0.54f), cap = StrokeCap.Round)
+    )
+
+    // Authentic double-layered Song Y-collar ("中衣素领 + 交领右衽") & high-waist sash ("素绦")
     val collarColor = when (ill.figureStyle) {
         FigureStyle.EDITORIAL_MINERAL_FLAT -> Color(0xFFB88655)
         FigureStyle.MOONLIT_CONTOUR -> skin.palette.accentSecondary
         FigureStyle.BOTANICAL_GOUACHE -> skin.palette.accentSecondary
         FigureStyle.INK_BRUSH_WASH -> ill.garmentShadow
     }
-    val leftCollarPt = Offset(kin.neck.x - 0.034f * s, kin.neck.y + 0.015f * s)
-    val rightCollarPt = Offset(kin.neck.x + 0.034f * s, kin.neck.y + 0.015f * s)
-    val lapelCrossPt = Offset(kin.chest.x + 0.036f * s, kin.chest.y + 0.025f * s)
+    val leftCollarPt = Offset(kin.neck.x - 0.028f * s, kin.neck.y + 0.016f * s)
+    val rightCollarPt = Offset(kin.neck.x + 0.028f * s, kin.neck.y + 0.016f * s)
+    val lapelCrossPt = Offset(kin.chest.x + 0.044f * s, kin.chest.y + 0.036f * s)
+    val underCrossPt = Offset(kin.chest.x - 0.004f * s, kin.chest.y - 0.004f * s)
+
+    // Inner ivory under-collar ("素色护领")
+    detailPath.reset()
+    detailPath.moveTo(leftCollarPt.x + 0.005f * s, leftCollarPt.y)
+    detailPath.lineTo(underCrossPt.x, underCrossPt.y)
+    detailPath.lineTo(rightCollarPt.x - 0.005f * s, rightCollarPt.y)
+    drawPath(
+        path = detailPath,
+        color = skin.palette.surfaceCard.copy(alpha = 0.88f),
+        style = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+    )
+
+    // Right-under lapel trim
     drawLine(
-        color = collarColor,
-        start = leftCollarPt,
-        end = lapelCrossPt,
-        strokeWidth = 2.4.dp.toPx(),
+        color = collarColor.copy(alpha = 0.78f),
+        start = rightCollarPt,
+        end = underCrossPt,
+        strokeWidth = 1.55.dp.toPx(),
         cap = StrokeCap.Round
     )
-    drawLine(
-        color = collarColor.copy(alpha = 0.82f),
-        start = rightCollarPt,
-        end = Offset(kin.chest.x - 0.008f * s, kin.chest.y - 0.008f * s),
-        strokeWidth = 2.1.dp.toPx(),
-        cap = StrokeCap.Round
+    // Left-over-right primary lapel ("右衽")
+    detailPath.reset()
+    detailPath.moveTo(leftCollarPt.x, leftCollarPt.y)
+    detailPath.quadraticTo(
+        kin.chest.x - 0.002f * s,
+        kin.chest.y + 0.002f * s,
+        lapelCrossPt.x,
+        lapelCrossPt.y
+    )
+    drawPath(
+        path = detailPath,
+        color = collarColor,
+        style = Stroke(width = 1.75.dp.toPx(), cap = StrokeCap.Round)
+    )
+
+    // Subtle Song waist sash & flowing ribbon tie ("素绦垂绅")
+    val sashY = (kin.chest.y + kin.pelvis.y) * 0.48f
+    detailPath.reset()
+    detailPath.moveTo(kin.chest.x - 0.118f * s, sashY - 0.004f * s)
+    detailPath.quadraticTo(kin.chest.x, sashY + 0.012f * s, kin.chest.x + 0.118f * s, sashY - 0.004f * s)
+    drawPath(
+        path = detailPath,
+        color = collarColor.copy(alpha = 0.55f),
+        style = Stroke(width = 1.25.dp.toPx(), cap = StrokeCap.Round)
+    )
+    // Tiny sash knot streamer on right flank
+    detailPath.reset()
+    detailPath.moveTo(kin.chest.x + 0.044f * s, sashY + 0.007f * s)
+    detailPath.quadraticTo(kin.chest.x + 0.056f * s, sashY + 0.036f * s, kin.chest.x + 0.048f * s, sashY + 0.062f * s)
+    drawPath(
+        path = detailPath,
+        color = collarColor.copy(alpha = 0.50f),
+        style = Stroke(width = 1.05.dp.toPx(), cap = StrokeCap.Round)
     )
 
     drawPath(
@@ -1412,119 +1616,163 @@ private fun DrawScope.drawFullEditorialFigure(
         drawBilateralSideCues(skin = skin, kin = kin, s = s, bilateralSide = bilateralSide, detailPath = detailPath)
     }
 
-    // 8. Calm rotated head & facial poise
+    // 8. Calm rotated head, classical parted locks & willow-brow facial poise
     rotate(degrees = tiltDeg, pivot = kin.headCenter) {
-        val faceRx = 0.058f * s
-        val faceRy = 0.070f * s
-        val faceTopLeft = Offset(kin.headCenter.x - faceRx, kin.headCenter.y - faceRy)
-        val faceSize = Size(faceRx * 2f, faceRy * 2f)
-        drawOval(color = ill.skinToneFill, topLeft = faceTopLeft, size = faceSize)
-        drawOval(
+        val faceRx = 0.056f * s
+        val faceRy = 0.068f * s
+        val cx = kin.headCenter.x
+        val cy = kin.headCenter.y
+
+        // Delicate earlobes
+        val earR = 0.011f * s
+        drawCircle(color = ill.skinToneFill, radius = earR, center = Offset(cx - faceRx * 0.98f, cy + 0.006f * s))
+        drawCircle(color = ill.skinToneFill, radius = earR, center = Offset(cx + faceRx * 0.98f, cy + 0.006f * s))
+
+        // Sculpted oval-chin classical face contour
+        detailPath.reset()
+        detailPath.moveTo(cx, cy - faceRy)
+        detailPath.cubicTo(
+            cx + faceRx * 0.72f, cy - faceRy,
+            cx + faceRx * 1.02f, cy - faceRy * 0.42f,
+            cx + faceRx * 0.96f, cy + faceRy * 0.14f
+        )
+        detailPath.cubicTo(
+            cx + faceRx * 0.88f, cy + faceRy * 0.68f,
+            cx + faceRx * 0.42f, cy + faceRy * 0.98f,
+            cx, cy + faceRy
+        )
+        detailPath.cubicTo(
+            cx - faceRx * 0.42f, cy + faceRy * 0.98f,
+            cx - faceRx * 0.88f, cy + faceRy * 0.68f,
+            cx - faceRx * 0.96f, cy + faceRy * 0.14f
+        )
+        detailPath.cubicTo(
+            cx - faceRx * 1.02f, cy - faceRy * 0.42f,
+            cx - faceRx * 0.72f, cy - faceRy,
+            cx, cy - faceRy
+        )
+        detailPath.close()
+
+        drawPath(path = detailPath, color = ill.skinToneFill)
+        drawPath(
+            path = detailPath,
             color = ill.contourStroke,
-            topLeft = faceTopLeft,
-            size = faceSize,
-            style = Stroke(width = contourW * 0.9f)
+            style = Stroke(width = contourW * 0.88f, join = StrokeJoin.Round)
         )
 
-        // Parted Song fringe along forehead
+        // Parted Song fringe & soft temple wisps ("云鬓")
         detailPath.reset()
-        detailPath.moveTo(kin.headCenter.x - faceRx * 0.96f, kin.headCenter.y - faceRy * 0.22f)
+        detailPath.moveTo(cx - faceRx * 0.98f, cy - faceRy * 0.12f)
         detailPath.quadraticTo(
-            kin.headCenter.x - faceRx * 0.35f,
-            kin.headCenter.y - faceRy * 0.92f,
-            kin.headCenter.x,
-            kin.headCenter.y - faceRy * 0.56f
+            cx - faceRx * 0.42f,
+            cy - faceRy * 0.88f,
+            cx,
+            cy - faceRy * 0.58f
         )
         detailPath.quadraticTo(
-            kin.headCenter.x + faceRx * 0.35f,
-            kin.headCenter.y - faceRy * 0.92f,
-            kin.headCenter.x + faceRx * 0.96f,
-            kin.headCenter.y - faceRy * 0.22f
+            cx + faceRx * 0.42f,
+            cy - faceRy * 0.88f,
+            cx + faceRx * 0.98f,
+            cy - faceRy * 0.12f
         )
         detailPath.quadraticTo(
-            kin.headCenter.x,
-            kin.headCenter.y - faceRy * 1.18f,
-            kin.headCenter.x - faceRx * 0.96f,
-            kin.headCenter.y - faceRy * 0.22f
+            cx + faceRx * 0.90f,
+            cy - faceRy * 1.12f,
+            cx,
+            cy - faceRy * 1.14f
+        )
+        detailPath.quadraticTo(
+            cx - faceRx * 0.90f,
+            cy - faceRy * 1.12f,
+            cx - faceRx * 0.98f,
+            cy - faceRy * 0.12f
         )
         detailPath.close()
         drawPath(path = detailPath, color = ill.hairFill)
 
         // Botanical gouache warm cheek blushes
         if (ill.figureStyle == FigureStyle.BOTANICAL_GOUACHE) {
-            val blushColor = Color(0xFFE6A598).copy(alpha = 0.36f)
-            val blushR = 0.015f * s
-            drawCircle(blushColor, blushR, Offset(kin.headCenter.x - 0.030f * s, kin.headCenter.y + 0.014f * s))
-            drawCircle(blushColor, blushR, Offset(kin.headCenter.x + 0.030f * s, kin.headCenter.y + 0.014f * s))
+            val blushColor = Color(0xFFE6A598).copy(alpha = 0.34f)
+            val blushR = 0.014f * s
+            drawCircle(blushColor, blushR, Offset(cx - 0.028f * s, cy + 0.014f * s))
+            drawCircle(blushColor, blushR, Offset(cx + 0.028f * s, cy + 0.014f * s))
         }
 
-        // Serene brows & eyes (closed crescent vs soft open iris)
-        val featureColor = skin.palette.inkPrimary.copy(alpha = 0.80f)
-        val eyeY = kin.headCenter.y - 0.004f * s
-        val eyeDx = 0.023f * s
-        val eyeHalfW = 0.012f * s
-        val fineStroke = max(1.1.dp.toPx(), contourW * 0.68f)
+        // Tapered willow-leaf brows ("远山蛾眉") & serene eyes
+        val featureColor = skin.palette.inkPrimary.copy(alpha = 0.78f)
+        val eyeY = cy - 0.003f * s
+        val eyeDx = 0.022f * s
+        val eyeHalfW = 0.0115f * s
+        val fineStroke = max(0.95.dp.toPx(), contourW * 0.62f)
 
-        // Brows
-        drawLine(
-            color = featureColor.copy(alpha = 0.58f),
-            start = Offset(kin.headCenter.x - eyeDx - eyeHalfW, eyeY - 0.016f * s),
-            end = Offset(kin.headCenter.x - eyeDx + eyeHalfW, eyeY - 0.018f * s),
-            strokeWidth = fineStroke * 0.85f,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = featureColor.copy(alpha = 0.58f),
-            start = Offset(kin.headCenter.x + eyeDx - eyeHalfW, eyeY - 0.018f * s),
-            end = Offset(kin.headCenter.x + eyeDx + eyeHalfW, eyeY - 0.016f * s),
-            strokeWidth = fineStroke * 0.85f,
-            cap = StrokeCap.Round
-        )
+        for (sign in intArrayOf(-1, 1)) {
+            val bx = cx + sign * eyeDx
+            detailPath.reset()
+            detailPath.moveTo(bx - sign * eyeHalfW * 0.85f, eyeY - 0.017f * s)
+            detailPath.quadraticTo(
+                bx,
+                eyeY - 0.023f * s,
+                bx + sign * eyeHalfW * 1.08f,
+                eyeY - 0.014f * s
+            )
+            drawPath(
+                path = detailPath,
+                color = featureColor.copy(alpha = 0.56f),
+                style = Stroke(width = fineStroke * 0.78f, cap = StrokeCap.Round)
+            )
+        }
 
         if (keyframe.eyesClosed) {
             for (sign in intArrayOf(-1, 1)) {
-                val ex = kin.headCenter.x + sign * eyeDx
+                val ex = cx + sign * eyeDx
                 detailPath.reset()
                 detailPath.moveTo(ex - eyeHalfW, eyeY)
-                detailPath.quadraticTo(ex, eyeY + 0.010f * s, ex + eyeHalfW, eyeY)
+                detailPath.quadraticTo(ex, eyeY + 0.009f * s, ex + eyeHalfW, eyeY)
                 drawPath(
                     path = detailPath,
                     color = featureColor,
-                    style = Stroke(width = fineStroke, cap = StrokeCap.Round)
+                    style = Stroke(width = fineStroke * 0.90f, cap = StrokeCap.Round)
                 )
             }
         } else {
             for (sign in intArrayOf(-1, 1)) {
-                val ex = kin.headCenter.x + sign * eyeDx
+                val ex = cx + sign * eyeDx
                 drawCircle(
                     color = featureColor,
-                    radius = max(1.6.dp.toPx(), 0.0065f * s),
+                    radius = max(1.45.dp.toPx(), 0.006f * s),
                     center = Offset(ex, eyeY + 0.002f * s)
                 )
             }
         }
 
-        // Gentle calm smile arc
-        val mouthY = kin.headCenter.y + 0.028f * s
+        // Subtle nasal tip hint + calm serene smile
+        drawLine(
+            color = featureColor.copy(alpha = 0.30f),
+            start = Offset(cx, cy + 0.010f * s),
+            end = Offset(cx, cy + 0.015f * s),
+            strokeWidth = fineStroke * 0.65f,
+            cap = StrokeCap.Round
+        )
+        val mouthY = cy + 0.028f * s
         detailPath.reset()
-        detailPath.moveTo(kin.headCenter.x - 0.011f * s, mouthY)
-        detailPath.quadraticTo(kin.headCenter.x, mouthY + 0.007f * s, kin.headCenter.x + 0.011f * s, mouthY)
+        detailPath.moveTo(cx - 0.010f * s, mouthY)
+        detailPath.quadraticTo(cx, mouthY + 0.0065f * s, cx + 0.010f * s, mouthY)
         drawPath(
             path = detailPath,
-            color = featureColor.copy(alpha = 0.68f),
-            style = Stroke(width = fineStroke * 0.85f, cap = StrokeCap.Round)
+            color = featureColor.copy(alpha = 0.65f),
+            style = Stroke(width = fineStroke * 0.80f, cap = StrokeCap.Round)
         )
     }
 
-    // 9. Anterior arms (lap, desk, overhead, or warm eye palming)
+    // 9. Anterior billowing wide-sleeves & lotus-petal hands
     if (!kin.leftArm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.leftArm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.leftArm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
     if (!kin.rightArm.isPosterior) {
-        drawSleeveAndHand(skin = skin, arm = kin.rightArm, s = s, contourW = contourW, armPath = armPath)
+        drawSleeveAndHand(skin = skin, arm = kin.rightArm, s = s, contourW = contourW, armPath = armPath, detailPath = detailPath)
     }
 
-    // 10. Meridian warmth highlights on target body regions
+    // 10. Soft ink-wash Qi warmth highlights on target body regions
     drawHighlightedRegionWarmth(skin = skin, kin = kin, s = s, highlightedRegions = highlightedRegions)
 }
 
@@ -1533,29 +1781,67 @@ private fun buildTorsoTunicPath(
     kin: FigureKinematics,
     s: Float
 ) {
-    val hipHalfW = 0.172f * s
-    val leftHip = Offset(kin.pelvis.x - hipHalfW, kin.pelvis.y + 0.02f * s)
-    val rightHip = Offset(kin.pelvis.x + hipHalfW, kin.pelvis.y + 0.02f * s)
+    val leftNeckCollar = Offset(kin.neck.x - 0.028f * s, kin.neck.y + 0.016f * s)
+    val rightNeckCollar = Offset(kin.neck.x + 0.028f * s, kin.neck.y + 0.016f * s)
+    val waistY = (kin.chest.y + kin.pelvis.y) * 0.50f
+    val waistHalfW = 0.122f * s
+    val hipHalfW = 0.184f * s
+    val leftHip = Offset(kin.pelvis.x - hipHalfW, kin.pelvis.y + 0.020f * s)
+    val rightHip = Offset(kin.pelvis.x + hipHalfW, kin.pelvis.y + 0.020f * s)
 
     path.reset()
-    path.moveTo(kin.leftShoulder.x, kin.leftShoulder.y)
-    path.quadraticTo(kin.neck.x, kin.neck.y + 0.032f * s, kin.rightShoulder.x, kin.rightShoulder.y)
-    path.cubicTo(
-        kin.rightShoulder.x + 0.032f * s,
-        (kin.rightShoulder.y + rightHip.y) * 0.45f,
-        rightHip.x - 0.01f * s,
-        rightHip.y - 0.06f * s,
-        rightHip.x,
-        rightHip.y
-    )
-    path.quadraticTo(kin.pelvis.x, kin.pelvis.y + 0.048f * s, leftHip.x, leftHip.y)
-    path.cubicTo(
-        leftHip.x + 0.01f * s,
-        leftHip.y - 0.06f * s,
-        kin.leftShoulder.x - 0.032f * s,
-        (kin.leftShoulder.y + leftHip.y) * 0.45f,
+    // Sloping left collarbone to shoulder
+    path.moveTo(leftNeckCollar.x, leftNeckCollar.y)
+    path.quadraticTo(
+        (leftNeckCollar.x + kin.leftShoulder.x) * 0.52f,
+        leftNeckCollar.y + 0.008f * s,
         kin.leftShoulder.x,
         kin.leftShoulder.y
+    )
+    // Left shoulder -> subtle tapered waist -> flared seated robe skirt ("裳裾")
+    path.cubicTo(
+        kin.chest.x - waistHalfW - 0.010f * s,
+        (kin.leftShoulder.y + waistY) * 0.52f,
+        kin.chest.x - waistHalfW,
+        waistY,
+        kin.pelvis.x - waistHalfW - 0.018f * s,
+        (waistY + leftHip.y) * 0.52f
+    )
+    path.quadraticTo(
+        leftHip.x - 0.006f * s,
+        leftHip.y - 0.028f * s,
+        leftHip.x,
+        leftHip.y
+    )
+    // Seated lap hem curve
+    path.quadraticTo(kin.pelvis.x, kin.pelvis.y + 0.056f * s, rightHip.x, rightHip.y)
+    // Right skirt flare -> waist -> right shoulder
+    path.quadraticTo(
+        rightHip.x + 0.006f * s,
+        rightHip.y - 0.028f * s,
+        kin.pelvis.x + waistHalfW + 0.018f * s,
+        (waistY + rightHip.y) * 0.52f
+    )
+    path.cubicTo(
+        kin.chest.x + waistHalfW,
+        waistY,
+        kin.chest.x + waistHalfW + 0.010f * s,
+        (kin.rightShoulder.y + waistY) * 0.52f,
+        kin.rightShoulder.x,
+        kin.rightShoulder.y
+    )
+    // Right shoulder up to right collarbone + V-neck dip
+    path.quadraticTo(
+        (rightNeckCollar.x + kin.rightShoulder.x) * 0.52f,
+        rightNeckCollar.y + 0.008f * s,
+        rightNeckCollar.x,
+        rightNeckCollar.y
+    )
+    path.quadraticTo(
+        kin.chest.x,
+        kin.neck.y + 0.068f * s,
+        leftNeckCollar.x,
+        leftNeckCollar.y
     )
     path.close()
 }
@@ -1565,63 +1851,198 @@ private fun DrawScope.drawSleeveAndHand(
     arm: ArmJoints,
     s: Float,
     contourW: Float,
-    armPath: Path
+    armPath: Path,
+    detailPath: Path
 ) {
     val ill = skin.illustration
-    val sleeveWidth = 0.058f * s
 
+    // Compute smooth unit tangents along shoulder -> elbow -> hand
+    var dx1 = arm.elbow.x - arm.shoulder.x
+    var dy1 = arm.elbow.y - arm.shoulder.y
+    val len1 = hypot(dx1, dy1)
+    if (len1 > 0.001f) {
+        dx1 /= len1
+        dy1 /= len1
+    } else {
+        dx1 = 0f
+        dy1 = 1f
+    }
+
+    var dx2 = arm.hand.x - arm.elbow.x
+    var dy2 = arm.hand.y - arm.elbow.y
+    val len2 = hypot(dx2, dy2)
+    if (len2 > 0.001f) {
+        dx2 /= len2
+        dy2 /= len2
+    } else {
+        dx2 = dx1
+        dy2 = dy1
+    }
+
+    var mdx = dx1 + dx2
+    var mdy = dy1 + dy2
+    val mlen = hypot(mdx, mdy)
+    if (mlen > 0.001f) {
+        mdx /= mlen
+        mdy /= mlen
+    } else {
+        mdx = dx2
+        mdy = dy2
+    }
+
+    // Consistent topological normal (-ty, tx) multiplied by ONE uniform sign across the whole arm -> 0% twist!
+    val baseMidNx = -mdy
+    val baseMidNy = mdx
+    val drapeSign = if (baseMidNy > 0.12f) {
+        1f
+    } else if (baseMidNy < -0.12f) {
+        -1f
+    } else {
+        // Nearly vertical arm: billowing sleeve drapes outward away from body midline
+        val isLeftSide = arm.shoulder.x <= size.width * 0.5f
+        if ((isLeftSide && baseMidNx < 0f) || (!isLeftSide && baseMidNx > 0f)) 1f else -1f
+    }
+
+    val nSh = Offset(-dy1 * drapeSign, dx1 * drapeSign)
+    val nEl = Offset(-mdy * drapeSign, mdx * drapeSign)
+    val nHa = Offset(-dy2 * drapeSign, dx2 * drapeSign)
+
+    val shUpper = 0.022f * s
+    val shLower = 0.024f * s
+    val elUpper = 0.021f * s
+    val elLower = 0.036f * s // Graceful billowing Song wide-sleeve drape at elbow
+    val haUpper = 0.016f * s
+    val haLower = 0.025f * s
+
+    // Pull cuff slightly back from palm center so delicate wrist & lotus-hand emerge cleanly
+    val cuffCenter = Offset(
+        x = arm.hand.x - dx2 * 0.013f * s,
+        y = arm.hand.y - dy2 * 0.013f * s
+    )
+
+    val shTop = Offset(arm.shoulder.x - nSh.x * shUpper, arm.shoulder.y - nSh.y * shUpper)
+    val shBot = Offset(arm.shoulder.x + nSh.x * shLower, arm.shoulder.y + nSh.y * shLower)
+    val elTop = Offset(arm.elbow.x - nEl.x * elUpper, arm.elbow.y - nEl.y * elUpper)
+    val elBot = Offset(arm.elbow.x + nEl.x * elLower, arm.elbow.y + nEl.y * elLower)
+    val cuTop = Offset(cuffCenter.x - nHa.x * haUpper, cuffCenter.y - nHa.y * haUpper)
+    val cuBot = Offset(cuffCenter.x + nHa.x * haLower, cuffCenter.y + nHa.y * haLower)
+
+    // 1. Delicate tapered lotus-petal hand emerging from inside sleeve cuff
+    val forearmDeg = Math.toDegrees(atan2(dy2.toDouble(), dx2.toDouble())).toFloat()
+    rotate(degrees = forearmDeg + arm.wristAngleDeg * 0.30f, pivot = arm.hand) {
+        val hx = arm.hand.x
+        val hy = arm.hand.y
+        detailPath.reset()
+        detailPath.moveTo(hx - 0.015f * s, hy - 0.008f * s)
+        detailPath.quadraticTo(hx - 0.002f * s, hy - 0.014f * s, hx + 0.010f * s, hy - 0.009f * s)
+        detailPath.quadraticTo(hx + 0.025f * s, hy - 0.005f * s, hx + 0.028f * s, hy + 0.001f * s)
+        detailPath.quadraticTo(hx + 0.024f * s, hy + 0.010f * s, hx + 0.004f * s, hy + 0.011f * s)
+        detailPath.quadraticTo(hx - 0.008f * s, hy + 0.010f * s, hx - 0.015f * s, hy + 0.007f * s)
+        detailPath.close()
+
+        drawPath(path = detailPath, color = ill.skinToneFill)
+        drawPath(
+            path = detailPath,
+            color = ill.contourStroke,
+            style = Stroke(width = contourW * 0.76f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+    }
+
+    // 2. Closed wide-sleeve fill polygon (merges seamlessly into Song 连肩通袖 shoulder)
     armPath.reset()
-    armPath.moveTo(arm.shoulder.x, arm.shoulder.y)
-    armPath.quadraticTo(arm.elbow.x, arm.elbow.y, arm.hand.x, arm.hand.y)
+    armPath.moveTo(shTop.x, shTop.y)
+    armPath.quadraticTo(elTop.x, elTop.y, cuTop.x, cuTop.y)
+    armPath.quadraticTo(
+        cuffCenter.x + dx2 * 0.007f * s,
+        cuffCenter.y + dy2 * 0.007f * s,
+        cuBot.x,
+        cuBot.y
+    )
+    armPath.quadraticTo(elBot.x, elBot.y, shBot.x, shBot.y)
+    armPath.quadraticTo(
+        arm.shoulder.x - dx1 * 0.018f * s,
+        arm.shoulder.y - dy1 * 0.018f * s,
+        shTop.x,
+        shTop.y
+    )
+    armPath.close()
 
     if (ill.figureStyle == FigureStyle.MOONLIT_CONTOUR) {
         drawPath(
             path = armPath,
-            color = skin.palette.accentPrimary.copy(alpha = 0.24f),
-            style = Stroke(width = sleeveWidth + 5.dp.toPx(), cap = StrokeCap.Round)
+            color = skin.palette.accentPrimary.copy(alpha = 0.20f),
+            style = Stroke(width = 3.4.dp.toPx(), join = StrokeJoin.Round)
         )
     }
 
+    drawPath(path = armPath, color = ill.garmentFill)
+
+    // Subtle lower sleeve drape shadow + interior gossamer fold line ("衣纹游丝")
+    detailPath.reset()
+    detailPath.moveTo(
+        arm.elbow.x + nEl.x * (elLower * 0.34f),
+        arm.elbow.y + nEl.y * (elLower * 0.34f)
+    )
+    detailPath.quadraticTo(
+        (arm.elbow.x + cuffCenter.x) * 0.5f + nEl.x * (elLower * 0.62f),
+        (arm.elbow.y + cuffCenter.y) * 0.5f + nEl.y * (elLower * 0.62f),
+        cuBot.x - dx2 * 0.005f * s,
+        cuBot.y - dy2 * 0.005f * s
+    )
     drawPath(
-        path = armPath,
+        path = detailPath,
+        color = ill.garmentShadow.copy(alpha = 0.75f),
+        style = Stroke(width = max(0.9.dp.toPx(), contourW * 0.56f), cap = StrokeCap.Round)
+    )
+
+    // Curved cuff border ribbon ("袖缘")
+    val cuffTrimColor = when (ill.figureStyle) {
+        FigureStyle.EDITORIAL_MINERAL_FLAT -> Color(0xFFB88655).copy(alpha = 0.82f)
+        FigureStyle.MOONLIT_CONTOUR -> skin.palette.accentSecondary.copy(alpha = 0.72f)
+        FigureStyle.BOTANICAL_GOUACHE -> skin.palette.accentSecondary.copy(alpha = 0.72f)
+        FigureStyle.INK_BRUSH_WASH -> ill.garmentShadow.copy(alpha = 0.85f)
+    }
+    detailPath.reset()
+    detailPath.moveTo(cuTop.x - dx2 * 0.003f * s, cuTop.y - dy2 * 0.003f * s)
+    detailPath.quadraticTo(
+        cuffCenter.x + dx2 * 0.004f * s,
+        cuffCenter.y + dy2 * 0.004f * s,
+        cuBot.x - dx2 * 0.003f * s,
+        cuBot.y - dy2 * 0.003f * s
+    )
+    drawPath(
+        path = detailPath,
+        color = cuffTrimColor,
+        style = Stroke(width = max(1.05.dp.toPx(), contourW * 0.72f), cap = StrokeCap.Round)
+    )
+
+    // Open-shoulder 连肩通袖 outer contour: strokes from shoulder-top -> cuff -> elbow-drape -> armpit without cutting across deltoid!
+    detailPath.reset()
+    detailPath.moveTo(shTop.x, shTop.y)
+    detailPath.quadraticTo(elTop.x, elTop.y, cuTop.x, cuTop.y)
+    detailPath.quadraticTo(
+        cuffCenter.x + dx2 * 0.007f * s,
+        cuffCenter.y + dy2 * 0.007f * s,
+        cuBot.x,
+        cuBot.y
+    )
+    detailPath.quadraticTo(
+        elBot.x,
+        elBot.y,
+        Offset(
+            x = arm.shoulder.x + dx1 * 0.022f * s + nSh.x * (shLower * 0.88f),
+            y = arm.shoulder.y + dy1 * 0.022f * s + nSh.y * (shLower * 0.88f)
+        ).x,
+        Offset(
+            x = arm.shoulder.x + dx1 * 0.022f * s + nSh.x * (shLower * 0.88f),
+            y = arm.shoulder.y + dy1 * 0.022f * s + nSh.y * (shLower * 0.88f)
+        ).y
+    )
+    drawPath(
+        path = detailPath,
         color = ill.contourStroke,
-        style = Stroke(width = sleeveWidth + contourW * 2f, cap = StrokeCap.Round)
+        style = Stroke(width = contourW * 0.90f, cap = StrokeCap.Round, join = StrokeJoin.Round)
     )
-    drawPath(
-        path = armPath,
-        color = ill.garmentFill,
-        style = Stroke(width = sleeveWidth, cap = StrokeCap.Round)
-    )
-
-    if (ill.figureStyle == FigureStyle.EDITORIAL_MINERAL_FLAT) {
-        drawCircle(
-            color = Color(0xFFB88655).copy(alpha = 0.78f),
-            radius = sleeveWidth * 0.48f,
-            center = arm.hand,
-            style = Stroke(width = 1.2.dp.toPx())
-        )
-    }
-
-    // Oriented palm / wrist capsule
-    val handW = 0.046f * s
-    val handH = 0.030f * s
-    rotate(degrees = arm.wristAngleDeg, pivot = arm.hand) {
-        val topLeft = Offset(arm.hand.x - handW * 0.5f, arm.hand.y - handH * 0.5f)
-        val corner = CornerRadius(handH * 0.5f, handH * 0.5f)
-        drawRoundRect(
-            color = ill.skinToneFill,
-            topLeft = topLeft,
-            size = Size(handW, handH),
-            cornerRadius = corner
-        )
-        drawRoundRect(
-            color = ill.contourStroke,
-            topLeft = topLeft,
-            size = Size(handW, handH),
-            cornerRadius = corner,
-            style = Stroke(width = contourW * 0.85f)
-        )
-    }
 }
 
 private fun DrawScope.drawBilateralSideCues(
@@ -1634,23 +2055,23 @@ private fun DrawScope.drawBilateralSideCues(
     val sign = if (bilateralSide < 0) -1f else 1f
 
     // 1. Seated crossed-ankle / knee fold leaning from active side onto opposite knee
-    val ankleStart = Offset(kin.pelvis.x + sign * 0.145f * s, kin.pelvis.y + 0.055f * s)
+    val ankleStart = Offset(kin.pelvis.x + sign * 0.145f * s, kin.pelvis.y + 0.052f * s)
     val kneeTarget = Offset(kin.pelvis.x - sign * 0.065f * s, kin.pelvis.y + 0.012f * s)
     drawLine(
-        color = skin.palette.accentPrimary.copy(alpha = 0.58f),
+        color = skin.palette.accentPrimary.copy(alpha = 0.50f),
         start = ankleStart,
         end = kneeTarget,
-        strokeWidth = 3.2.dp.toPx(),
+        strokeWidth = 2.4.dp.toPx(),
         cap = StrokeCap.Round
     )
 
     // 2. Active-hand meridian emphasis ring
     val activeHand = if (bilateralSide < 0) kin.leftArm.hand else kin.rightArm.hand
     drawCircle(
-        color = skin.palette.accentPrimary.copy(alpha = 0.52f),
-        radius = 0.038f * s,
+        color = skin.palette.accentPrimary.copy(alpha = 0.44f),
+        radius = 0.036f * s,
         center = activeHand,
-        style = Stroke(width = 1.4.dp.toPx())
+        style = Stroke(width = 1.15.dp.toPx())
     )
 
     // 3. Lateral breath-flow calligraphic arc on the active flank
@@ -1665,12 +2086,63 @@ private fun DrawScope.drawBilateralSideCues(
     )
     drawPath(
         path = detailPath,
-        color = skin.palette.accentPrimary.copy(alpha = 0.48f),
+        color = skin.palette.accentPrimary.copy(alpha = 0.42f),
         style = Stroke(
-            width = 1.6.dp.toPx(),
+            width = 1.35.dp.toPx(),
             cap = StrokeCap.Round,
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 6f), 0f)
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(9f, 6f), 0f)
         )
+    )
+}
+
+/**
+ * Multi-layer Xuan ink-wash Qi warmth diffusion ("气韵水墨温灸晕染"):
+ * replaces hard red button-dots with a luminous mist wash and gossamer crescent.
+ */
+private fun DrawScope.drawSoftQiWarmthAura(
+    skin: SongxiSkin,
+    pt: Offset,
+    s: Float
+) {
+    val outerRadius = (0.072f * s).coerceAtLeast(6f)
+    val innerRadius = (0.036f * s).coerceAtLeast(3.5f)
+
+    drawCircle(
+        brush = Brush.radialGradient(
+            0.0f to skin.palette.accentPrimary.copy(alpha = 0.22f),
+            0.55f to skin.palette.accentPrimary.copy(alpha = 0.07f),
+            1.0f to Color.Transparent,
+            center = pt,
+            radius = outerRadius
+        ),
+        radius = outerRadius,
+        center = pt
+    )
+    drawCircle(
+        brush = Brush.radialGradient(
+            0.0f to skin.palette.sealVermilion.copy(alpha = 0.22f),
+            0.65f to skin.palette.sealVermilion.copy(alpha = 0.05f),
+            1.0f to Color.Transparent,
+            center = pt,
+            radius = innerRadius
+        ),
+        radius = innerRadius,
+        center = pt
+    )
+    val ringR = (0.019f * s).coerceAtLeast(2.2.dp.toPx())
+    drawArc(
+        color = skin.palette.sealVermilion.copy(alpha = 0.34f),
+        startAngle = -45f,
+        sweepAngle = 235f,
+        useCenter = false,
+        topLeft = Offset(pt.x - ringR, pt.y - ringR),
+        size = Size(ringR * 2f, ringR * 2f),
+        style = Stroke(width = 0.85.dp.toPx(), cap = StrokeCap.Round)
+    )
+    drawCircle(
+        color = skin.palette.sealVermilion.copy(alpha = 0.40f),
+        radius = 1.15.dp.toPx(),
+        center = pt
     )
 }
 
@@ -1682,83 +2154,63 @@ private fun DrawScope.drawHighlightedRegionWarmth(
 ) {
     if (highlightedRegions.isEmpty()) return
 
-    val auraRadius = (0.068f * s).coerceAtLeast(6f)
-    val dotRadius = 2.3.dp.toPx()
-
-    fun drawWarmPoint(pt: Offset) {
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(skin.palette.accentPrimary.copy(alpha = 0.24f), Color.Transparent),
-                center = pt,
-                radius = auraRadius
-            ),
-            radius = auraRadius,
-            center = pt
-        )
-        drawCircle(
-            color = skin.palette.sealVermilion.copy(alpha = 0.64f),
-            radius = dotRadius,
-            center = pt
-        )
-    }
-
     for (region in highlightedRegions) {
         when (region) {
             BodyRegion.EYE_BROW -> {
-                drawWarmPoint(kin.glabella)
+                drawSoftQiWarmthAura(skin, kin.glabella, s)
                 // Bilateral Cuanzhu (攒竹) inner-brow acupoint pearls + orbital mist crescent
                 val cuanzhuOffset = 0.015f * s
-                val acupointRadius = max(1.5.dp.toPx(), 0.0055f * s)
+                val acupointRadius = max(1.2.dp.toPx(), 0.0045f * s)
                 drawCircle(
-                    color = skin.palette.sealVermilion.copy(alpha = 0.72f),
+                    color = skin.palette.sealVermilion.copy(alpha = 0.56f),
                     radius = acupointRadius,
                     center = Offset(kin.glabella.x - cuanzhuOffset, kin.glabella.y - 0.004f * s)
                 )
                 drawCircle(
-                    color = skin.palette.sealVermilion.copy(alpha = 0.72f),
+                    color = skin.palette.sealVermilion.copy(alpha = 0.56f),
                     radius = acupointRadius,
                     center = Offset(kin.glabella.x + cuanzhuOffset, kin.glabella.y - 0.004f * s)
                 )
                 drawArc(
-                    color = skin.palette.accentPrimary.copy(alpha = 0.42f),
+                    color = skin.palette.accentPrimary.copy(alpha = 0.38f),
                     startAngle = 200f,
                     sweepAngle = 140f,
                     useCenter = false,
                     topLeft = Offset(kin.glabella.x - 0.048f * s, kin.glabella.y - 0.032f * s),
                     size = Size(0.096f * s, 0.052f * s),
-                    style = Stroke(width = 1.15.dp.toPx(), cap = StrokeCap.Round)
+                    style = Stroke(width = 1.0.dp.toPx(), cap = StrokeCap.Round)
                 )
             }
-            BodyRegion.POSTERIOR_NECK -> drawWarmPoint(kin.neck)
+            BodyRegion.POSTERIOR_NECK -> drawSoftQiWarmthAura(skin, kin.neck, s)
             BodyRegion.TRAPEZIUS_SHOULDER -> {
-                drawWarmPoint(kin.leftShoulder)
-                drawWarmPoint(kin.rightShoulder)
+                drawSoftQiWarmthAura(skin, kin.leftShoulder, s)
+                drawSoftQiWarmthAura(skin, kin.rightShoulder, s)
             }
-            BodyRegion.THORACIC_CHEST -> drawWarmPoint(kin.chest)
-            BodyRegion.LOWER_LUMBAR -> drawWarmPoint(kin.pelvis)
+            BodyRegion.THORACIC_CHEST -> drawSoftQiWarmthAura(skin, kin.chest, s)
+            BodyRegion.LOWER_LUMBAR -> drawSoftQiWarmthAura(skin, kin.pelvis, s)
             BodyRegion.MOUSE_WRIST -> {
-                drawWarmPoint(kin.leftArm.hand)
-                drawWarmPoint(kin.rightArm.hand)
+                drawSoftQiWarmthAura(skin, kin.leftArm.hand, s)
+                drawSoftQiWarmthAura(skin, kin.rightArm.hand, s)
                 // Articulated finger brush strokes + forearm median-nerve glide hairlines
                 for (arm in listOf(kin.leftArm, kin.rightArm)) {
                     drawLine(
-                        color = skin.palette.accentPrimary.copy(alpha = 0.44f),
+                        color = skin.palette.accentPrimary.copy(alpha = 0.38f),
                         start = arm.elbow,
                         end = arm.hand,
-                        strokeWidth = 1.25.dp.toPx(),
+                        strokeWidth = 1.05.dp.toPx(),
                         cap = StrokeCap.Round,
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f)
                     )
                     rotate(degrees = arm.wristAngleDeg, pivot = arm.hand) {
-                        val fingerColor = skin.illustration.contourStroke.copy(alpha = 0.78f)
-                        val fingerW = 1.15.dp.toPx()
+                        val fingerColor = skin.illustration.contourStroke.copy(alpha = 0.68f)
+                        val fingerW = 0.95.dp.toPx()
                         val palmTipX = arm.hand.x + 0.022f * s
                         for (fIdx in -1..1) {
-                            val fy = arm.hand.y + fIdx * 0.007f * s
+                            val fy = arm.hand.y + fIdx * 0.006f * s
                             drawLine(
                                 color = fingerColor,
                                 start = Offset(palmTipX, fy),
-                                end = Offset(palmTipX + 0.015f * s, fy + fIdx * 0.003f * s),
+                                end = Offset(palmTipX + 0.013f * s, fy + fIdx * 0.003f * s),
                                 strokeWidth = fingerW,
                                 cap = StrokeCap.Round
                             )

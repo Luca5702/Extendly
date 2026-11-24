@@ -171,13 +171,17 @@ fun BodyTensionMapCanvas(
     exposeZoneTestTags: Boolean = true,
     showLabels: Boolean = true
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val silhouettePath = remember { Path() }
     val meridianPath = remember { Path() }
-    val labelPaint = remember {
+    val songtiRegular = remember(context) { loadSongxiEditorialTypeface(context, bold = false) }
+    val songtiBold = remember(context) { loadSongxiEditorialTypeface(context, bold = true) }
+    val labelPaint = remember(songtiRegular) {
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+            typeface = songtiRegular
             textAlign = Paint.Align.CENTER
             isSubpixelText = true
+            letterSpacing = 0.06f
         }
     }
 
@@ -257,13 +261,13 @@ fun BodyTensionMapCanvas(
                         x = (primaryCenter.x + spec.labelOffsetNx * stage.width).coerceIn(minX, maxX),
                         y = (primaryCenter.y + spec.labelOffsetNy * stage.height).coerceIn(minY, maxY)
                     )
-                    labelPaint.textSize = min(10.5.dp.toPx(), stage.width * 0.055f).coerceAtLeast(8f)
+                    labelPaint.typeface = if (isSelected) songtiBold else songtiRegular
+                    labelPaint.textSize = min(11.dp.toPx(), stage.width * 0.056f).coerceAtLeast(8f)
                     labelPaint.color = if (isSelected) {
                         skin.palette.inkPrimary.toArgb()
                     } else {
                         skin.palette.inkSecondary.toArgb()
                     }
-                    labelPaint.isFakeBoldText = isSelected
                     val fm = labelPaint.fontMetrics
                     val baselineY = labelCenter.y - (fm.ascent + fm.descent) * 0.5f
                     drawContext.canvas.nativeCanvas.drawText(
@@ -323,21 +327,34 @@ private fun DrawScope.drawEasternMeridianSilhouette(
 
     val fillBrush = Brush.verticalGradient(
         colors = listOf(
-            skin.illustration.garmentFill.copy(alpha = 0.72f),
-            skin.palette.surfaceCard.copy(alpha = 0.85f)
+            skin.illustration.garmentFill.copy(alpha = 0.68f),
+            skin.palette.surfaceCard.copy(alpha = 0.88f)
         ),
         startY = stage.top + 0.08f * stage.height,
         endY = stage.top + 0.88f * stage.height
     )
-    val contourColor = skin.illustration.contourStroke.copy(alpha = 0.65f)
-    val strokeW = 1.6.dp.toPx()
+    val contourColor = skin.illustration.contourStroke.copy(alpha = 0.56f)
+    val strokeW = 1.35.dp.toPx()
 
-    // Calm head oval
-    val headRx = 0.095f * stage.width
-    val headRy = 0.085f * stage.height
-    val headCenter = pt(0.50f, 0.145f)
+    // Subtle Song hair chignon crown above head
+    drawCircle(
+        color = skin.illustration.hairFill.copy(alpha = 0.28f),
+        radius = 0.036f * stage.width,
+        center = pt(0.50f, 0.062f)
+    )
+    drawCircle(
+        color = contourColor.copy(alpha = 0.40f),
+        radius = 0.036f * stage.width,
+        center = pt(0.50f, 0.062f),
+        style = Stroke(width = 1.0.dp.toPx())
+    )
+
+    // Serene oval head with delicate auricle hints
+    val headRx = 0.090f * stage.width
+    val headRy = 0.082f * stage.height
+    val headCenter = pt(0.50f, 0.148f)
     drawOval(
-        color = skin.illustration.skinToneFill.copy(alpha = 0.85f),
+        color = skin.illustration.skinToneFill.copy(alpha = 0.78f),
         topLeft = Offset(headCenter.x - headRx, headCenter.y - headRy),
         size = Size(headRx * 2f, headRy * 2f)
     )
@@ -348,20 +365,53 @@ private fun DrawScope.drawEasternMeridianSilhouette(
         style = Stroke(width = strokeW)
     )
 
-    // Upper-body + sloping shoulders + relaxed forearms silhouette
+    // Sculpted Eastern meridian upper-body: slender neck -> sloping trapezius -> tapered forearms & palms -> gentle waist
     silhouettePath.reset()
-    silhouettePath.moveTo(pt(0.45f, 0.23f).x, pt(0.45f, 0.23f).y)
-    silhouettePath.quadraticTo(pt(0.44f, 0.31f).x, pt(0.44f, 0.31f).y, pt(0.23f, 0.36f).x, pt(0.23f, 0.36f).y)
-    silhouettePath.quadraticTo(pt(0.15f, 0.42f).x, pt(0.15f, 0.42f).y, pt(0.15f, 0.69f).x, pt(0.15f, 0.69f).y)
-    silhouettePath.quadraticTo(pt(0.17f, 0.74f).x, pt(0.17f, 0.74f).y, pt(0.22f, 0.70f).x, pt(0.22f, 0.70f).y)
-    silhouettePath.quadraticTo(pt(0.24f, 0.54f).x, pt(0.24f, 0.54f).y, pt(0.30f, 0.48f).x, pt(0.30f, 0.48f).y)
-    silhouettePath.quadraticTo(pt(0.32f, 0.68f).x, pt(0.32f, 0.68f).y, pt(0.30f, 0.84f).x, pt(0.30f, 0.84f).y)
-    silhouettePath.lineTo(pt(0.70f, 0.84f).x, pt(0.70f, 0.84f).y)
-    silhouettePath.quadraticTo(pt(0.68f, 0.68f).x, pt(0.68f, 0.68f).y, pt(0.70f, 0.48f).x, pt(0.70f, 0.48f).y)
-    silhouettePath.quadraticTo(pt(0.76f, 0.54f).x, pt(0.76f, 0.54f).y, pt(0.78f, 0.70f).x, pt(0.78f, 0.70f).y)
-    silhouettePath.quadraticTo(pt(0.83f, 0.74f).x, pt(0.83f, 0.74f).y, pt(0.85f, 0.69f).x, pt(0.85f, 0.69f).y)
-    silhouettePath.quadraticTo(pt(0.85f, 0.42f).x, pt(0.85f, 0.42f).y, pt(0.77f, 0.36f).x, pt(0.77f, 0.36f).y)
-    silhouettePath.quadraticTo(pt(0.56f, 0.31f).x, pt(0.56f, 0.31f).y, pt(0.55f, 0.23f).x, pt(0.55f, 0.23f).y)
+    silhouettePath.moveTo(pt(0.456f, 0.226f).x, pt(0.456f, 0.226f).y)
+    silhouettePath.cubicTo(
+        pt(0.445f, 0.295f).x, pt(0.445f, 0.295f).y,
+        pt(0.320f, 0.330f).x, pt(0.320f, 0.330f).y,
+        pt(0.225f, 0.368f).x, pt(0.225f, 0.368f).y
+    )
+    silhouettePath.cubicTo(
+        pt(0.165f, 0.405f).x, pt(0.165f, 0.405f).y,
+        pt(0.155f, 0.560f).x, pt(0.155f, 0.560f).y,
+        pt(0.148f, 0.688f).x, pt(0.148f, 0.688f).y
+    )
+    silhouettePath.quadraticTo(pt(0.168f, 0.742f).x, pt(0.168f, 0.742f).y, pt(0.206f, 0.700f).x, pt(0.206f, 0.700f).y)
+    silhouettePath.cubicTo(
+        pt(0.222f, 0.585f).x, pt(0.222f, 0.585f).y,
+        pt(0.252f, 0.505f).x, pt(0.252f, 0.505f).y,
+        pt(0.305f, 0.468f).x, pt(0.305f, 0.468f).y
+    )
+    silhouettePath.cubicTo(
+        pt(0.325f, 0.590f).x, pt(0.325f, 0.590f).y,
+        pt(0.332f, 0.700f).x, pt(0.332f, 0.700f).y,
+        pt(0.295f, 0.842f).x, pt(0.295f, 0.842f).y
+    )
+    silhouettePath.quadraticTo(pt(0.500f, 0.862f).x, pt(0.500f, 0.862f).y, pt(0.705f, 0.842f).x, pt(0.705f, 0.842f).y)
+    silhouettePath.cubicTo(
+        pt(0.668f, 0.700f).x, pt(0.668f, 0.700f).y,
+        pt(0.675f, 0.590f).x, pt(0.675f, 0.590f).y,
+        pt(0.695f, 0.468f).x, pt(0.695f, 0.468f).y
+    )
+    silhouettePath.cubicTo(
+        pt(0.748f, 0.505f).x, pt(0.748f, 0.505f).y,
+        pt(0.778f, 0.585f).x, pt(0.778f, 0.585f).y,
+        pt(0.794f, 0.700f).x, pt(0.794f, 0.700f).y
+    )
+    silhouettePath.quadraticTo(pt(0.832f, 0.742f).x, pt(0.832f, 0.742f).y, pt(0.852f, 0.688f).x, pt(0.852f, 0.688f).y)
+    silhouettePath.cubicTo(
+        pt(0.845f, 0.560f).x, pt(0.845f, 0.560f).y,
+        pt(0.835f, 0.405f).x, pt(0.835f, 0.405f).y,
+        pt(0.775f, 0.368f).x, pt(0.775f, 0.368f).y
+    )
+    silhouettePath.cubicTo(
+        pt(0.680f, 0.330f).x, pt(0.680f, 0.330f).y,
+        pt(0.555f, 0.295f).x, pt(0.555f, 0.295f).y,
+        pt(0.544f, 0.226f).x, pt(0.544f, 0.226f).y
+    )
+    silhouettePath.quadraticTo(pt(0.500f, 0.240f).x, pt(0.500f, 0.240f).y, pt(0.456f, 0.226f).x, pt(0.456f, 0.226f).y)
     silhouettePath.close()
 
     drawPath(path = silhouettePath, brush = fillBrush)
@@ -371,13 +421,25 @@ private fun DrawScope.drawEasternMeridianSilhouette(
         style = Stroke(width = strokeW, cap = StrokeCap.Round, join = StrokeJoin.Round)
     )
 
-    // Central Governor meridian & arm collateral lines
-    val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 6f), 0f)
+    // Delicate anatomical scapular / clavicle brush curves ("肩胛羽线")
+    meridianPath.reset()
+    meridianPath.moveTo(pt(0.36f, 0.36f).x, pt(0.36f, 0.36f).y)
+    meridianPath.quadraticTo(pt(0.39f, 0.46f).x, pt(0.39f, 0.46f).y, pt(0.44f, 0.51f).x, pt(0.44f, 0.51f).y)
+    meridianPath.moveTo(pt(0.64f, 0.36f).x, pt(0.64f, 0.36f).y)
+    meridianPath.quadraticTo(pt(0.61f, 0.46f).x, pt(0.61f, 0.46f).y, pt(0.56f, 0.51f).x, pt(0.56f, 0.51f).y)
+    drawPath(
+        path = meridianPath,
+        color = contourColor.copy(alpha = 0.22f),
+        style = Stroke(width = 0.9.dp.toPx(), cap = StrokeCap.Round)
+    )
+
+    // Central Governor (督脉) & arm meridian hairlines
+    val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 5f), 0f)
     drawLine(
-        color = skin.palette.accentPrimary.copy(alpha = 0.42f),
+        color = skin.palette.accentPrimary.copy(alpha = 0.38f),
         start = pt(0.50f, 0.11f),
         end = pt(0.50f, 0.79f),
-        strokeWidth = 1.2.dp.toPx(),
+        strokeWidth = 1.05.dp.toPx(),
         cap = StrokeCap.Round,
         pathEffect = dash
     )
@@ -388,8 +450,8 @@ private fun DrawScope.drawEasternMeridianSilhouette(
     meridianPath.quadraticTo(pt(0.18f, 0.52f).x, pt(0.18f, 0.52f).y, pt(0.17f, 0.69f).x, pt(0.17f, 0.69f).y)
     drawPath(
         path = meridianPath,
-        color = skin.palette.accentPrimary.copy(alpha = 0.34f),
-        style = Stroke(width = 1.05.dp.toPx(), cap = StrokeCap.Round, pathEffect = dash)
+        color = skin.palette.accentPrimary.copy(alpha = 0.30f),
+        style = Stroke(width = 0.95.dp.toPx(), cap = StrokeCap.Round, pathEffect = dash)
     )
 
     meridianPath.reset()
@@ -398,8 +460,8 @@ private fun DrawScope.drawEasternMeridianSilhouette(
     meridianPath.quadraticTo(pt(0.82f, 0.52f).x, pt(0.82f, 0.52f).y, pt(0.83f, 0.69f).x, pt(0.83f, 0.69f).y)
     drawPath(
         path = meridianPath,
-        color = skin.palette.accentPrimary.copy(alpha = 0.34f),
-        style = Stroke(width = 1.05.dp.toPx(), cap = StrokeCap.Round, pathEffect = dash)
+        color = skin.palette.accentPrimary.copy(alpha = 0.30f),
+        style = Stroke(width = 0.95.dp.toPx(), cap = StrokeCap.Round, pathEffect = dash)
     )
 }
 
@@ -409,54 +471,70 @@ private fun DrawScope.drawHotspotNode(
     isSelected: Boolean
 ) {
     if (isSelected) {
-        val washR = 17.5.dp.toPx()
+        // Multi-layer Xuan ink-wash radial bloom ("水墨温灸晕染")
+        val outerWashR = 20.5.dp.toPx()
         drawCircle(
             brush = Brush.radialGradient(
-                colors = listOf(skin.palette.accentPrimary.copy(alpha = 0.30f), Color.Transparent),
+                0.0f to skin.palette.accentPrimary.copy(alpha = 0.28f),
+                0.52f to skin.palette.accentPrimary.copy(alpha = 0.11f),
+                1.0f to Color.Transparent,
                 center = center,
-                radius = washR
+                radius = outerWashR
             ),
-            radius = washR,
+            radius = outerWashR,
             center = center
         )
+        val innerWarmR = 11.5.dp.toPx()
         drawCircle(
-            color = skin.palette.accentPrimary.copy(alpha = 0.66f),
-            radius = 11.2.dp.toPx(),
-            center = center,
-            style = Stroke(
-                width = 1.35.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 5f), 0f)
-            )
-        )
-        drawCircle(
-            color = skin.palette.accentPrimary,
-            radius = 6.0.dp.toPx(),
+            brush = Brush.radialGradient(
+                0.0f to skin.palette.sealVermilion.copy(alpha = 0.32f),
+                0.65f to skin.palette.sealVermilion.copy(alpha = 0.08f),
+                1.0f to Color.Transparent,
+                center = center,
+                radius = innerWarmR
+            ),
+            radius = innerWarmR,
             center = center
         )
+        // Whisper-fine unbroken concentric silk ripple ring
         drawCircle(
-            color = skin.palette.sealVermilion.copy(alpha = 0.65f),
-            radius = 6.8.dp.toPx(),
+            color = skin.palette.accentPrimary.copy(alpha = 0.50f),
+            radius = 9.8.dp.toPx(),
             center = center,
-            style = Stroke(width = 1.2.dp.toPx())
+            style = Stroke(width = 0.85.dp.toPx())
+        )
+        drawCircle(
+            color = skin.palette.accentPrimary.copy(alpha = 0.90f),
+            radius = 4.4.dp.toPx(),
+            center = center
         )
         drawCircle(
             color = skin.palette.onAccent,
-            radius = 2.1.dp.toPx(),
+            radius = 1.7.dp.toPx(),
             center = center
         )
     } else {
-        val idleR = 4.6.dp.toPx()
+        val mistR = 8.5.dp.toPx()
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(skin.palette.accentPrimary.copy(alpha = 0.11f), Color.Transparent),
+                center = center,
+                radius = mistR
+            ),
+            radius = mistR,
+            center = center
+        )
+        val idleR = 3.9.dp.toPx()
         drawCircle(
             color = skin.palette.surfaceCard,
             radius = idleR,
             center = center
         )
         drawCircle(
-            color = skin.palette.accentPrimary.copy(alpha = 0.72f),
+            color = skin.palette.accentPrimary.copy(alpha = 0.58f),
             radius = idleR,
             center = center,
-            style = Stroke(width = 1.5.dp.toPx())
+            style = Stroke(width = 1.15.dp.toPx())
         )
     }
 }
